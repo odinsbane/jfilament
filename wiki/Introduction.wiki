@@ -10,4 +10,4 @@ There is not much information here, but it does contain links to get to the actu
 
 [http://athena.physics.lehigh.edu/jfilament JFilament]
 
-[http://athena.physics.lehigh.edu/jfilament Download]
+[http://athena.physics.lehigh.edu/jfilament/download.chy Download]
