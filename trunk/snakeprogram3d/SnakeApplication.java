@@ -29,7 +29,7 @@ public class SnakeApplication{
     */
    public static void main(String args[]) {
 
-       setProperties();
+       //setProperties();
 
        final SnakeModel sm = new SnakeModel();
         
@@ -45,7 +45,7 @@ public class SnakeApplication{
      * As a plugin.
      */
     public static void runAsPlugin() {
-            setProperties();
+            //setProperties();
             final SnakeModel sm = new SnakeModel();
             sm.getFrame().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             final ImagePlus implus = IJ.getImage();
@@ -59,9 +59,11 @@ public class SnakeApplication{
 	}
 
     /**
-     * Sets the Maximum Number of points in a filament.
+     * Sets the Maximum Number of points in a filament
+     *
+     *@deprecated
      */
-    public static void setProperties(){
+    public static void setPropertiesDep(){
         if(System.getProperty("max.length")!=null)
            try{
                 MAXLENGTH=Integer.parseInt(System.getProperty("max.length"));
@@ -69,5 +71,11 @@ public class SnakeApplication{
                 //MAXLENGTH remains 1500
            }
 
+    }
+
+    public static void setMaxLength(int value){
+
+        MAXLENGTH = value;
+        
     }
    }

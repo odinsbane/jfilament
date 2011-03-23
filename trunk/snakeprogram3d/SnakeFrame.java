@@ -286,6 +286,12 @@ public class SnakeFrame{
         save_data.addActionListener(snake_listener);
         
         data.add(save_data);
+
+        JMenuItem set_max_length = new JMenuItem("Set Max Length");
+        set_max_length.setActionCommand(SnakeActions.setmaxlength.name());
+        set_max_length.addActionListener(snake_listener);
+
+        data.add(set_max_length);
         
         MENUS.add(data);
         bar.add(data);
