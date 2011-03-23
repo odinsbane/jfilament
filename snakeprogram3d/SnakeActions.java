@@ -49,6 +49,7 @@ public enum SnakeActions{
         showabout,
         reduce3d,
         clearsnake,
-        tracksnakeback;
+        tracksnakeback,
+        setmaxlength;
         
         }

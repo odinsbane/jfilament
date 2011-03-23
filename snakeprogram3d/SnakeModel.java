@@ -12,6 +12,7 @@ package snakeprogram3d;
 
 import ij.IJ;
 import ij.ImagePlus;
+import ij.gui.GenericDialog;
 import snakeprogram3d.display3d.DataCanvas;
 import snakeprogram3d.display3d.InteractiveView;
 import snakeprogram3d.display3d.ThreeDSnake;
@@ -767,6 +768,20 @@ public class SnakeModel{
         }
         enableUI();
     }
+
+    public void setMaxLength(){
+        GenericDialog gd = new GenericDialog("Enter a new Max Length");
+
+        gd.addNumericField("Max Length",SnakeApplication.MAXLENGTH,0);
+
+        gd.showDialog();
+        if(gd.wasCanceled()) return;
+
+        int value = (int)gd.getNextNumber();
+
+        if(value>0) SnakeApplication.setMaxLength(value);
+
+    }
     
     /**
        *    Goes to the next frame and copies the current snake.  
@@ -998,7 +1013,7 @@ public class SnakeModel{
                        } catch(IllegalAccessException e){
                             JOptionPane.showMessageDialog(snake_panel.getFrame(),
                             "Your snake is too long, max length: " + SnakeApplication.MAXLENGTH
-                                 +" , your snake: " + e.getMessage());
+                                 + " , your snake: " + e.getMessage() + "\n change the max length in the data menu.");
 
 
                            //too short

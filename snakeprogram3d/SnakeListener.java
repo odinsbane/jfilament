@@ -161,6 +161,9 @@ class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
             case clearsnake:
                 snake_model.clearCurrentSnake();
                 break;
+            case setmaxlength:
+                snake_model.setMaxLength();
+                break;
                 
         }
     }
