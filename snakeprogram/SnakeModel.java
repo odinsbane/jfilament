@@ -11,6 +11,7 @@ package snakeprogram;
    **/
 
 import ij.ImagePlus;
+import ij.gui.GenericDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 
 class SnakeModel{
 
-    public static int MAXLENGTH = Integer.parseInt(System.getProperty("max.length"));
+    public static int MAXLENGTH = 1500;
 
     private SnakeImages images;             //Contains all of the image data
     private SnakeFrame snake_panel;        //Contians the controls
@@ -1222,5 +1223,25 @@ class SnakeModel{
 		return images.getTitle();
 		
 	}
+
+    public void setMaxLength(){
+        GenericDialog gd = new GenericDialog("Enter a new Max Length");
+
+        gd.addNumericField("Max Length",SnakeModel.MAXLENGTH,0);
+
+        gd.showDialog();
+        if(gd.wasCanceled()) return;
+
+        int value = (int)gd.getNextNumber();
+
+        if(value>0) setMaxLength(value);
+
+    }
+
+    void setMaxLength(int value){
+
+        MAXLENGTH = value;
+        
+    }
 
 }
