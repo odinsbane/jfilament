@@ -88,6 +88,8 @@ class SnakeModel{
         *   That method finds new x and y coordinates for the given points in order to make the
         *   snake fit the curve better. DeformSnakeButtonActionPerformed() then redraws the image
         *   in the panel given these new coordinates. 
+        *
+        * @throws IllegalAccessException when the snake has too many points.
         **/
     public void deformRunning() throws java.lang.IllegalAccessException{
         
@@ -940,7 +942,10 @@ class SnakeModel{
                        
                        } catch(IllegalAccessException e){
                             
-                            JOptionPane.showMessageDialog(getFrame(),"Snake too long The maximum length is 1500.  "+ e.getMessage());    
+                            JOptionPane.showMessageDialog(
+                                    getFrame(),
+                                    "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                            );
                             
                             
                        } catch(IllegalArgumentException e){
@@ -1103,8 +1108,9 @@ class SnakeModel{
     /**
        *        Sets the current contour/curve deformation values to the new image values
        *        and the current contants values
+     *        @throws IllegalAccessException
        **/
-    private void resetDeformation(){
+    private void resetDeformation() throws IllegalAccessException{
         
         curveDeformation.setBeta(beta);
         curveDeformation.setGamma(gamma);
@@ -1114,13 +1120,9 @@ class SnakeModel{
         curveDeformation.setForInt(forIntMean);
         curveDeformation.setBackInt(backIntMean);
         
-        try{
-            curveDeformation.addSnakePoints(MAXIMUM_SPACING);
-        } catch(java.lang.IllegalAccessException e){
-            
-            JOptionPane.showMessageDialog(getFrame(),"Your snake is too long, max length 1500, your snake: " + e.getMessage());    
-            
-        }
+
+        curveDeformation.addSnakePoints(MAXIMUM_SPACING);
+
         curveDeformation.initializeMatrix();
 
 
