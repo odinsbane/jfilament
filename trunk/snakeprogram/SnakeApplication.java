@@ -24,10 +24,9 @@ public class SnakeApplication implements PlugInFilter{
     
     public static String VERSION = "0.5";
     ImagePlus implus;
-    
+
     
    public static void main(String args[]) {
-        setProperties();
         final SnakeModel sm = new SnakeModel();
         
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -38,7 +37,6 @@ public class SnakeApplication implements PlugInFilter{
     }
     
     public int setup(String arg, ImagePlus imp) {
-        setProperties();
 		implus = imp;
 		return DOES_ALL;
 	}
@@ -55,7 +53,10 @@ public class SnakeApplication implements PlugInFilter{
             }
         });
 	}
-    
+
+    /**
+     * @deprecated
+     */
     public static void setProperties(){
         if(System.getProperty("max.length")==null)
             System.setProperty("max.length","1500");

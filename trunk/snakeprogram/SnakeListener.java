@@ -107,6 +107,9 @@ public class SnakeListener implements ActionListener,MouseListener,MouseMotionLi
             case setsigma:
                 snake_frame.setImageSmoothing();
                 break;
+            case setmaxlength:
+                snake_model.setMaxLength();
+                break;
 
         }
     }
