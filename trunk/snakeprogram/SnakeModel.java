@@ -174,7 +174,7 @@ class SnakeModel{
        *    if a zoom in is taking place a box will be drawn
        **/
     public void snakePanelMouseMoved(MouseEvent evt){
-    
+       
          if(bInitialSnake){
 
             images.updateMousePosition(evt.getX(),evt.getY());
@@ -187,7 +187,7 @@ class SnakeModel{
             updateImagePanel();
             
         }
-        if(bDeleteMFix){
+        if(bDeleteMFix||bMoveMiddleFix){
             double[] pt = findClosestPoint(images.fromZoomX(evt.getX()),
                                 images.fromZoomY(evt.getY())
                                             );
@@ -796,6 +796,12 @@ class SnakeModel{
             deleteFixCounter = 0;
 
             disableUI();
+            if(CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
+                ArrayList<double[]> points = CurrentSnake.getCoordinates(images.getCounter());
+                images.addStaticMarker(points.get(0));
+                images.addStaticMarker(points.get(points.size()-1));
+                updateImagePanel();
+            }
         }
     }
     
@@ -810,6 +816,15 @@ class SnakeModel{
             deleteFixCounter = 0;
 
             disableUI();
+
+            if(CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
+                
+                ArrayList<double[]> points = CurrentSnake.getCoordinates(images.getCounter());
+                images.addStaticMarker(points.get(0));
+                images.addStaticMarker(points.get(points.size()-1));
+                updateImagePanel();
+
+            }
         }
     }
     
