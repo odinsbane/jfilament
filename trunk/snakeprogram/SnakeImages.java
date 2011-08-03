@@ -186,6 +186,8 @@ public class SnakeImages{
     }
     
     public void trackingZoomBox(int x, int y){
+        if(x>OW) x = (int)OW;
+        if(y>OH) y = (int)OH;
         int zw = (int)fromZoomX(x) - ZoomBox.x;
         int zh = (int)fromZoomY(y) - ZoomBox.y;
         if(zw>0&&zh>0)
