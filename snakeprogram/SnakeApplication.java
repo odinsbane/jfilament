@@ -22,7 +22,7 @@ import javax.swing.*;
 
 public class SnakeApplication implements PlugInFilter{
     
-    public static String VERSION = "0.5";
+    public static String VERSION = "0.6";
     ImagePlus implus;
 
     
