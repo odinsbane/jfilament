@@ -1261,4 +1261,54 @@ class SnakeModel{
         
     }
 
+    /**
+     * When the menu item 'Set Line Width is used, this shows a dialog
+     * for getting a new value from the user.
+     *
+     * 
+     */
+    void setLineWidth(){
+        GenericDialog gd = new GenericDialog("Enter a new Line Width");
+
+        gd.addNumericField("Max Length",SnakeImages.LINEWIDTH,0);
+
+        gd.showDialog();
+        if(gd.wasCanceled()) return;
+
+        try{
+            int value = (int)gd.getNextNumber();
+            if(value>0) SnakeImages.LINEWIDTH=value;
+        } catch(NumberFormatException e){
+            //just in case
+        }
+    }
+
+    /**
+     * Pop up a dialog to show jfilament version uses the jfilament3d
+     * version information if available.
+     *
+     */
+    void showVersion(){
+
+        try{
+            snakeprogram3d.HelpMessages.showAbout();
+        } catch(Exception e){
+            String s = "<html>" +
+                       "<body>" +
+                       "You are using a version of jfilament w/out jfilament3d" +
+                       "<br> version info cannot be shown <br>" +
+                       "see:  <br> http://athena.physics.lehigh.edu/jfilament<br>" +
+                       " for more info " +
+                       "</body></html>";
+            final JFrame shower = new JFrame("JFilament2D About");
+            JEditorPane helper = new JEditorPane("text/html",s);
+            shower.setSize(400,400);
+            helper.setEditable(false);
+
+            shower.add(helper);
+            shower.setVisible(true);
+        }
+
+    }
+
 }

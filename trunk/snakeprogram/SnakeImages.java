@@ -33,7 +33,7 @@ public class SnakeImages{
     private ImageStack stackLoad;
     private int imagecounter;
 
-    final public int LINEWIDTH = 3;
+    static public int LINEWIDTH = 3;
     //These are for tracking the last point
     double[] mouseP;
     
@@ -282,7 +282,7 @@ public class SnakeImages{
     }
     
     public void drawSnake(Snake s,ImageProcessor improc){
-        
+        improc.setLineWidth(LINEWIDTH);
         //sets line color
         if(s==CurrentSnake)
             improc.setColor(Color.RED);

@@ -110,6 +110,12 @@ public class SnakeListener implements ActionListener,MouseListener,MouseMotionLi
             case setmaxlength:
                 snake_model.setMaxLength();
                 break;
+            case setlinewidth:
+                snake_model.setLineWidth();
+                break;
+            case showversion:
+                snake_model.showVersion();
+                break;
 
         }
     }

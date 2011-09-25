@@ -212,6 +212,13 @@ public class SnakeFrame{
         set_max_length.addActionListener(snake_listener);
 
         data.add(set_max_length);
+
+        JMenuItem set_line_width = new JMenuItem("Set Line Width");
+        set_line_width.setActionCommand(SnakeActions.setlinewidth.name());
+        set_line_width.addActionListener(snake_listener);
+
+        data.add(set_line_width);
+
         MENUS.add(data);
         bar.add(data);
 
@@ -233,7 +240,16 @@ public class SnakeFrame{
         
         MENUS.add(energies);
         bar.add(energies);
-        
+
+        JMenu help = new JMenu("help");
+        JMenuItem about = new JMenuItem("about");
+        about.setActionCommand(SnakeActions.showversion.name());
+        about.addActionListener(snake_listener);
+
+        help.add(about);
+        MENUS.add(help);
+        bar.add(help);
+
         return bar;
     }
     
@@ -749,6 +765,8 @@ enum SnakeActions{
         setresolution,
         setsigma,
         deformfix,
-        setmaxlength
+        setmaxlength,
+        setlinewidth,
+        showversion
         
         }
