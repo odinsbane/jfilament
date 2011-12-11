@@ -21,8 +21,8 @@ import ij.process.ImageProcessor;
 import javax.swing.*;
 
 public class SnakeApplication implements PlugInFilter{
-    
-    public static String VERSION = "0.6";
+
+    //version has been removed and the snakeprogram3d version is used exclusively.
     ImagePlus implus;
 
     
