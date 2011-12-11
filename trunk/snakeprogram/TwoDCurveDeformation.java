@@ -233,7 +233,7 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         
         double factor;
         ImageProcessor image = IMAGE_ENERGY.getProcessor();
-        if(pt[0]>0&&pt[1]<image.getWidth()&&pt[1]>0&&pt[1]<image.getHeight())
+        if(pt[0]>0&&pt[0]<image.getWidth()&&pt[1]>0&&pt[1]<image.getHeight())
             factor = (getMaxPixel(pt[0],pt[1]) - meanInt)/(forInt - backInt);
         else {
             factor = 0.;
