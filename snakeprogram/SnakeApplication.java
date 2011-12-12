@@ -54,12 +54,5 @@ public class SnakeApplication implements PlugInFilter{
         });
 	}
 
-    /**
-     * @deprecated
-     */
-    public static void setProperties(){
-        if(System.getProperty("max.length")==null)
-            System.setProperty("max.length","1500");
-        
-    }
+
    }
