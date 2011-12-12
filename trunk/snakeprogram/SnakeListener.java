@@ -12,7 +12,7 @@ import java.awt.event.*;
  *       see COPYING for license.
  *
  */
-public class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
+public class SnakeListener implements ActionListener{
     final SnakeModel snake_model;
     final SnakeFrame snake_frame;
     SnakeListener(SnakeModel m, SnakeFrame f){
@@ -118,36 +118,5 @@ public class SnakeListener implements ActionListener,MouseListener,MouseMotionLi
                 break;
 
         }
-    }
-        
-    
-    public void mouseExited(MouseEvent evt){
-        
-    }
-    
-    public void mouseMoved(MouseEvent evt){
-        snake_model.snakePanelMouseMoved(evt);
-    }
-    
-    public void mousePressed(MouseEvent evt){
-        snake_model.snakePanelMousePressed(evt);
-    }
-    
-    public void mouseReleased(MouseEvent evt){
-        
-    }
-    
-    public void mouseClicked(MouseEvent evt){
-        
-    }
-    
-    public void mouseEntered(MouseEvent evt){
-    
-    }
-    
-    public void mouseDragged(MouseEvent evt){
-        snake_model.snakePanelMouseDragged(evt);
-        snake_model.snakePanelMouseMoved(evt);
-
     }
 }

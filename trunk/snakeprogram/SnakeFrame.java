@@ -98,8 +98,6 @@ public class SnakeFrame{
             }
         } ;
         image_panel.setBounds(0,0,672,512);
-        image_panel.addMouseListener(snake_listener);
-        image_panel.addMouseMotionListener(snake_listener);
         
         JPanel host = new JPanel();
         BoxLayout hor = new BoxLayout(host,BoxLayout.LINE_AXIS);
