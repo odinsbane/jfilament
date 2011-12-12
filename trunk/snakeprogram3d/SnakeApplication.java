@@ -20,7 +20,7 @@ public class SnakeApplication{
     
    public static int MAXLENGTH=1500;
     
-   final public static String VERSION = "0.84";
+   final public static String VERSION = "0.85";
 
    /**
     * From the command line.
@@ -57,21 +57,6 @@ public class SnakeApplication{
                 }
             });
 	}
-
-    /**
-     * Sets the Maximum Number of points in a filament
-     *
-     *@deprecated
-     */
-    public static void setPropertiesDep(){
-        if(System.getProperty("max.length")!=null)
-           try{
-                MAXLENGTH=Integer.parseInt(System.getProperty("max.length"));
-           } catch(Exception e){
-                //MAXLENGTH remains 1500
-           }
-
-    }
 
     public static void setMaxLength(int value){
 
