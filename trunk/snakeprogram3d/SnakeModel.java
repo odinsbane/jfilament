@@ -67,6 +67,11 @@ public class SnakeModel{
 
     private PowderQueue PROC;
 
+    private int deformation_type=0;
+
+    public final static int CURVE_DEFORMATION = 0;
+    public final static int CONTOUR_DEFORMATION=1;
+
     /**
        *    Starts the snakes application.
        **/
@@ -94,8 +99,16 @@ public class SnakeModel{
         snake_panel.initializeProgressBar();
         
         SnakeRaw = CurrentSnake.getCoordinates(images.getCurrentFrame());
-        
-        curveDeformation = new ThreeDDeformation(SnakeRaw, images, resolution);
+
+        if(deformation_type==CURVE_DEFORMATION){
+
+            curveDeformation = new ThreeDCurveDeformation(SnakeRaw, images, resolution);
+
+        } else{
+
+            curveDeformation = new ThreeDContourDeformation(SnakeRaw, images, resolution);
+
+        }
 
         //initializes curveDeformation with appropriate constants
         resetDeformation();
@@ -463,7 +476,7 @@ public class SnakeModel{
             if(SnakeRaw.size()>0){
 
                 try{
-                    ThreeDDeformation tdd = new ThreeDDeformation(SnakeRaw, images, resolution);
+                    ThreeDDeformation tdd = getThreeDDeformation(SnakeRaw, images, resolution);
                     tdd.addSnakePoints();
                 } catch(java.lang.IllegalAccessException e){
                     e.printStackTrace();
@@ -513,7 +526,7 @@ public class SnakeModel{
             SnakeRaw.add(j, stretch_fix);
         }
 
-        ThreeDDeformation tdd = new ThreeDDeformation(SnakeRaw, images, resolution);
+        ThreeDDeformation tdd = getThreeDDeformation(SnakeRaw, images, resolution);
         try{
             tdd.addSnakePoints();
         } catch(java.lang.IllegalAccessException e){
@@ -673,7 +686,7 @@ public class SnakeModel{
                     ArrayList<double[]> cx = s.getCoordinates(frame);
                     int size = s.getSize(frame);
                     for(int i = 0; i<size;i++){
-                        double cd = ThreeDDeformation.pointDistance(mouse_pt,cx.get(i));
+                        double cd = ThreeDCurveDeformation.pointDistance(mouse_pt,cx.get(i));
                         distance = distance>cd?cd:distance;
                     }
                 }
@@ -1289,7 +1302,7 @@ public class SnakeModel{
        * @return distance between two points.
      **/
      private double pointDistance(double[] x1,double[] x2){
-        return ThreeDDeformation.pointDistance(x1,x2);
+        return ThreeDCurveDeformation.pointDistance(x1,x2);
     }
     
     
@@ -1674,6 +1687,26 @@ public class SnakeModel{
     public void validateSnakes(){
         SnakeStore.purgeSnakes();
         PROC.submitJob(new ThreeDSynchronizer());
+    }
+
+    private ThreeDDeformation getThreeDDeformation(ArrayList<double[]> verts, SnakeImages images, double max_seg){
+        ThreeDDeformation tdd;
+        switch(deformation_type){
+            case CURVE_DEFORMATION:
+                tdd = new ThreeDCurveDeformation(verts, images, max_seg);
+                break;
+            case CONTOUR_DEFORMATION:
+                tdd = new ThreeDContourDeformation(SnakeRaw, images, resolution);
+                break;
+            default:
+                tdd = new ThreeDCurveDeformation(SnakeRaw, images, resolution);
+        }
+        return tdd;
+    }
+
+    void setDeformType(int i){
+        deformation_type = i;
+
     }
 
     class ThreeDSynchronizer implements Runnable{
