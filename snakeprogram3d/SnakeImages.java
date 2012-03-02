@@ -441,9 +441,12 @@ public class SnakeImages{
             imageOriginal = implus;
             
             FileInfo fi = implus.getOriginalFileInfo();
-
-            IMAGEFILE = new File(fi.directory, fi.fileName);
-            
+            try{
+                IMAGEFILE = new File(fi.directory, fi.fileName);
+            }catch(NullPointerException npe){
+                npe.printStackTrace();
+                IMAGEFILE=null;
+            }
             BLURRED_IMAGES.clear();
             
             OW = imageOriginal.getWidth();
@@ -607,7 +610,7 @@ public class SnakeImages{
             double t = CURRENT_FRAME*SLICES + slice - low;
             
             
-            return ThreeDDeformation.interpolate(a,b,t);
+            return ThreeDCurveDeformation.interpolate(a,b,t);
             
         
         }

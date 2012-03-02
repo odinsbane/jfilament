@@ -46,7 +46,7 @@ public class Snake implements Iterable<Integer>{
         int size = coordinates.size();
         double distance = 0;
         for(int i = 0; i < (size-1); i++){
-            distance += ThreeDDeformation.pointDistance( coordinates.get(i),coordinates.get(i+1));
+            distance += ThreeDCurveDeformation.pointDistance( coordinates.get(i),coordinates.get(i+1));
         }
         return distance;
     }

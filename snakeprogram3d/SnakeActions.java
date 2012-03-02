@@ -50,6 +50,6 @@ public enum SnakeActions{
         reduce3d,
         clearsnake,
         tracksnakeback,
-        setmaxlength;
+        setmaxlength, deformupdate;
         
         }

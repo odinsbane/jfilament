@@ -64,7 +64,8 @@ public class SnakeFrame{
     /** determines the number of viewports in display mode */
     
     ButtonGroup view_group;
-    
+    private ButtonGroup deform_group;
+
     public SnakeFrame(SnakeModel model){
         ALLBUTTONS = new ArrayList<AbstractButton>();
         ALLTEXTFIELDS = new ArrayList<JTextField>();
@@ -311,7 +312,9 @@ public class SnakeFrame{
         reduce.setActionCommand(SnakeActions.reduce3d.name());
         reduce.addActionListener(snake_listener);
         views.add(reduce);
-        
+
+
+
         //JMenuItem start_vtk =new JMenuItem("Launch External VTK viewer ...");
         //start_vtk.setActionCommand(SnakeActions.startvtk.name());
         //start_vtk.addActionListener(snake_listener);
@@ -321,7 +324,27 @@ public class SnakeFrame{
         MENUS.add(views);
         bar.add(views);
 
-        
+
+        JMenu deformation_type = new JMenu("type");
+        deform_group = new ButtonGroup();
+
+        JMenuItem curve_deform = new JCheckBoxMenuItem("Open Curve Deformation");
+        curve_deform.setActionCommand(SnakeActions.deformupdate.name());
+        curve_deform.addActionListener(snake_listener);
+        curve_deform.setSelected(true);
+        deform_group.add(curve_deform);
+        deformation_type.add(curve_deform);
+
+        JMenuItem contour_deform = new JCheckBoxMenuItem("Closed Contour Deformation");
+        contour_deform.setActionCommand(SnakeActions.deformupdate.name());
+        contour_deform.addActionListener(snake_listener);
+        deform_group.add(contour_deform);
+        deformation_type.add(contour_deform);
+
+        MENUS.add(deformation_type);
+        bar.add(deformation_type);
+
+
         JMenu help = new JMenu("help");
         JMenuItem show_help = new JMenuItem("overview");
         show_help.setActionCommand(SnakeActions.showhelp.name());
@@ -1162,6 +1185,8 @@ public class SnakeFrame{
         snake_model.updateDisplay();
     }
 
+
+
     /**
      * The index of the selected view in the view selection menu.
      *
@@ -1179,5 +1204,18 @@ public class SnakeFrame{
         }
         return 0;
    }
+
+    public void setDeformType(){
+        int i = 0;
+        Enumeration<AbstractButton> e = deform_group.getElements();
+
+        while(e.hasMoreElements()){
+            AbstractButton b = e.nextElement();
+            if(b.isSelected())
+                break;
+            i++;
+        }
+        snake_model.setDeformType(i);
+    }
     
 }

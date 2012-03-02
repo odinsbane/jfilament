@@ -164,7 +164,9 @@ class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
             case setmaxlength:
                 snake_model.setMaxLength();
                 break;
-                
+            case deformupdate:
+                snake_frame.setDeformType();
+                break;
         }
     }
         
