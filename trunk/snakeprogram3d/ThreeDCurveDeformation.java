@@ -34,9 +34,9 @@ public class ThreeDCurveDeformation implements ThreeDDeformation{
     /**
      * Orders the image data, and the segment length, verts will be rearranged.
      *
-     * @param verts
-     * @param images
-     * @param max_seg
+     * @param verts List of points that will be deformed
+     * @param images 3D image data
+     * @param max_seg maximum segment length, when the points are re-initialized.
      */
     ThreeDCurveDeformation(ArrayList<double[]> verts, SnakeImages images, double max_seg){
         MAX_SEGMENT_LENGTH = max_seg;
@@ -340,7 +340,7 @@ public class ThreeDCurveDeformation implements ThreeDDeformation{
         double mag = 0.;
         for(int i = 0; i<ptA.length; i++){
             force[i] = ptA[i] - ptB[i];
-            mag += Math.pow(force[i],2);
+            mag += force[i]*force[i];
         }
         
         double f = 1./Math.sqrt(mag);
@@ -354,8 +354,8 @@ public class ThreeDCurveDeformation implements ThreeDDeformation{
    }
 
    /**
-    * gets a normalized head force for the first and 20th point.
-    * or the mid point if the snake if it is less than 20 elements long.
+    * gets a normalized head force for the first and 10th point.
+    * or the mid point if the snake if it is less than 10 elements long.
     *
     * @return a normalized vector.
     */
@@ -377,8 +377,8 @@ public class ThreeDCurveDeformation implements ThreeDDeformation{
    }
 
    /**
-    * gets a normalized tail force for the last and 20th point from the last,
-    * or the mid point if the snake if it is less than 20 elements long.
+    * gets a normalized tail force for the last and 10th point from the last,
+    * or the mid point if the snake if it is less than 10 elements long.
     *
     * @return a normalized vector.
     */
@@ -411,7 +411,7 @@ public class ThreeDCurveDeformation implements ThreeDDeformation{
     double getStretchFactor(double[] pt, double[] direction){
         double factor;
         //if(pt[0]>0&&pt[1]<images.getWidth()&&pt[1]>0&&pt[1]<images.getHeight()&&pt[2]>0&&pt[2]<images.getDepth())
-        if(pt[0]>0&&pt[1]<images.getWidth()&&pt[1]>0&&pt[1]<images.getHeight()){
+        if(pt[0]>0&&pt[0]<images.getWidth()&&pt[1]>0&&pt[1]<images.getHeight()){
             double mean = (forInt + backInt)/2.;
             factor = (images.getMaxPixel(pt, direction) - mean)/(forInt - mean);
         }else {
