@@ -74,6 +74,26 @@ public class SnakeBufferedImages{
                                "windows users need the java3d .dll files in their path\n";
             JOptionPane.showMessageDialog(frame,message + e.getMessage());
 
+        } catch(Exception e){
+
+            JFrame text_window = new JFrame("Error Stack Trace");
+            text_window.setSize(800,800);
+            JTextPane text_pane = new JTextPane();
+            StringBuffer error_buffer = new StringBuffer();
+            for(StackTraceElement ste: e.getStackTrace()){
+                error_buffer.append(ste.toString());
+                error_buffer.append('\n');
+            }
+            text_pane.setText(error_buffer.toString());
+            text_window.setContentPane(text_pane);
+
+            text_window.pack();
+            text_window.setVisible(true);
+
+            String message = "Unknow error while loading 3D information\n" +
+                    "The stack trace will be included in another window.\n";
+            JOptionPane.showMessageDialog(frame,message + e.getMessage());
+
         }
         USER_REAL = true;
         snake_images = snake2d;
