@@ -4,6 +4,7 @@ package snakeprogram;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 
 /**
@@ -27,7 +28,8 @@ public class SnakeFrame{
     final ArrayList<JMenu> MENUS;
     
     /** Text Fields */
-    JTextField PointSpacing, ImageSmoothing, Alpha, Beta, Gamma, Weight, Stretch, DeformIterations, ForegroundIntensity, BackgroundIntensity;
+    JTextField PointSpacing, ImageSmoothing, Alpha, Beta, Gamma, Weight, Stretch, DeformIterations,
+               ForegroundIntensity, BackgroundIntensity;
     
     JTextField TRANSIENT;
     JLabel image_counter_label, total_snakes_label;
@@ -35,7 +37,7 @@ public class SnakeFrame{
     
     
     JRadioButton curve;
-    JRadioButtonMenuItem intensity_energy;
+    ButtonGroup energy_group;
     /** interface to the original snake model */
     final SnakeModel snake_model;
     final SnakeListener snake_listener;
@@ -221,19 +223,19 @@ public class SnakeFrame{
         bar.add(data);
 
         
-        ButtonGroup energy_group = new ButtonGroup();
+        energy_group = new ButtonGroup();
         JMenu energies = new JMenu("energies");
         JRadioButtonMenuItem intensity =  new JRadioButtonMenuItem("Intensity( ridges )");
         JRadioButtonMenuItem gradient =  new JRadioButtonMenuItem("Gradient( edges )");
-        
+        JRadioButtonMenuItem balloon = new JRadioButtonMenuItem("Balloon + Gradient");
         energy_group.add(intensity);
         energy_group.add(gradient);
-        
+        energy_group.add(balloon);
+
         energies.add(intensity);
         energies.add(gradient);
-        
-        intensity_energy = intensity;
-        
+        energies.add(balloon);
+
         intensity.setSelected(true);
         
         MENUS.add(energies);
@@ -254,7 +256,7 @@ public class SnakeFrame{
     
     private JPanel createButtonPane(){
         JPanel bp = new JPanel();
-        GridLayout gl = new GridLayout(3,4);
+        GridLayout gl = new GridLayout(4,4);
         gl.setHgap(5);
         gl.setVgap(5);
         
@@ -262,7 +264,7 @@ public class SnakeFrame{
         
         bp.add(createActionButton("Previous Image",SnakeActions.previousimage.name()));
         bp.add(createActionButton("Next Image", SnakeActions.nextimage.name()));
-        bp.add(createActionButton("Add Snake", SnakeActions.addsnake.name()));
+        bp.add(createActionButton("New Snake", SnakeActions.addsnake.name()));
         bp.add(createActionButton("Delete Snake", SnakeActions.deletesnake.name()));
         bp.add(createActionButton("Deform Snake", SnakeActions.deformsnake.name()));
         bp.add(createActionButton("Track Snake", SnakeActions.tracksnake.name()));
@@ -272,7 +274,10 @@ public class SnakeFrame{
         bp.add(createActionButton("Stretch Fix", SnakeActions.stretchfix.name()));
         bp.add(createActionButton("Zoom In", SnakeActions.initializezoom.name()));
         bp.add(createActionButton("Zoom Out", SnakeActions.zoomout.name()));
-
+        bp.add(createActionButton("Track All Frames", SnakeActions.trackallframes.name()));
+        bp.add(createActionButton("Track Backwards", SnakeActions.trackbackwards.name()));
+        bp.add(createActionButton("Deform All Frames", SnakeActions.deformallframes.name()));
+        bp.add(createActionButton("Surprise", SnakeActions.timesmoothsnakes.name()));
         return bp;
         
     }
@@ -307,7 +312,7 @@ public class SnakeFrame{
         Beta = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Gamma", "40", SnakeActions.setgamma));
+        parameter_pane.add(createInputPair("Gamma", "400", SnakeActions.setgamma));
         Gamma = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
@@ -661,8 +666,18 @@ public class SnakeFrame{
     /**
      *  returns the check value of the intensity energy
      * */
-    public boolean getEnergyType(){
-        return intensity_energy.isSelected();
+    public int getEnergyType(){
+        Enumeration<AbstractButton> buttons = energy_group.getElements();
+        int i = 0;
+        while(buttons.hasMoreElements()){
+            AbstractButton b = buttons.nextElement();
+            if(energy_group.isSelected(b.getModel())){
+                return i;
+            }
+            i++;
+        }
+
+        return i;
     }
     
     public void updateForegroundText(String s){
@@ -765,6 +780,10 @@ enum SnakeActions{
         deformfix,
         setmaxlength,
         setlinewidth,
-        showversion
+        showversion,
+        trackallframes,
+        deformallframes,
+        trackbackwards,
+        timesmoothsnakes
         
         }

@@ -113,8 +113,8 @@ public class Snake implements Iterable<Integer>{
     
     /**
        *    Adds or replaces the coordinates in the frame.
-       *    @param frame frame that will recieve the new coordinates
-       *    @param Xs x coordinates
+       *    @param frame frame that will receive the new coordinates
+       *    @param Xs xy coordinates
        *
        **/
     public void addCoordinates(int frame, ArrayList<double[]> Xs){

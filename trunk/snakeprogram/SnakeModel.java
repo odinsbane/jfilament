@@ -12,13 +12,22 @@ package snakeprogram;
 
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
+import ij.plugin.filter.GaussianBlur;
+import ij.process.ImageProcessor;
+import snakeprogram.energies.BalloonGradientEnergy;
+import snakeprogram.energies.GradientEnergy;
+import snakeprogram.energies.ImageEnergy;
+import snakeprogram.energies.IntensityEnergy;
 import snakeprogram.interactions.*;
 
 import javax.swing.*;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SnakeModel{
 
@@ -26,7 +35,7 @@ public class SnakeModel{
 
     private SnakeImages images;             //Contains all of the image data
     private SnakeFrame snake_panel;        //Contians the controls
-    
+    private ExecutorService executor = Executors.newFixedThreadPool(1);
     /**These contain the currently displayed snake data. x and y values*/
     private ArrayList<double[]> SnakeRaw;
     private Snake CurrentSnake;
@@ -44,7 +53,7 @@ public class SnakeModel{
     //Deformation values.  These are maintained here for now, but should be moved in the near future
     private double alpha = 15;
     private double beta = 10;
-    private double gamma = 40;
+    private double gamma = 400;
     private double weight = 0.5;
     private double stretch = 150;
     private double forIntMean = 255;
@@ -70,6 +79,7 @@ public class SnakeModel{
         SnakeStore = new MultipleSnakesStore();
         images = new SnakeImages(SnakeStore);
         snake_panel = new SnakeFrame(this);
+
     }
     
      /**    
@@ -95,28 +105,74 @@ public class SnakeModel{
         
         resetDeformation();
         INTERRUPT=false;
-        for(int j = 0; j<deformIterations; j++){
-           
-            //resets the value of the progress bar based on the iteration number
-            int value = (int)(((j+1)*1.0/deformIterations)*100);
-            snake_panel.updateProgressBar(value);
-            
-            curveDeformation.addSnakePoints(MAXIMUM_SPACING);
-            curveDeformation.deformSnake();
-            updateImagePanel();
-            if(INTERRUPT)
-                break;
+
+        int deformations = deformIterations;
+
+        if(deformIterations<0){
+            deformations = 10;
         }
 
-      RUNNING = false;
-      enableUI();
+        boolean continueDeforming = true;
+        double size_before = 0;
+        double size_after = SnakeRaw.size();
+        while(continueDeforming&&RUNNING){
+
+            if(deformations==deformIterations){
+                continueDeforming=false;
+            } else{
+                //check for changes.
+                size_after = size_after/deformations;
+
+                double delta = size_after - size_before;
+                if(delta*delta<0.01){
+                    //stop if the length change is small.
+                    continueDeforming=false;
+                }
+                size_before = size_after;
+                size_after=0;
+
+            }
+
+            for(int j = 0; j<deformations; j++){
+
+                //resets the value of the progress bar based on the iteration number
+                int value = (int)(((j+1)*1.0/deformations)*100);
+                snake_panel.updateProgressBar(value);
+
+                curveDeformation.addSnakePoints(MAXIMUM_SPACING);
+                curveDeformation.deformSnake();
+                updateImagePanel();
+                if(INTERRUPT){
+                    RUNNING=false;
+                    break;
+                }
+                size_after+=SnakeRaw.size();
+            }
+        }
+
     }
     public ImageEnergy energyFactory(){
-        
-        if(snake_panel.getEnergyType())
-            return new IntensityEnergy( images.getProcessor(),IMAGE_SIGMA );
-        else
-            return new GradientEnergy( images.getProcessor(),IMAGE_SIGMA );
+        int item = snake_panel.getEnergyType();
+        switch(item){
+            case ImageEnergy.INTENSITY:
+                return new IntensityEnergy( images.getProcessor(),IMAGE_SIGMA );
+            case ImageEnergy.GRADIENT:
+                return new GradientEnergy( images.getProcessor(), IMAGE_SIGMA);
+            case ImageEnergy.BALLOON:
+                if(checkForCurrentSnake()){
+                    BalloonGradientEnergy balloon = new BalloonGradientEnergy(
+                            images.getProcessor(), IMAGE_SIGMA,
+                            CurrentSnake.getCoordinates(images.getCounter()) );
+
+                    balloon.FOREGROUND = forIntMean;
+                    balloon.BACKGROUND = backIntMean;
+                    balloon.MAGNITUDE = stretch;
+
+                    return balloon;
+                }
+        }
+
+        return null;
 
     }
     
@@ -466,43 +522,21 @@ public class SnakeModel{
             if(!RUNNING){
                 RUNNING = true;
                 disableUI();
-                Thread x = new Thread(){
-                   public void run(){
-                       
-                       try{
-                       
-                            deformRunning();
-                       
-                       } catch(IllegalAccessException e){
-                            
-                            JOptionPane.showMessageDialog(
-                                    getFrame(),
-                                    "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
-                            );
-                            
-                            
-                       } catch(IllegalArgumentException e){
-                            CurrentSnake.clearSnake(images.getCounter());
-                       } catch(ArrayIndexOutOfBoundsException e){
-                            CurrentSnake.clearSnake(images.getCounter());
-                       }
-                       finally {
-                        
-                            SnakeStore.purgeSnakes();
-                            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
-                            RUNNING=false;
-                            enableUI();
-                       
-                       }
-                   }
-           
-                };
-                x.start();
+
+                executor.submit(new DeformingRunnable(){
+                    void modifySnake() throws IllegalAccessException{
+                        deformRunning();
+                        RUNNING=false;
+                        enableUI();
+
+                    }
+                });
             }
             
         }
     
     }
+
     
     
     /**
@@ -841,5 +875,202 @@ public class SnakeModel{
 
     }
 
+    /**
+     * Takes the current snake and tracks its shape for all frames forwards. This will start from the
+     * current snake and proceed both forwards and backwards.
+     *
+     *
+     */
+    public void trackAllFrames(int modifiers) {
 
+        boolean f = true;
+        boolean b = false;
+
+
+        if((modifiers&ActionEvent.SHIFT_MASK)>0){
+            b = true;
+            if((modifiers&ActionEvent.CTRL_MASK)>0){
+                f=true;
+            } else{
+                f=false;
+            }
+        }
+
+        final boolean forwards = f;
+        final boolean backwards = b;
+        if((!RUNNING)&&checkForCurrentSnake()){
+            RUNNING = true;
+            disableUI();
+
+            executor.submit(new DeformingRunnable(){
+                void modifySnake() throws IllegalAccessException{
+
+                    int start = images.getCounter();
+
+                    if(forwards){
+                        while(RUNNING&&images.getCounter()<images.getStackSize()){
+
+                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
+
+                            nextImage();
+
+                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+
+                            updateImagePanel();
+                            deformRunning();
+                        }
+
+                    }
+                    if(backwards){
+
+                        images.setImage(start);
+                        while(RUNNING&&images.getCounter()>1){
+
+                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
+
+                            previousImage();
+
+                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+
+                            updateImagePanel();
+                            deformRunning();
+                        }
+                    }
+
+                    RUNNING=false;
+                    enableUI();
+                }
+            });
+        }
+
+
+    }
+
+    /**
+     * Tracks the current snake on frame backwards.
+     *
+     */
+    public void trackBackwards() {
+        int frame = images.getCounter();
+        if(checkForCurrentSnake()&&(frame-1)>0){
+
+            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+
+            previousImage();
+
+            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+
+            updateImagePanel();
+            deformSnake();
+        }
+    }
+
+    /**
+     * Deforms the current snake through all of the frames it exists in. Especially useful
+     * for changing point sizes and ensuring that the parameter is set in every frame.
+     *
+     */
+    public void deformAllFrames(int modifiers) {
+
+        int b = 0;
+
+        if((modifiers&ActionEvent.SHIFT_MASK)>0||(modifiers&ActionEvent.CTRL_MASK)>0){
+            b = images.getCounter();
+        }
+        final int before = b;
+        if(checkForCurrentSnake()&&!RUNNING){
+            RUNNING = true;
+            disableUI();
+
+            executor.submit(new DeformingRunnable(){
+                void modifySnake() throws IllegalAccessException{
+                    for(Integer i: CurrentSnake){
+                        if(i<before) continue;
+                        images.setImage(i);
+                        updateImagePanel();
+                        deformRunning();
+
+
+                        if(!RUNNING){
+                            break;
+                        }
+                    }
+                    RUNNING=false;
+                    enableUI();
+                }
+            });
+
+        }
+
+
+
+
+    }
+
+    /**
+     * Inappropriately named at the moment.
+     *
+     */
+    public void timeSmoothSnakes() {
+       if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
+
+           ImageProcessor image = images.getProcessor().convertToFloat();
+           ImageProcessor blurred_image = image.duplicate();
+           GaussianBlur gb = new GaussianBlur();
+           gb.blurGaussian(blurred_image, IMAGE_SIGMA, IMAGE_SIGMA, .01);
+
+           double[] means = BalloonGradientEnergy.getAverageIntensity(
+
+                   CurrentSnake.getCoordinates(images.getCounter()),
+                   blurred_image
+                   );
+           snake_panel.ForegroundIntensity.setText(String.format("%2.2f",means[0]));
+           snake_panel.BackgroundIntensity.setText(String.format("%2.2f",means[1]));
+           snake_panel.setForegroundIntensity();
+           snake_panel.setBackgroundIntensity();
+       }
+
+    }
+
+    public double getSigma() {
+        return IMAGE_SIGMA;
+    }
+
+    /**
+     * Contains the nescessary exception catches when deforming or modifying a snake.
+     *
+     */
+    abstract private class DeformingRunnable implements Runnable{
+        public void run(){
+
+            try{
+
+                modifySnake();
+
+            } catch(IllegalAccessException e){
+
+                JOptionPane.showMessageDialog(
+                        getFrame(),
+                        "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                );
+
+
+            } catch(IllegalArgumentException e){
+                CurrentSnake.clearSnake(images.getCounter());
+            } catch(ArrayIndexOutOfBoundsException e){
+                CurrentSnake.clearSnake(images.getCounter());
+            }
+            finally {
+
+                SnakeStore.purgeSnakes();
+                snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                RUNNING=false;
+                enableUI();
+
+            }
+        }
+
+        abstract void modifySnake() throws IllegalAccessException;
+    }
 }
+
