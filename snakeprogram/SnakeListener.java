@@ -22,6 +22,7 @@ public class SnakeListener implements ActionListener{
     
     public void actionPerformed(ActionEvent evt){
         SnakeActions act = SnakeActions.valueOf(evt.getActionCommand());
+
         switch(act){
             case getandload:
                 snake_model.getAndLoadImage();
@@ -112,6 +113,18 @@ public class SnakeListener implements ActionListener{
                 break;
             case setlinewidth:
                 snake_model.setLineWidth();
+                break;
+            case trackallframes:
+                snake_model.trackAllFrames(evt.getModifiers());
+                break;
+            case trackbackwards:
+                snake_model.trackBackwards();
+                break;
+            case deformallframes:
+                snake_model.deformAllFrames(evt.getModifiers());
+                break;
+            case timesmoothsnakes:
+                snake_model.timeSmoothSnakes();
                 break;
             case showversion:
                 snake_model.showVersion();

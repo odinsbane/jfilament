@@ -37,11 +37,11 @@ public class BackgroundMean implements SnakeInteraction {
     public void mouseClicked(MouseEvent evt) {
         Double x = images.fromZoomX(evt.getX());
         Double y = images.fromZoomY(evt.getY());
-        double value = images.getAveragedValue(x,y,SnakeModel.squareSize);
+        double value = images.getAveragedValue(x,y,SnakeModel.squareSize, model.getSigma());
 
 
         //prints this mean intensity to the text box on the user interface
-        String S = "" + value;
+        String S = value>1?String.format("%2.2f", value):String.format("%2.2e",value);
         frame.updateBackgroundText(S);
         model.unRegisterSnakeInteractor(this);
     }

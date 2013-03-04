@@ -37,14 +37,14 @@ public class ForegroundMean implements SnakeInteraction {
             Double x = images.fromZoomX(evt.getX());
             Double y = images.fromZoomY(evt.getY());
 
-            double forIntMean = images.getAveragedValue(x,y,SnakeModel.squareSize);
+            double value = images.getAveragedValue(x,y,SnakeModel.squareSize, model.getSigma());
 
 
 
 
             model.unRegisterSnakeInteractor(this);
             //prints this mean intensity to the text box on the user interface
-            String S = "" + forIntMean;
+            String S = value>1?String.format("%2.2f", value):String.format("%2.2e",value);
 
             frame.updateForegroundText(S);
         }

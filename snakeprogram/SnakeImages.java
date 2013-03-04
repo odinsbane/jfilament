@@ -40,7 +40,7 @@ public class SnakeImages{
     boolean DRAW_SNAKE,     //if we need to draw a snake
                 ZOOMIN,            //is the current view 'zoomed' in
                 ZOOMINBOX,      //whether to draw the zoom box
-                FOLLOW,             //follow the moust for an extra pt.
+                FOLLOW,             //follow the mouse for an extra pt.
                 HASIMAGE,
                 INITIALIZING,
                 STRETCHFIX,
@@ -377,7 +377,7 @@ public class SnakeImages{
        * Gets a file name via the swing file chooser dialog
        **/
     public void getAndLoadImage(){
-        String fname = SnakeIO.getOpenFileName(new JFrame());
+        String fname = SnakeIO.getOpenFileName(new JFrame(),"Select Image to Open");
 
         if (fname!=null) {
     
@@ -414,28 +414,49 @@ public class SnakeImages{
         if(imagecounter>1)
             imagecounter--;
     }
-    
-    
-    public double getAveragedValue(double x, double y, int ss){
+
+    public void setImage(int i){
+        if(i>0&&i<=stackLoad.getSize()){
+            imagecounter=i;
+        } else{
+            throw new IllegalArgumentException("index of: " + i + "is out of image bounds[0:" + stackLoad.getSize()+ "])");
+        }
+
+
+    }
+
+    /**
+     * Gets the average pixel value, using the current image blurred with a gaussian.
+     * @param x
+     * @param y
+     * @param ss
+     * @param sigma
+     * @return
+     */
+    public double getAveragedValue(double x, double y, int ss, double sigma){
               
           ImageProcessor improc = getProcessor();
 
-          ImageProcessor blurred_image =improc.duplicate();
-                     
+          ImageProcessor blurred_image =improc.convertToFloat();
+          if(blurred_image==improc){
+              blurred_image = improc.duplicate();
+          }
+
           double max = 0;
 
-          gb.blurGaussian(blurred_image, 1.01, 1.01, .01);
+          gb.blurGaussian(blurred_image, sigma, sigma, .01);
 
-                int half = ss/2;
-                int cc = 0;
-                
-                for(int i = -half; i<=half; i++){
-                    for(double d: blurred_image.getLine(x - half, y + i, x + half, y+i)){
-                        max += d;
-                        cc++;
-                    }
-                }
-        
+        int half = ss/2;
+        int cc = 0;
+
+        for(int i = -half; i<=half; i++){
+            for(int j = -half; j<=half; j++){
+                double d = blurred_image.getInterpolatedValue(x+i, y+j);
+                max += d;
+                cc++;
+            }
+        }
+
             return max/cc;
     }
     

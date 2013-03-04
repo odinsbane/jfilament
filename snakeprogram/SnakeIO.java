@@ -18,32 +18,55 @@ import java.util.StringTokenizer;
  *
    **/
 public class SnakeIO{
-
+    static File PWD = new File(".");
     /** Save file dialog */
     public static String getSaveFileName(Frame parent, String title){
         FileDialog fd = new FileDialog(parent,"Save Tab Separate File",FileDialog.SAVE);
+        fd.setDirectory(PWD.getAbsolutePath());
         fd.setFile(title);
         fd.setVisible(true);
         String fname = fd.getFile();
         String dirname = fd.getDirectory();
         String fullname = dirname +  fname;
-        if(fname!=null)
+        if(fname!=null){
+
+            PWD = new File(dirname);
             return fullname;
-        else
+
+        }
+        else{
             return null;
+        }
     }
 
-    /** Open file dialog */    
+    /**
+     * Single argument version for getting a snake file.
+     *
+     * @param parent
+     * @return
+     */
     public static String getOpenFileName(Frame parent){
-        FileDialog fd = new FileDialog(parent,"Open Snake File",FileDialog.LOAD);
-        
+        return getOpenFileName(parent, "Open Snake File");
+    }
+
+    /**
+     * Added an argument for setting the title, to get files other than just snake files.
+     *
+      * @param parent
+     * @param title
+     * @return
+     */
+    public static String getOpenFileName(Frame parent, String title){
+        FileDialog fd = new FileDialog(parent,title,FileDialog.LOAD);
+        fd.setDirectory(PWD.getAbsolutePath());
         fd.setVisible(true);
         String fname = fd.getFile();
         String dirname = fd.getDirectory();
         String fullname = dirname +  fname;
-        if(fname!=null)
+        if(fname!=null){
+            PWD = new File(dirname);
             return fullname;
-        else
+        } else
             return null;
     }
     /**
@@ -412,7 +435,7 @@ public class SnakeIO{
        *    Loads the actual snake data. #'s separate snakes returns a test to make sure that
        *    the points are inserted in the same order.
        *    @param br is the buffered reader doing the readin.
-       *    @param Snake Store is modified in place
+       *    @param SS is modified in place, and each new snake is added.
        *
        **/
     private static int loadSnakes(BufferedReader br,MultipleSnakesStore SS) throws Exception{
