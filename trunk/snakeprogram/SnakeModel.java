@@ -115,6 +115,7 @@ public class SnakeModel{
         boolean continueDeforming = true;
         double size_before = 0;
         double size_after = SnakeRaw.size();
+        ArrayList<double[]> previous=null;
         while(continueDeforming&&RUNNING){
 
             if(deformations==deformIterations){
@@ -125,7 +126,28 @@ public class SnakeModel{
 
                 double delta = size_after - size_before;
                 if(delta*delta<0.01){
-                    //stop if the length change is small.
+                    //If the change in points is small.
+                    if(previous==null){
+                        previous=new ArrayList<double[]>(SnakeRaw);
+                    } else{
+                        if(previous.size()==SnakeRaw.size()){
+                            //check the actual displacements.
+                            double max_delta=0;
+                            for(int i = 0;i<previous.size(); i++){
+                                double[] pta = SnakeRaw.get(i);
+                                double[] ptb = previous.get(i);
+                                double d = (pta[0] - ptb[0])*(pta[0] - ptb[0]) + (pta[1]-ptb[1])*(pta[1] - ptb[1]);
+                                max_delta = max_delta>d?max_delta:d;
+                            }
+                            if(max_delta>-deformIterations){
+                                continueDeforming=false;
+                            }
+                        }
+                        previous.clear();
+                        previous.addAll(SnakeRaw);
+                    }
+
+
                     continueDeforming=false;
                 }
                 size_before = size_after;
