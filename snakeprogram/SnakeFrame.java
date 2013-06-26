@@ -682,10 +682,12 @@ public class SnakeFrame{
     
     public void updateForegroundText(String s){
         ForegroundIntensity.setText(s);
+        setForegroundIntensity();
     }
     
     public void updateBackgroundText(String s){
         BackgroundIntensity.setText(s);
+        setBackgroundIntensity();
     }
     
     public void setConstants(HashMap<String,Double> values){
