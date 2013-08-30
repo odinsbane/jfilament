@@ -16,6 +16,11 @@ import java.util.NoSuchElementException;
  */
 public class MultipleSnakesStore implements Iterable<Snake>{
 
+	// Adri 03 gen 2012
+    public boolean delallflag;
+    public int oldnumber;
+    public Snake snak;
+
 
    LinkedList<Snake> linkSnake = new LinkedList<Snake>();
    
@@ -26,10 +31,61 @@ public class MultipleSnakesStore implements Iterable<Snake>{
    public void addSnake(Snake snk){
        linkSnake.add(snk);
    }
-
-
+   
+   // Adri 02 Gen2012
+   // In this method I would like to be able to perform operations only on selected snakes.
+   //public void deleteMultipleSnakes(ArrayList<Snake[]> SelectedSnakes){
+   //    for (int i = 0;i<=numbersnakes;i++){            
+   //    linkSnake.remove(snk);
+   //}
+   
+   public void deleteAllSnakes(){
+	   int numbersnakes=getNumberOfSnakes();
+	   delallflag=true;
+	   int snakecycle = 0;
+	   while (snakecycle < numbersnakes){
+		   Snake snk = getSnake(snakecycle);
+		   if (delallflag==true){
+			   //setflagfalse();
+			   delallflag=false;
+			   deleteSnakeMod(snk);
+			   snakecycle++;   
+		   }
+	   }
+   }
+   
+   //Adri 4 gen 2013 (working!)
+   public void deleteAllSnakes2(){
+	   while (getNumberOfSnakes()!=0){
+		   snak=getLastSnake();
+		   linkSnake.remove(snak);
+	   }
+   }
+   
+ 
+   
+   
    public void deleteSnake(Snake snk){
        linkSnake.remove(snk);
+   }
+   
+   // Adri 03 Gen 2013
+   public void deleteSnakeMod(Snake snk){
+       oldnumber=getNumberOfSnakes();
+       linkSnake.remove(snk);
+       while (oldnumber==getNumberOfSnakes()){delallflag=false;}
+       //setflagtrue();
+       if (oldnumber==(getNumberOfSnakes()+1)){delallflag=true;}
+}
+   
+// Adri 03 Gen 2013
+   public void setflagtrue(){
+	   delallflag=true;
+   }
+   
+// Adri 03 Gen 2013
+   public void setflagfalse(){
+	   delallflag=false;
    }
    
    public Snake getSnake(int index){

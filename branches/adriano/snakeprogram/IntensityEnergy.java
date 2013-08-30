@@ -3,11 +3,10 @@
  * and open the template in the editor.
  */
 
-package snakeprogram.energies;
+package snakeprogram;
 
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
-import snakeprogram.TwoDDeformation;
 
 /**
  * Calculates an energy based on the intensity of the image.  The snake points
@@ -20,7 +19,7 @@ import snakeprogram.TwoDDeformation;
  *       see COPYING for license.
  *
  */
-public class IntensityEnergy implements ImageEnergy {
+public class IntensityEnergy implements ImageEnergy{
     final ImageProcessor blurred_image;
     final ImageProcessor image;
     public IntensityEnergy(ImageProcessor img, double blur_sigma){

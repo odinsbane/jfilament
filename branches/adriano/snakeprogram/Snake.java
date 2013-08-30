@@ -3,6 +3,8 @@ package snakeprogram;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
+import ij.gui.GenericDialog;
+
 /**
  * @author Lisa
  *
@@ -53,6 +55,39 @@ public class Snake implements Iterable<Integer>{
         return Coordinates.get(i);
     }
 
+/** Adri 07 Gen 2013
+ *  I create a method to retrieve x and y variables of a given snake in a given frame.
+ *  While Coordinates method is and ArrayList<double[]> containing n points, each one with x and y,
+ *  this method returns an ArrayList<double[]> containing only 2 vectors of length n, each with x and y values respectively.
+ **/
+    
+    // NOTE: Values are received as double and returned as int
+    public ArrayList<int[]> get_xyCoordinates(int frame){
+    	ArrayList<double[]> coord_pts = new ArrayList<double[]>();
+    	double[] temp_pt;
+    	coord_pts = Coordinates.get(frame); //Please NOTE: the method get starts from 0!!!!!
+    	/**GD_Debug
+        GenericDialog gd3 = new GenericDialog("Coordinates number");
+        gd3.addNumericField("coord_pts.size(): ", coord_pts.size(), 0);
+        gd3.showDialog();
+        GD_Debug*/
+        
+    	int[] xvect = new int[coord_pts.size()];
+    	int[] yvect = new int[coord_pts.size()];
+    	// In this way I have an ArrayList<double[]> called coordpts, and each entry is a point.
+        // Now I loop over all the list lenght (all the coordinates) and fill the new list.
+        for (int j=0; j<coord_pts.size();j++){
+          temp_pt=coord_pts.get(j);
+          xvect[j] =(int)Math.round(temp_pt[0]); //We convert double to int
+          yvect[j] =(int)Math.round(temp_pt[1]);
+        }
+        ArrayList<int[]> coord_xy = new ArrayList<int[]>();
+        coord_xy.add(xvect);
+        coord_xy.add(yvect);
+        return coord_xy;
+    }
+
+    
     /**
        *    Finds the length, cumulative distance between points in a given frame.
        **/
@@ -113,8 +148,8 @@ public class Snake implements Iterable<Integer>{
     
     /**
        *    Adds or replaces the coordinates in the frame.
-       *    @param frame frame that will receive the new coordinates
-       *    @param Xs xy coordinates
+       *    @param frame frame that will recieve the new coordinates
+       *    @param Xs x coordinates
        *
        **/
     public void addCoordinates(int frame, ArrayList<double[]> Xs){
@@ -130,5 +165,13 @@ public class Snake implements Iterable<Integer>{
 
     public int getLastFrame(){
         return Coordinates.lastKey();
+    }
+    
+    /** Adri new method 08/01/2013
+     * Looks for first frame of this particular snake.
+     * 
+     */
+    public int getFirstFrame(){
+        return Coordinates.firstKey();
     }
 }

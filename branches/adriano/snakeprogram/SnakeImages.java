@@ -33,17 +33,18 @@ public class SnakeImages{
     private ImageStack stackLoad;
     private int imagecounter;
 
-    static public int LINEWIDTH = 3;
+    static public int LINEWIDTH = 2;
     //These are for tracking the last point
     double[] mouseP;
     
     boolean DRAW_SNAKE,     //if we need to draw a snake
                 ZOOMIN,            //is the current view 'zoomed' in
                 ZOOMINBOX,      //whether to draw the zoom box
-                FOLLOW,             //follow the mouse for an extra pt.
+                FOLLOW,             //follow the moust for an extra pt.
                 HASIMAGE,
                 INITIALIZING,
                 STRETCHFIX,
+                NODRAWBOOL,
                 MARKED;
     double[] MARK;
     final ArrayList<double[]> STATIC_MARKERS;
@@ -78,6 +79,12 @@ public class SnakeImages{
     
     Image getImage(){
         return imageDrawSnake.getImage();
+    }
+    
+    //ADRI 08/01/2013
+    //New method to obtain pixel values
+    int[] getPixels(int x, int y){
+        return imageDrawSnake.getPixel(x,y);
     }
     
     int getDrawHeight(){
@@ -148,7 +155,11 @@ public class SnakeImages{
         //draws the snake to the screen
         if(INITIALIZING&&SnakeRaw!=null){
                 drawRawSnake(imp);
-        } else{
+        } 
+        else if (NODRAWBOOL){
+            //drawRawSnake(imp);
+        }
+        else{
             drawSnakes(imp);
         }
 
@@ -179,6 +190,8 @@ public class SnakeImages{
         imageDrawSnake.setProcessor("update", imp);
     }
     
+
+       
     public void setMarker(double[] pt){
         MARK = toZoom(pt);
         MARKED = true;
@@ -377,7 +390,7 @@ public class SnakeImages{
        * Gets a file name via the swing file chooser dialog
        **/
     public void getAndLoadImage(){
-        String fname = SnakeIO.getOpenFileName(new JFrame(),"Select Image to Open");
+        String fname = SnakeIO.getOpenFileName(new JFrame());
 
         if (fname!=null) {
     
@@ -405,6 +418,12 @@ public class SnakeImages{
     
     }
     
+    // Adri 10/01/2013 Method to go to a given image in the frame
+  public void gotoImage(int i){
+      if(i>=1 && i<=stackLoad.getSize())
+      imagecounter=i;
+    }
+    
     public void nextImage(){
         if(imagecounter+1 <= stackLoad.getSize())
             imagecounter++;
@@ -414,49 +433,28 @@ public class SnakeImages{
         if(imagecounter>1)
             imagecounter--;
     }
-
-    public void setImage(int i){
-        if(i>0&&i<=stackLoad.getSize()){
-            imagecounter=i;
-        } else{
-            throw new IllegalArgumentException("index of: " + i + "is out of image bounds[0:" + stackLoad.getSize()+ "])");
-        }
-
-
-    }
-
-    /**
-     * Gets the average pixel value, using the current image blurred with a gaussian.
-     * @param x
-     * @param y
-     * @param ss
-     * @param sigma
-     * @return
-     */
-    public double getAveragedValue(double x, double y, int ss, double sigma){
+    
+    
+    public double getAveragedValue(double x, double y, int ss){
               
           ImageProcessor improc = getProcessor();
 
-          ImageProcessor blurred_image =improc.convertToFloat();
-          if(blurred_image==improc){
-              blurred_image = improc.duplicate();
-          }
-
+          ImageProcessor blurred_image =improc.duplicate();
+                     
           double max = 0;
 
-          gb.blurGaussian(blurred_image, sigma, sigma, .01);
+          gb.blurGaussian(blurred_image, 1.01, 1.01, .01);
 
-        int half = ss/2;
-        int cc = 0;
-
-        for(int i = -half; i<=half; i++){
-            for(int j = -half; j<=half; j++){
-                double d = blurred_image.getInterpolatedValue(x+i, y+j);
-                max += d;
-                cc++;
-            }
-        }
-
+                int half = ss/2;
+                int cc = 0;
+                
+                for(int i = -half; i<=half; i++){
+                    for(double d: blurred_image.getLine(x - half, y + i, x + half, y+i)){
+                        max += d;
+                        cc++;
+                    }
+                }
+        
             return max/cc;
     }
     
@@ -488,9 +486,14 @@ public class SnakeImages{
         INITIALIZING = v;
     }
     
+    public void setNoDraw(boolean v){
+        NODRAWBOOL = v;
+    }
+    
     public void setCurrentSnake(Snake cs){
         CurrentSnake = cs;
     }
+    
     
     public void setSnakes(MultipleSnakesStore mss){
         SnakeStore = mss;

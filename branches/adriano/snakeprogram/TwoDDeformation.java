@@ -7,7 +7,6 @@ package snakeprogram;
 
 import Jama.LUDecomposition;
 import Jama.Matrix;
-import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
 
@@ -49,7 +48,7 @@ public abstract class TwoDDeformation {
     double backInt;
     
     
-    public static int squareSize = 6;
+    static int squareSize = 6;
     
     ImageEnergy IMAGE_ENERGY;
     
