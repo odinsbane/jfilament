@@ -1,6 +1,7 @@
 package snakeprogram;
 
 import javax.swing.*;
+import ij.gui.GenericDialog;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -18,55 +19,32 @@ import java.util.StringTokenizer;
  *
    **/
 public class SnakeIO{
-    static File PWD = new File(".");
+
     /** Save file dialog */
     public static String getSaveFileName(Frame parent, String title){
         FileDialog fd = new FileDialog(parent,"Save Tab Separate File",FileDialog.SAVE);
-        fd.setDirectory(PWD.getAbsolutePath());
         fd.setFile(title);
         fd.setVisible(true);
         String fname = fd.getFile();
         String dirname = fd.getDirectory();
         String fullname = dirname +  fname;
-        if(fname!=null){
-
-            PWD = new File(dirname);
+        if(fname!=null)
             return fullname;
-
-        }
-        else{
+        else
             return null;
-        }
     }
 
-    /**
-     * Single argument version for getting a snake file.
-     *
-     * @param parent
-     * @return
-     */
+    /** Open file dialog */    
     public static String getOpenFileName(Frame parent){
-        return getOpenFileName(parent, "Open Snake File");
-    }
-
-    /**
-     * Added an argument for setting the title, to get files other than just snake files.
-     *
-      * @param parent
-     * @param title
-     * @return
-     */
-    public static String getOpenFileName(Frame parent, String title){
-        FileDialog fd = new FileDialog(parent,title,FileDialog.LOAD);
-        fd.setDirectory(PWD.getAbsolutePath());
+        FileDialog fd = new FileDialog(parent,"Open Snake File",FileDialog.LOAD);
+        
         fd.setVisible(true);
         String fname = fd.getFile();
         String dirname = fd.getDirectory();
         String fullname = dirname +  fname;
-        if(fname!=null){
-            PWD = new File(dirname);
+        if(fname!=null)
             return fullname;
-        } else
+        else
             return null;
     }
     /**
@@ -122,6 +100,73 @@ public class SnakeIO{
         }
         
     }
+    
+    
+    /**   ADRI new method 08/01/2013
+     *    Writes out the intensity data for all snakes in all frames.
+     *    This version includes a Dialog for getting the filename
+     *       
+     *    @param parent This just needs to be a frame so the dialog can appear.  It could be a new frame or null.
+     *    @param values   This contians the constant values as key values pairs
+     *    @param SnakeStore   Contains the snake data
+     *    @param total_frames for writing elongation data of every frame even when there isn't a snake
+     **/
+    public static void writeSnakesIntensityData(Frame parent, ArrayList<double[]> snakesvalues, ArrayList<double[]> allframesintensdata,ArrayList<double[]> allframesareadata, int total_frames){
+      String fname = getSaveFileName(parent,"snakeintensity.txt");
+      //SnakeStore.purgeSnakes();  // ADRI Didn't understand why other similar methods use it here
+      if(fname!=null){
+          try{
+              BufferedWriter bw = new BufferedWriter( new FileWriter(fname));
+              bw.write("#Snake\tFrame\tAv.Intens.\t\tArea(px)\n");
+              /**GD_Debug
+              GenericDialog gdnee = new GenericDialog("Initialize Writing");
+			  gdnee.addNumericField("snakesvalues.size(): ", snakesvalues.size(), 0);
+			  gdnee.addNumericField("total_frames: ", total_frames, 0);
+			  gdnee.showDialog();
+			  GD_Debug*/
+              for (int snakindx=0;snakindx<snakesvalues.size();snakindx++){
+            	  double[] tempvalues=snakesvalues.get(snakindx);
+        		  int snakenumb=(int)Math.round(tempvalues[0]);
+        		  int snakefirstframe=(int)Math.round(tempvalues[1]);
+        		  int snakelastframe=(int)Math.round(tempvalues[2]);
+        	      double[] snakeintensities=allframesintensdata.get(snakindx);
+        	      double[] snakeareas=allframesareadata.get(snakindx);
+        		  if (snakenumb!=snakindx){
+        			  //IF WE ENTER HERE WE GIVE ERROR, since this two values should coincide
+        			  GenericDialog gd_err = new GenericDialog("ERROR: snakindx doesn't match snakenumb in SnakeIO class");
+        			  gd_err.addNumericField("snakindx: ", snakindx, 0);
+        			  gd_err.addNumericField("snakenumb: ", snakenumb, 0);
+        			  gd_err.showDialog();
+        		  }
+            	  for (int index=1;index<=total_frames;index++){
+            		  if(index>=snakefirstframe && index<=snakelastframe){
+            			  /**GD_Debug
+            			  GenericDialog gdne = new GenericDialog("Writing state");
+            			  gdne.addNumericField("snakindx: ", snakindx, 0);
+            			  gdne.addNumericField("index: ", index, 0);
+            			  gdne.addNumericField("snakenumb: ", snakenumb, 0);
+            			  gdne.addNumericField("snakefirstframe: ", snakefirstframe, 0);
+            			  gdne.addNumericField("snakelastframe: ", snakelastframe, 0);
+            			  gdne.showDialog();
+            			  GD_Debug*/
+            			  bw.write(snakenumb+"\t"+index+"\t"+snakeintensities[index-snakefirstframe]+"\t\t"+snakeareas[index-snakefirstframe]+"\n");
+            		  }
+            		  else{
+            		//It could be used to put empty frames counting in file. 
+            		  }
+            	  }
+              } 
+        	  bw.close();
+          }
+          catch(Exception e) {
+            	  JOptionPane.showMessageDialog(parent,"Could not write" + e.getMessage());    
+              }    
+      }
+      
+  }
+
+    
+    
     /**
        *    Writes the constants as tab separated key/value pairs each on a new line
        *    
@@ -435,7 +480,7 @@ public class SnakeIO{
        *    Loads the actual snake data. #'s separate snakes returns a test to make sure that
        *    the points are inserted in the same order.
        *    @param br is the buffered reader doing the readin.
-       *    @param SS is modified in place, and each new snake is added.
+       *    @param Snake Store is modified in place
        *
        **/
     private static int loadSnakes(BufferedReader br,MultipleSnakesStore SS) throws Exception{

@@ -4,7 +4,6 @@ package snakeprogram;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 
 /**
@@ -28,8 +27,7 @@ public class SnakeFrame{
     final ArrayList<JMenu> MENUS;
     
     /** Text Fields */
-    JTextField PointSpacing, ImageSmoothing, Alpha, Beta, Gamma, Weight, Stretch, DeformIterations,
-               ForegroundIntensity, BackgroundIntensity;
+    JTextField PointSpacing, ImageSmoothing, Alpha, CircleRadius, Beta, Gamma, Weight, Stretch, DeformIterations, ForegroundIntensity, BackgroundIntensity;
     
     JTextField TRANSIENT;
     JLabel image_counter_label, total_snakes_label;
@@ -37,7 +35,7 @@ public class SnakeFrame{
     
     
     JRadioButton curve;
-    ButtonGroup energy_group;
+    JRadioButtonMenuItem intensity_energy;
     /** interface to the original snake model */
     final SnakeModel snake_model;
     final SnakeListener snake_listener;
@@ -223,19 +221,19 @@ public class SnakeFrame{
         bar.add(data);
 
         
-        energy_group = new ButtonGroup();
+        ButtonGroup energy_group = new ButtonGroup();
         JMenu energies = new JMenu("energies");
         JRadioButtonMenuItem intensity =  new JRadioButtonMenuItem("Intensity( ridges )");
         JRadioButtonMenuItem gradient =  new JRadioButtonMenuItem("Gradient( edges )");
-        JRadioButtonMenuItem balloon = new JRadioButtonMenuItem("Balloon + Gradient");
+        
         energy_group.add(intensity);
         energy_group.add(gradient);
-        energy_group.add(balloon);
-
+        
         energies.add(intensity);
         energies.add(gradient);
-        energies.add(balloon);
-
+        
+        intensity_energy = intensity;
+        
         intensity.setSelected(true);
         
         MENUS.add(energies);
@@ -264,20 +262,43 @@ public class SnakeFrame{
         
         bp.add(createActionButton("Previous Image",SnakeActions.previousimage.name()));
         bp.add(createActionButton("Next Image", SnakeActions.nextimage.name()));
-        bp.add(createActionButton("New Snake", SnakeActions.addsnake.name()));
+        bp.add(createActionButton("Add Snake", SnakeActions.addsnake.name()));
+        //ADRI 22/12/2012     
+        // I add button Add CircleSnake, which allows to draw a circular snake with a single click.
+        bp.add(createActionButton("Add CircleSnake", SnakeActions.pointtocirclesnake.name()));
         bp.add(createActionButton("Delete Snake", SnakeActions.deletesnake.name()));
+        //ADRI 26/12/2012     
+        // I add button deleteallsnakes.
+        bp.add(createActionButton("Delete All Snakes", SnakeActions.deleteallsnakes.name()));
         bp.add(createActionButton("Deform Snake", SnakeActions.deformsnake.name()));
+        //ADRI 21/12/2012     
+        // I add button Deform All Snakes, to deform all snakes in a frame.
+        bp.add(createActionButton("Deform All Snakes", SnakeActions.deformallsnakes.name()));
         bp.add(createActionButton("Track Snake", SnakeActions.tracksnake.name()));
+        //ADRI 09/01/2013     
+        bp.add(createActionButton("Track Snake AllFrms", SnakeActions.tracksnakeallframes.name()));
+        //ADRI 09/01/2013     
+        bp.add(createActionButton("Track AllSnks AllFrms", SnakeActions.trackallsnakesallframes.name()));
+        //ADRI 09/01/2013     
+        //bp.add(createActionButton("Track AllSnks OneFrm", SnakeActions.trackallsnakesinoneframe.name()));
+        //ADRI 21/12/2012     
+        // I add button continuesnake, which allows to draw in the next frame a snake linked with the selected snake of the previous frame
+        bp.add(createActionButton("Continue Snake", SnakeActions.continuesnake.name()));
+        //ADRI 22/12/2012     
+        // I add button redrawsnake, which allows to draw an already existing snake in the frame without loosing connection with linked snake in neighbour frames
+        bp.add(createActionButton("Redraw Snake", SnakeActions.redrawsnake.name()));
         bp.add(createActionButton("Deform Fix", SnakeActions.deformfix.name()));
         bp.add(createActionButton("Delete End Fix", SnakeActions.deleteend.name()));
         bp.add(createActionButton("Delete Middle Fix", SnakeActions.deletemiddle.name()));
         bp.add(createActionButton("Stretch Fix", SnakeActions.stretchfix.name()));
         bp.add(createActionButton("Zoom In", SnakeActions.initializezoom.name()));
         bp.add(createActionButton("Zoom Out", SnakeActions.zoomout.name()));
-        bp.add(createActionButton("Track All Frames", SnakeActions.trackallframes.name()));
-        bp.add(createActionButton("Track Backwards", SnakeActions.trackbackwards.name()));
-        bp.add(createActionButton("Deform All Frames", SnakeActions.deformallframes.name()));
-        bp.add(createActionButton("Surprise", SnakeActions.timesmoothsnakes.name()));
+        //ADRI 07/01/2013     
+        // I add button countSnakeIntensity, to count the intensity of a single snake in a single frame (TEST).
+        //bp.add(createActionButton("Snake Intensity", SnakeActions.countsnakeintensity.name()));
+        //ADRI 08/01/2013     
+        // I add button countAllSnakesAllFramesIntensity, to count the intensity of a all snakes in all frames (TEST).
+        bp.add(createActionButton("AllSnakes Intens AllFrames", SnakeActions.countallsnakesallframesintensity.name()));
         return bp;
         
     }
@@ -312,7 +333,7 @@ public class SnakeFrame{
         Beta = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Gamma", "400", SnakeActions.setgamma));
+        parameter_pane.add(createInputPair("Gamma", "40", SnakeActions.setgamma));
         Gamma = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
@@ -351,6 +372,11 @@ public class SnakeFrame{
         parameter_pane.add(row);
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
+        // Adri 14 gen 2013 - In order to set radius for circle contour drawing.
+        parameter_pane.add(createSeparator("Circle snake radius"));
+        parameter_pane.add(createInputPair("CircleRadius", "11", SnakeActions.setcircleradius));
+        CircleRadius = TRANSIENT;
+        parameter_pane.add(Box.createVerticalStrut(vspace));
         
 		parameter_pane.add(createSeparator("Curve Type"));
         
@@ -626,6 +652,24 @@ public class SnakeFrame{
         }       
     }
     
+    public void setCircleRadius(){
+        
+        String s = CircleRadius.getText();
+            
+        try{
+
+            double v = Double.parseDouble(s.trim());
+            snake_model.setCircleRadius(v);
+            field_watcher.valueUpdated();
+
+        }
+        catch (NumberFormatException nfe) {
+
+            System.out.println("NumberFormatException: " + nfe.getMessage());
+
+        }       
+    }
+    
     
     public void enableUI(){
         field_watcher.enableUI();
@@ -666,33 +710,22 @@ public class SnakeFrame{
     /**
      *  returns the check value of the intensity energy
      * */
-    public int getEnergyType(){
-        Enumeration<AbstractButton> buttons = energy_group.getElements();
-        int i = 0;
-        while(buttons.hasMoreElements()){
-            AbstractButton b = buttons.nextElement();
-            if(energy_group.isSelected(b.getModel())){
-                return i;
-            }
-            i++;
-        }
-
-        return i;
+    public boolean getEnergyType(){
+        return intensity_energy.isSelected();
     }
     
     public void updateForegroundText(String s){
         ForegroundIntensity.setText(s);
-        setForegroundIntensity();
     }
     
     public void updateBackgroundText(String s){
         BackgroundIntensity.setText(s);
-        setBackgroundIntensity();
     }
     
     public void setConstants(HashMap<String,Double> values){
         
         Alpha.setText(values.get("alpha").toString());
+        CircleRadius.setText(values.get("circleradius").toString());
         Beta.setText(values.get("beta").toString());
         BackgroundIntensity.setText(values.get("background").toString());
         Weight.setText(values.get("weight").toString());
@@ -707,6 +740,7 @@ public class SnakeFrame{
     
     public void resetConstants(){
         setAlpha();
+        setCircleRadius();
         setBeta();
         setGamma();
         setWeight();
@@ -739,6 +773,7 @@ public class SnakeFrame{
     public HashMap<String,Double> getConstants(){
         HashMap<String,Double> ret_value = new HashMap<String,Double>();
         ret_value.put("alpha",Double.parseDouble(Alpha.getText()));
+        ret_value.put("circleradius",Double.parseDouble(CircleRadius.getText()));
         ret_value.put("beta",Double.parseDouble(Beta.getText()));
         ret_value.put("background",Double.parseDouble(BackgroundIntensity.getText()));
         ret_value.put("weight",Double.parseDouble(Weight.getText()));
@@ -756,6 +791,8 @@ enum SnakeActions{
         nextimage,
         getandload,
         setalpha,
+        setcircleradius,
+        setradius,
         addsnake,
         deformsnake,
         setbeta,
@@ -771,21 +808,27 @@ enum SnakeActions{
         savesnakes,
         loadsnakes,
         deletesnake,
+        deleteallsnakes,
+        deformallsnakes,
         initializezoom,
         zoomout,
         deleteend,
         deletemiddle,
         tracksnake,
+        continuesnake,
+        redrawsnake,
+        pointtocirclesnake,
         savedata,
         setresolution,
         setsigma,
         deformfix,
         setmaxlength,
         setlinewidth,
-        showversion,
-        trackallframes,
-        deformallframes,
-        trackbackwards,
-        timesmoothsnakes
+        //countsnakeintensity,
+        countallsnakesallframesintensity,
+        trackallsnakesallframes,
+        tracksnakeallframes,
+        //trackallsnakesinoneframe,
+        showversion
         
         }

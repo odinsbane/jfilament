@@ -12,22 +12,16 @@ package snakeprogram;
 
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
-import ij.plugin.filter.GaussianBlur;
-import ij.process.ImageProcessor;
-import snakeprogram.energies.BalloonGradientEnergy;
-import snakeprogram.energies.GradientEnergy;
-import snakeprogram.energies.ImageEnergy;
-import snakeprogram.energies.IntensityEnergy;
 import snakeprogram.interactions.*;
 
 import javax.swing.*;
+import java.awt.Polygon;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+// Adri 07/03/2013  (in order to use Arrays class)
+import java.util.*;
 
 public class SnakeModel{
 
@@ -35,9 +29,11 @@ public class SnakeModel{
 
     private SnakeImages images;             //Contains all of the image data
     private SnakeFrame snake_panel;        //Contians the controls
-    private ExecutorService executor = Executors.newFixedThreadPool(1);
+    
     /**These contain the currently displayed snake data. x and y values*/
     private ArrayList<double[]> SnakeRaw;
+    //ADRI 08/01/2013
+    private ArrayList<int[]> xyCoord;
     private Snake CurrentSnake;
     /**The deformation for an open deformation*/
     private TwoDDeformation curveDeformation;
@@ -49,16 +45,33 @@ public class SnakeModel{
     //private boolean bZoomInBox = false;          //determines if a box should be drawn on the image while moving the mouse
     private boolean RUNNING = false;               //If the snakeDeformation is running.
     private boolean INTERRUPT = false;
+    private boolean TRACK = false;
 
     //Deformation values.  These are maintained here for now, but should be moved in the near future
     private double alpha = 15;
+    private double circleradius = 11;
     private double beta = 10;
-    private double gamma = 400;
+    private double gamma = 40;
     private double weight = 0.5;
     private double stretch = 150;
     private double forIntMean = 255;
     private double backIntMean = 0;
 
+    // Adri 21 dic 2012 
+    // These two variables added in order to allow drawing of a snake linked to a snake in the previous frame (Continue Snake button)
+    public Snake previousSnake;
+    public boolean addToPrevious; 
+ 
+    // Adri 26 dic 2012 
+    // Variables for deformallsnakes method (we want to control order of execution)
+    public boolean delflag;
+    public int snakecycle;
+    public int deformedsnakes = 0;
+    
+    // Adri 02 gen 2013
+    public ArrayList<int[]> SnakeInts;
+    
+    
     //Model Values 
     public static int squareSize = 3;            //This is the size of the square that averaging is performed over for the 'getIntForMean' ops
     private int deformIterations = 100;          //Number of iterations when a 'deformSnake' is clicked
@@ -72,6 +85,7 @@ public class SnakeModel{
     private SnakeInteraction interactor;
 
     
+    
     /**
        *    Starts the snakes application.
        **/
@@ -79,8 +93,50 @@ public class SnakeModel{
         SnakeStore = new MultipleSnakesStore();
         images = new SnakeImages(SnakeStore);
         snake_panel = new SnakeFrame(this);
-
     }
+
+    
+    /**  26 Dic 2012 Modified by Adri
+     *   This method is called by the deformButton listener. The method
+     *   initializes an object of type TwoDContourDeformation using the three-argument
+     *   constructor. The object, contourDeformation, then calls the deformSnake() method.
+     *   That method finds new x and y coordinates for the given points in order to make the
+     *   snake fit the curve better. DeformSnakeButtonActionPerformed() then redraws the image
+     *   in the panel given these new coordinates. 
+     *
+     * @throws IllegalAccessException when the snake has too many points.
+     **/
+ public void deformRunningMod(Snake snak) throws java.lang.IllegalAccessException{
+     
+     snake_panel.initializeProgressBar();
+
+     SnakeRaw = snak.getCoordinates(images.getCounter());
+     
+     if(snak.TYPE==Snake.CLOSED_SNAKE)
+         curveDeformation = new TwoDContourDeformation(SnakeRaw, energyFactory() );
+     else
+         curveDeformation = new TwoDCurveDeformation(SnakeRaw, energyFactory() );
+     
+     resetDeformation();
+     //INTERRUPT=false;
+     for(int j = 0; j<deformIterations; j++){
+        
+         //resets the value of the progress bar based on the iteration number
+         int value = (int)(((j+1)*1.0/deformIterations)*100);
+         snake_panel.updateProgressBar(value);
+         
+         curveDeformation.addSnakePoints(MAXIMUM_SPACING);
+         curveDeformation.deformSnake();
+         updateImagePanel();
+         if(INTERRUPT)
+             break;
+     }
+
+   RUNNING = false;
+   enableUI();
+ }
+    
+    
     
      /**    
         *   This method is called by the deformButton listener. The method
@@ -94,7 +150,7 @@ public class SnakeModel{
         **/
     public void deformRunning() throws java.lang.IllegalAccessException{
         
-        snake_panel.initializeProgressBar();
+    	if(!TRACK) snake_panel.initializeProgressBar();
 
         SnakeRaw = CurrentSnake.getCoordinates(images.getCounter());
         
@@ -105,96 +161,35 @@ public class SnakeModel{
         
         resetDeformation();
         INTERRUPT=false;
-
-        int deformations = deformIterations;
-
-        if(deformIterations<0){
-            deformations = 10;
+        for(int j = 0; j<deformIterations; j++){
+           
+            //resets the value of the progress bar based on the iteration number
+        	int value = (int)(((j+1)*1.0/deformIterations)*100);
+            /**GD_Debug Temporary, just to show results in a GUI:
+            GenericDialog gaedn22 = new GenericDialog("Workingframe");
+            gaedn22.addNumericField("value: ", value, 0);
+            gaedn22.showDialog();
+            /**GD_Debug*/
+            if(!TRACK) snake_panel.updateProgressBar(value);
+            curveDeformation.addSnakePoints(MAXIMUM_SPACING);
+            curveDeformation.deformSnake();
+            //This is to update image and not progressbar
+            if(!TRACK) updateImagePanel();
+            if(INTERRUPT)
+                break;
         }
 
-        boolean continueDeforming = true;
-        double size_before = 0;
-        double size_after = SnakeRaw.size();
-        ArrayList<double[]> previous=null;
-        while(continueDeforming&&RUNNING){
-
-            if(deformations==deformIterations){
-                continueDeforming=false;
-            } else{
-                //check for changes.
-                size_after = size_after/deformations;
-
-                double delta = size_after - size_before;
-                if(delta*delta<0.01){
-                    //If the change in points is small.
-                    if(previous==null){
-                        previous=new ArrayList<double[]>(SnakeRaw);
-                    } else{
-                        if(previous.size()==SnakeRaw.size()){
-                            //check the actual displacements.
-                            double max_delta=0;
-                            for(int i = 0;i<previous.size(); i++){
-                                double[] pta = SnakeRaw.get(i);
-                                double[] ptb = previous.get(i);
-                                double d = (pta[0] - ptb[0])*(pta[0] - ptb[0]) + (pta[1]-ptb[1])*(pta[1] - ptb[1]);
-                                max_delta = max_delta>d?max_delta:d;
-                            }
-                            if(max_delta>-deformIterations){
-                                continueDeforming=false;
-                            }
-                        }
-                        previous.clear();
-                        previous.addAll(SnakeRaw);
-                    }
-
-
-                    continueDeforming=false;
-                }
-                size_before = size_after;
-                size_after=0;
-
-            }
-
-            for(int j = 0; j<deformations; j++){
-
-                //resets the value of the progress bar based on the iteration number
-                int value = (int)(((j+1)*1.0/deformations)*100);
-                snake_panel.updateProgressBar(value);
-
-                curveDeformation.addSnakePoints(MAXIMUM_SPACING);
-                curveDeformation.deformSnake();
-                updateImagePanel();
-                if(INTERRUPT){
-                    RUNNING=false;
-                    break;
-                }
-                size_after+=SnakeRaw.size();
-            }
-        }
-
+      RUNNING = false;
+      enableUI();
     }
+    
+    
     public ImageEnergy energyFactory(){
-        int item = snake_panel.getEnergyType();
-        switch(item){
-            case ImageEnergy.INTENSITY:
-                return new IntensityEnergy( images.getProcessor(),IMAGE_SIGMA );
-            case ImageEnergy.GRADIENT:
-                return new GradientEnergy( images.getProcessor(), IMAGE_SIGMA);
-            case ImageEnergy.BALLOON:
-                if(checkForCurrentSnake()){
-                    BalloonGradientEnergy balloon = new BalloonGradientEnergy(
-                            images.getProcessor(), IMAGE_SIGMA,
-                            CurrentSnake.getCoordinates(images.getCounter()) );
-
-                    balloon.FOREGROUND = forIntMean;
-                    balloon.BACKGROUND = backIntMean;
-                    balloon.MAGNITUDE = stretch;
-
-                    return balloon;
-                }
-        }
-
-        return null;
+        
+        if(snake_panel.getEnergyType())
+            return new IntensityEnergy( images.getProcessor(),IMAGE_SIGMA );
+        else
+            return new GradientEnergy( images.getProcessor(),IMAGE_SIGMA );
 
     }
     
@@ -375,7 +370,7 @@ public class SnakeModel{
         updateImagePanel();
     }
     
-    /**
+    /**   
        *    Goes to the next frame and copies the current snake.  
        *    then deforms that snake.
        *
@@ -395,6 +390,449 @@ public class SnakeModel{
             deformSnake();
         }
     }
+    
+    /**   ADRI 09/01/2013 Modified Method
+     *    Exactly as original trackSnakes() method
+     *    Goes to the next frame and copies the current snake.  
+     *    then deforms that snake.
+     *    But Unlike the original, the frame is given as an argument.
+     *    Obviously serial.
+     *
+     **/
+  public void trackSnakesMod(int workingframe){
+	  gotoImage(workingframe);
+      /**GD_Debug Temporary, just to show results in a GUI:
+      GenericDialog gaedn = new GenericDialog("Workingframe");
+      gaedn.addNumericField("workingframe: ", workingframe, 0);
+      gaedn.addNumericField("images.getCounter(): ", images.getCounter(), 0);
+      gaedn.showDialog();
+      //GD_Debug*/
+      if(checkForCurrentSnake()){
+          int frame = workingframe;
+          ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+          nextImage();
+ 
+    
+
+          CurrentSnake.addCoordinates(images.getCounter(),Xs);
+          if(!TRACK) updateImagePanel();
+          //Thread y = new Thread(){
+          //    public void run(){
+                  deformSnakeNoThread();
+         //     }
+          //};
+          //y.start();
+          //try {
+          //    y.join();    
+          //} catch (InterruptedException e) {
+          //    e.printStackTrace();
+         // }
+          //http://stackoverflow.com/questions/1908515/java-how-to-use-thread-join
+          //http://stackoverflow.com/questions/4691533/java-wait-for-thread-to-finish
+          }
+  }
+    
+    /**   ADRI 09/01/2013 New Method
+     *    Goes to the last frame of a snakes and performs tracking in next frame.
+     *    Then goes on until last frame in which snake is trackable.
+     **/
+  public void trackSnakeAllFrames() {
+          int frame = CurrentSnake.getLastFrame();          
+          /**GD_Debug Temporary, just to show results in a GUI:
+          GenericDialog gadn = new GenericDialog("flagTrackSnake");
+          gadn.addNumericField("flagTrackSnake: ", flagTrackSnake.length, 0);
+          gadn.showDialog();
+          //GD_Debug*/
+          // Adri 27 jun 2013 I add progressbar to the process.
+          snake_panel.initializeProgressBar();
+          // Adriano 28 jun 2013
+          // I add the boolean condition because if we are having tracking then I don't calculate 
+          // progressbar stuff in method deformrunning and things go faster.
+          TRACK = true;
+          double b = images.getStackSize();
+          for (int i=frame;i<=images.getStackSize();i++){
+       		int value = (int)(i/b*100); //b is a double so we have decimal division
+       		/**GD_Debug Temporary, just to show results in a GUI:
+            GenericDialog gaedn22 = new GenericDialog("Workingframe");
+            gaedn22.addNumericField("value: ", value, 0);
+            gaedn22.addNumericField("division: ", i/images.getStackSize(), 0);
+            gaedn22.showDialog();
+            /**GD_Debug*/
+    	    
+    	        	  //if(CurrentSnake.exists(i)){
+            ////snake_panel.updateProgressBar(value); 
+            ////updateImagePanel();
+                		  trackSnakesMod(i);
+//Note: still didn't understand why progress bar doesn't update.
+//It is linked to the fact that i call a DeformSnakeNoThread method
+//which is not parallel. But still i didn't get why
+                		  
+                		  //}
+
+           
+              //http://www.daniweb.com/software-development/java/threads/187194/create-start-threads-with-loop#
+          } 
+          TRACK = false;
+  }
+  
+  /**   ADRI 10/01/2013 New Method
+   *    Tracks all snakes of one frame, to the following frame.
+   *    This method is still not implemented so i don't include the button.
+   **/
+//public void trackAllSnakesInOneFrame(){
+//	   int numberofsnakes = SnakeStore.getNumberOfSnakes();
+//        
+//        /**GD_Debug Temporary, just to show results in a GUI:
+//        GenericDialog gadn = new GenericDialog("flagTrackSnake");
+//        gadn.addNumericField("flagTrackSnake: ", flagTrackSnake.length, 0);
+//        gadn.showDialog();
+//        //GD_Debug*/
+//        for (int i=0;i<=numberofsnakes;i++){
+//            CurrentSnake=SnakeStore.getSnake(i);
+//              		  deformSnakeOneFrame();
+//              	  }         
+//            //http://www.daniweb.com/software-development/java/threads/187194/create-start-threads-with-loop#
+//        }
+
+  
+  /**   ADRI 09/01/2013 New Method WARNING : IT IS SERIAL!!!! (VERY SLOW, MUST BE MADE PARALLEL)
+   *    Track all snakes in all frames (PARTIALLY DONE, BUT IS STILL SERIAL AND NOT PARALLEL, WHICH IS BAD BECAUSE IS IS SLOW.)
+   **/
+  public void trackAllSnakesAllFrames(){
+	   int numberofsnakes = SnakeStore.getNumberOfSnakes();
+       for (int i=0;i<=numberofsnakes;i++){
+           CurrentSnake=SnakeStore.getSnake(i);
+           trackSnakeAllFrames();
+           /**GD_Debug Temporary, just to show results in a GUI:
+           GenericDialog gardn = new GenericDialog("flagTrackSnake");
+           gardn.addNumericField("ith snake number: ", i, 0);
+           gardn.addNumericField("numberofsnakes: ", numberofsnakes, 0);
+           gardn.showDialog();
+           //GD_Debug*/
+       }
+  }
+
+    /**   ADRI 22/12/2012 New Method
+     *    Deforms all snakes in a frame
+     **/
+    
+    public void deformAllSnakesOld(){
+        	snakecycle = 0;
+        	int numbersnakes = SnakeStore.getNumberOfSnakes();
+            //for (int i = 0;i<=SnakeStore.getNumberOfSnakes();i++){            
+            while (snakecycle < numbersnakes){
+        	CurrentSnake = SnakeStore.getSnake(snakecycle);
+        	deformSnakeMod(CurrentSnake);
+            //SnakeStore.deleteSnake(CurrentSnake);
+            //CurrentSnake = SnakeStore.getLastSnake();
+            //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+            //updateImagePanel();
+            snakecycle++;
+                }
+            //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+            updateImagePanel();
+                //CurrentSnake = previousSnake;
+                //unsetRememberSnake();
+    }
+    
+  //aa  /**   ADRI 04/13/2013 New Method
+  //aa   *    Deforms all snakes in a frame
+  //aa   **/
+    
+   //aa public void deformAllSnakes(){
+  //aa  	deformedsnakes=0;
+  //aa  	deformAllSnakesRecursive();
+  //aa  }
+    
+  //aa  public void deformAllSnakesRecursive(){
+    		   //while ((SnakeStore.getNumberOfSnakes()-deformedsnakes)!=0){
+    		      //CurrentSnake=SnakeStore.getSnake(SnakeStore.getNumberOfSnakes()-deformedsnakes);
+    			   
+    	//aa			   CurrentSnake=SnakeStore.getSnake(deformedsnakes);
+    	//aa			   if (CurrentSnake.exists(images.getCounter())){
+    			   // ADRI 6 gen 2013: Please NOTE threads in deformSnakeMod2 are currently working in PARALLEL.
+    			   // This can be improved.
+    	//aa		   deformSnakeMod2();
+    	//aa		   }
+    	//aa		   else{
+    				 //aa			   deformedsnakes++;
+    	//aa		   }
+    			   //CurrentSnake=SnakeStore.getSnake(deformedsnakes);
+    			   //deformSnakeMod2();
+    		   //}
+    		//SnakeStore.
+        	//snakecycle = 0;
+        	//int numbersnakes = SnakeStore.getNumberOfSnakes();
+            //for (int i = 0;i<=SnakeStore.getNumberOfSnakes();i++){            
+            //while (snakecycle < numbersnakes){
+        	//CurrentSnake = SnakeStore.getSnake(snakecycle);
+        	//deformSnakeMod(CurrentSnake);
+            //SnakeStore.deleteSnake(CurrentSnake);
+            //CurrentSnake = SnakeStore.getLastSnake();
+            //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+            //updateImagePanel();
+            //snakecycle++;
+             //   }
+            //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+  //aa       updateImagePanel();
+            
+                //CurrentSnake = previousSnake;
+                //unsetRememberSnake();
+          //aa  }
+
+    /**   ADRI 08/01/2013 New Method
+     * Counts the intensity of all (closed) snakes in all frames. (ATTENTION, INCOMPLETE!!! WE JUST USE INDEX 1 FOR SNAKE )
+     *
+     **/
+    public void countAllSnakesAllFramesIntensity(){
+        int snakesNumber = SnakeStore.getNumberOfSnakes();
+        ArrayList<double[]> allframesintensvalues = new ArrayList<double[]>();
+        ArrayList<double[]> allframesareavalues = new ArrayList<double[]>();
+        ArrayList<double[]> snakesvalues = new ArrayList<double[]>();
+        for (int snakeindex=0;snakeindex<snakesNumber;snakeindex++){
+        	ArrayList<double[]> tempvalue = countSnakeAllFramesIntensity(snakeindex);	
+        	snakesvalues.add(tempvalue.get(0));
+        	allframesintensvalues.add(tempvalue.get(1));
+        	allframesareavalues.add(tempvalue.get(2));
+        }
+    	
+    	// Now I take those values and write them in a text file
+    	// I pass a vector with snake number, first and last frame.
+    	// And another vector with all intensity average and area values for all frames in which snake exists. 
+
+    	disableUI();
+    	SnakeIO.writeSnakesIntensityData(getFrame(),snakesvalues,allframesintensvalues,allframesareavalues,images.getStackSize());
+    	enableUI();
+
+    }
+
+
+    
+    /**   ADRI 08/01/2013 New Method
+     * Counts the intensity of a single (closed) snake in all frames. (TEST)
+     *
+     **/
+    public ArrayList<double[]> countSnakeAllFramesIntensity(int snakeindex){
+    CurrentSnake=SnakeStore.getSnake(snakeindex);
+    	// Get the number of the selected snake.
+    	// Travel through all frames and check for intensity value
+        /**GD_Debug Temporary, just to show results in a GUI:
+        GenericDialog gdn = new GenericDialog("Firstlastframe");
+        gdn.addNumericField("FirstFrame: ", CurrentSnake.getFirstFrame(), 0);
+        gdn.addNumericField("LastFrame: ", CurrentSnake.getLastFrame(), 0);
+        gdn.showDialog();
+        /**GD_Debug*/
+        
+        double[] snakeData={snakeindex,CurrentSnake.getFirstFrame(),CurrentSnake.getLastFrame()};
+    	double[] allframesintensities = new double[(CurrentSnake.getLastFrame()-CurrentSnake.getFirstFrame())+1];
+    	double[] allframesareas = new double[(CurrentSnake.getLastFrame()-CurrentSnake.getFirstFrame())+1];
+     	
+     	for (int frame=CurrentSnake.getFirstFrame();frame<=CurrentSnake.getLastFrame();frame++){
+     		int value = (frame/CurrentSnake.getLastFrame())*(snakeindex/SnakeStore.getNumberOfSnakes())*100;
+    	    snake_panel.updateProgressBar(value);     	    
+     		/**GD_Debug
+    		GenericDialog framedata2 = new GenericDialog("Frame count (ctsnkallfrmsintens)");
+       		framedata2.addNumericField("frame count (ctsnkallfrmsintens): ",frame ,0);
+       		framedata2.showDialog();
+       		/**GD_Debug*/
+     		double[] values = calcSnakeIntensity(CurrentSnake, frame); //Values contains {averageintensity, pixelcounter} of a given snake in a given frame
+
+     		allframesintensities[frame-CurrentSnake.getFirstFrame()] = values[0]; //NOTE: Very important to put (frame-CurrentSnake.getFirstFrame()) as index starts from 0 and frames from first frame of the snake!!!
+     		allframesareas[frame-CurrentSnake.getFirstFrame()] = values[1]; 
+     		/**GD_Debug
+    		GenericDialog framedata = new GenericDialog("framedata");
+       		framedata.addNumericField("snake: ",snakeindex ,0);
+       		framedata.addNumericField("frame: ",frame ,0);
+       		framedata.addNumericField("allframesintensities: ",allframesintensities[frame-CurrentSnake.getFirstFrame()]  ,0);
+       		framedata.addNumericField("allframesareas: ",allframesareas[frame-CurrentSnake.getFirstFrame()] ,0);
+       		framedata.showDialog();
+       		GD_Debug*/
+    	}
+    	ArrayList<double[]> allframesvalues = new ArrayList<double[]>();
+    	allframesvalues.add(snakeData);
+    	allframesvalues.add(allframesintensities);
+    	allframesvalues.add(allframesareas);
+     
+    	return allframesvalues;
+    }
+
+   /** Adri New Method 09 Gen 2013 
+    * Writes intensity of one single snake in all frames
+    */
+    public void countSnakeIntensity(){
+    	//Not working because I still miss a method to retrieve the index of currentsnake.
+    	
+    	/**
+        ArrayList<double[]> allframesintensvalues = new ArrayList<double[]>();
+        ArrayList<double[]> allframesareavalues = new ArrayList<double[]>();
+        ArrayList<double[]> snakesvalues = new ArrayList<double[]>();
+        	ArrayList<double[]> tempvalue = countSnakeAllFramesIntensity(HERE WE NEED INDEX OF CURRENT SNAKE);	
+        	snakesvalues.add(tempvalue.get(0));
+        	allframesintensvalues.add(tempvalue.get(1));
+        	allframesareavalues.add(tempvalue.get(2));
+    	
+    	// Now I take those values and write them in a text file
+    	// I pass a vector with snake number, first and last frame.
+    	// And another vector with all intensity average and area values for all frames in which snake exists. 
+
+    	disableUI();
+    	SnakeIO.writeSnakesIntensityData(getFrame(),snakesvalues,allframesintensvalues,allframesareavalues,images.getStackSize());
+    	enableUI();
+       */
+
+    }
+    	
+
+    /**   ADRI 07/01/2013 New Method
+     * Exports the intensity of a single snake in a given frame. (TEST)
+     * Returns the average intensity and area values in a double[2] vector
+     **/
+  public double[] calcSnakeIntensity(Snake CurrentSnake, int frame){
+	  int[] xCoord;
+	  int[] yCoord;
+	  int xmax;
+	  int xmin;
+	  int ymax;
+	  int ymin;
+	  // I get two double vectors, with x and y coordinates of a given snake in a given frame
+	  //(get_xyCoordinates is a new Snake method created by ADRI on 07 gen 2013).
+      //xyCoord=CurrentSnake.get_xyCoordinates(images.getCounter());
+	  xyCoord=CurrentSnake.get_xyCoordinates(frame);
+	  xCoord=xyCoord.get(0);  
+      yCoord=xyCoord.get(1);
+
+      // I create a polygon with the snake shape
+      Polygon snakeShape= new Polygon(xCoord, yCoord, xCoord.length);
+      
+      // Question: all this could be done maybe using Shape class, and then getting the rectangle containing the AREA?
+      // First way to find a minimum and a maximum
+      // Please note in this way the position of values into xCoord and yCoord vectors will be changed!!
+      // This is not a problem, provided one doesn't use again those vectors into this method.
+      Arrays.sort(xCoord);
+      Arrays.sort(yCoord);
+      xmin=xCoord[0];  
+      xmax=xCoord[xCoord.length-1]; 
+      ymin=yCoord[0];  
+      ymax=yCoord[yCoord.length-1];
+      
+      /** Alternative way to find min and max:
+      Object xmin = Collections.min(xCoord);
+      Object ymin = Collections.min(yCoord);
+      Object xmax = Collections.max(xCoord);
+      Object ymax = Collections.max(yCoord);
+      **/
+
+      //Let's check if we builded the ROI in the right way:
+      /**GD_Debug
+      GenericDialog gd = new GenericDialog("ROI rectangle xymaxmin");
+      gd.addNumericField("Xmin: ", xmin, 0);
+      gd.addNumericField("Xmax: ", xmax, 0);
+      gd.addNumericField("Ymin: ", ymin, 0);
+      gd.addNumericField("Ymax: ", ymax, 0);
+      gd.showDialog();
+	  GD_Debug*/	      
+      // Now we send the xyminmax values to a method which checks, for every pixel in the rectangle,
+      // if this pixel is into the snake contour, and if so, calculates average intensity.
+      // CurrentSnake.calculateSnakeAverageIntensity();
+      
+      double averageintensity=0;
+      double pixelcounter=0;
+		/**GD_Debug
+	    GenericDialog framedata4 = new GenericDialog("Frame count (calcsnkintens)");
+		framedata4.addNumericField("frame count (calcsnkintens): ",frame ,0);
+		framedata4.showDialog();
+		/**GD_Debug*/
+		images.setNoDraw(true);
+	    images.gotoImage(frame);
+        updateImagePanel();
+        images.setNoDraw(false);
+	  /**GD_Debug
+  GenericDialog framedata3 = new GenericDialog("Double frame count (calcsnkintens)");
+		framedata3.addNumericField("getCounter count (calcsnkintens): ", images.getCounter(),0);
+		framedata3.showDialog();
+		/**GD_Debug*/
+      //for (int xindex=xmin;xindex<=xmax;xindex++){ //Note i am including borders
+         // for (int yindex=ymin;yindex<=ymax;yindex++){ //Note i am including borders
+              for (int xindex=xmin+1;xindex<xmax;xindex++){ //Note i am NOT including borders
+                  for (int yindex=ymin+1;yindex<ymax;yindex++){ //Note i am NOT including borders
+        	  if (snakeShape.contains(xindex,yindex)){
+        		  //I get the intensity of this pixel and add it to averageintensity variable
+        		  // For the moment is working with a getPixels method intended for 8bits channels (i.e. tempvalues needs to be int[] and not double[])
+
+        		  int[] tempvalues = images.getPixels(xindex, yindex);
+        		  averageintensity += tempvalues[0];
+        		  /**GD_Debug
+        		  //if (yindex==ymin+8 && xindex==xmin+8 && pixelcounter==0){
+        		  if (pixelcounter==0){
+        			   GenericDialog gd4 = new GenericDialog("Check if it works ");
+        			      gd4.addNumericField("tempvalues[0]: ", tempvalues[0], 0);
+        			      gd4.addNumericField("tempvalues[1]: ", tempvalues[1], 0);
+        			      gd4.addNumericField("tempvalues[2]: ", tempvalues[2], 0);
+        			      gd4.addNumericField("tempvalues[3]: ", tempvalues[3], 0);
+        			      gd4.addNumericField("Image: ", images.getCounter(), 0);
+        			      gd4.showDialog(); 
+        			  
+        		  } /**GD_Debug*/
+        		  
+        		
+        		  //Then I increase by one the pixel counter (it will be used for normalization and for Area)
+        		  pixelcounter++;
+        	  }
+          }
+      }
+      averageintensity=(averageintensity/pixelcounter);
+      //double[] values=new double[]{averageintensity, pixelcounter};
+      double[] values={averageintensity, pixelcounter};
+      //Let's check if we calculated average intensity in the right way:
+      /**GD_Debug
+      GenericDialog gd22 = new GenericDialog("Average intensity / Area");
+      gd22.addNumericField("Averageintensity: ", averageintensity, 0);
+      gd22.addNumericField("Pixelcounter: ", pixelcounter, 0);
+      gd22.showDialog();
+      /**GD_Debug*/
+      
+      return values;
+      
+  }
+    
+    
+    /**   ADRI 21/12/2012 New Method
+     *    Goes to the next frame and allows user to draw a new snake.  
+     *    This new snake is linked to the selected snake of the previous frame.
+     *
+     **/
+  public void continueSnakeInNextFrame(){
+  
+      if(checkForCurrentSnake()){
+          int frame = images.getCounter();
+          
+          ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+                  
+          nextImage();
+          
+          setRememberSnake(CurrentSnake);
+          addSnake();
+          //updateImagePanel();
+      }
+  }
+  
+  /**   ADRI 22/12/2012 New Method
+   *    Allows user to redraw a snake in this frame.  
+   *    This new snake is written over to the previously selected snake and remains linked to other frames.
+   *
+   **/
+  public void redrawSnakeInThisFrame(){
+	  
+      if(checkForCurrentSnake()){
+          int frame = images.getCounter();
+          
+          ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+                            
+          setRememberSnake(CurrentSnake);
+          addSnake();
+          //updateImagePanel();
+      }
+  }
     
     /**
        *    Disables the UI and begins the Delete Middle fix
@@ -428,6 +866,14 @@ public class SnakeModel{
             registerSnakeInteractor(si);
         }
     }
+    
+    // Adri 10/01/2013 Method to go to a given image in the frame
+    public void gotoImage(int i){
+        //This displays the chosen image in the stack to the panel.
+       images.gotoImage(i);
+       updateImagePanel();
+       
+   }
     
     /** moves to the previous image */
     public void previousImage(){
@@ -467,6 +913,67 @@ public class SnakeModel{
             updateImagePanel();
 
     }
+    
+    // Adri 03 Gen 2013
+    //public void deleteSnakeMod(int snakecycle){
+       /// CurrentSnake = SnakeStore.getSnake(snakecycle);
+       /// snakecycle++;
+        /// SnakeStore.deleteSnake(CurrentSnake);
+        //CurrentSnake = SnakeStore.getLastSnake();
+        //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+        //updateImagePanel();
+        //delflag=true;
+/// }
+    
+    public void deleteAllSnakes(){
+    	/**GD_Debug Temporary, just to show results in a GUI:*/
+        GenericDialog gdyn = new GenericDialog("Delete All Snakes?");
+        gdyn.addMessage("Are you sure you want to delete all snakes in all frames?");
+        gdyn.enableYesNoCancel("Yes", "No");
+        gdyn.showDialog();
+        if (gdyn.wasCanceled()){
+            //IJ.log("User clicked 'Cancel'");
+        }
+        else if (gdyn.wasOKed()){
+            //IJ. log("User clicked 'Yes'");
+      	 SnakeStore.deleteAllSnakes2();
+         snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+         updateImagePanel();
+        }
+        else{
+        	//IJ. log("User clicked 'No'");
+        }
+        
+            
+
+    }
+    
+    public void deleteAllSnakesOld(){
+    	 SnakeStore.deleteAllSnakes();
+    	///	snakecycle = 0;
+    ///	int numbersnakes = SnakeStore.getNumberOfSnakes();
+        //for (int i = 0;i<=numbersnakes;i++){            
+   ///     while (snakecycle < numbersnakes){
+   ///     	if (delflag==true){
+    ///    		delflag=false;	
+    ///    		deleteSnakeMod(snakecycle);
+    ///    	}
+        //CurrentSnake = SnakeStore.getSnake(i);
+        //SnakeStore.deleteSnake(CurrentSnake);
+        //snakecycle++;
+        //CurrentSnake = SnakeStore.getLastSnake();
+        //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+        //updateImagePanel();
+        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+        updateImagePanel();
+        
+        	//deformSnake();
+            //}
+        //snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+        //updateImagePanel();
+            //CurrentSnake = previousSnake;
+            //unsetRememberSnake();
+        }
 
 
     /**
@@ -506,7 +1013,8 @@ public class SnakeModel{
 
     }
     
-    /**
+    
+    /**  
        *    Starts the initialize snake process where SnakeRaw?
        *    are the transient snake coordinates.
        *
@@ -516,6 +1024,40 @@ public class SnakeModel{
         SnakeInteraction si = new InitializeSnake(this, images, snake_panel.getSnakeType());
         registerSnakeInteractor(si);
     }
+    
+    /**
+     * Adri 22/12/2012 New Method
+     * Allows to draw a circular snake starting from a single click.
+     * 
+     */
+    public void addPointToCircleSnake(){
+        //GDADRI START OF CODE TO SET RADIUS THROUGH GENERIC DIALOG
+        //GenericDialog gd = new GenericDialog("enter radiu of this set of circles");
+        //gd.addNumericField("radius",0,2);
+        //gd.showDialog();
+        //double radii  = gd.getNextNumber();
+        //GDADRI END OF CODE TO SET RADIUS THROUGH GENERIC DIALOG
+        SnakeInteraction si = new PointToCircleSnake(this, images, snake_panel.getSnakeType(), circleradius);
+        //SnakeInteraction si = new PointToCircleSnake(this, images, snake_panel.getSnakeType());
+        registerSnakeInteractor(si);
+    }
+    
+    /**   ADRI 21 Dic 2012 New Method
+     *    Method called when we want to add the drawn snake to a previously existing one
+     */
+    public void setRememberSnake(Snake CurrentSnake){
+    	previousSnake = CurrentSnake;
+        addToPrevious = true;
+        }
+
+    /**    ADRI 21 Dic 2012 New Method
+     *    After adding the drawn snake to a previously existing snake, we want to reset variables.
+     */
+    public void unsetRememberSnake(){
+    	previousSnake = null;
+        addToPrevious = false;
+        }
+
 
     /**
      * Sets the raw snake for drawing purposes.
@@ -526,40 +1068,301 @@ public class SnakeModel{
         SnakeRaw = raw;
     }
 
-    /**
-     * Store a new snake.
+    /** ADRI 21 Dic 2012 Modified Method
+     * If condition is false, method stores the drawn snake into a new snake (already existing part).
+     * In the modified part, if condition is true the drawn snake is appended to the selected snake 
+     * of the previous frame by calling addToPreviousSnake method, 
+     * and then the unsetRememberSnake() method is called to reset variables.
      * @param s
      */
     public void addNewSnake(Snake s){
-        CurrentSnake = s;
-        SnakeStore.addSnake(s);
+    	if(!addToPrevious){
+    		CurrentSnake = s;
+        	SnakeStore.addSnake(s);
+    	}
+        else {
+        	addToPreviousSnake(SnakeRaw);//mettiamo questo snake connesso al precedente tramite un metodo in model      	    
+        	unsetRememberSnake();	
+        }
+    }
+    
+    /**
+     * Adri 22/12/2012 New Method
+     * Allows to draw a circular snake starting from a single click.
+     * It can be modified to include the possibility to redraw circles also for already existing snakes.
+     * It could be done with a radius button to ask if one wants circular or handdrawn snake.
+     */
+    public void addNewPointToCircleSnake(Snake s){
+    	// ADRI 22/12/2012 To add if we want to allow redrawing or continuation using circles.
+    	//if(!addToPrevious){
+    		CurrentSnake = s;
+        	SnakeStore.addSnake(s);
+    	//}
+        //else {
+        //	addToPreviousSnake(SnakeRaw);//mettiamo questo snake connesso al precedente tramite un metodo in model      	    
+        //	unsetRememberSnake();	
+        //}
+    }
+    
+    /** ADRI 21 Dic 2012 New Method.
+     * Links snake created in the actual frame to the previous frame snake.
+     */
+    public void addToPreviousSnake(ArrayList<double[]> SnakeRaw){
+    	previousSnake.addCoordinates(images.getCounter(),SnakeRaw);
     }
 
+    /**   ADRI 26 Dic 2012 deformSnake Method Modified
+     *    It now receives the name of snake. Used in loop
+     *    Causes the deformation of a snake to occur
+     **/
+  public void deformSnakeMod(Snake snk){
+	  final Snake snak = snk;
+      //if(checkForCurrentSnake()){
+          if(!RUNNING){
+              RUNNING = true;
+              disableUI();
+              Thread x = new Thread(){
+                 public void run(){
+                     try{
+                     
+                          deformRunningMod(snak);
+                     
+                     } catch(IllegalAccessException e){
+                          
+                          JOptionPane.showMessageDialog(
+                                  getFrame(),
+                                  "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                          );
+                          
+                          
+                     } catch(IllegalArgumentException e){
+                          snak.clearSnake(images.getCounter());
+                     } catch(ArrayIndexOutOfBoundsException e){
+                          snak.clearSnake(images.getCounter());
+                     }
+                     finally {
+                      
+                          SnakeStore.purgeSnakes();
+                          snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                          RUNNING=false;
+                          enableUI();
+                     
+                     }
+                 }
+              };
+              x.start();
+          }
+          
+      //}
+  }
+    
+  /**   ADRI 10 Gen 2013 deformSnake Method Modified in order to launch things with NO THREADS! 
+   *    (therefore it becomes SERIAL and not parallel)
+   *    Causes the deformation of a snake to occur
+   **/
+public void deformSnakeNoThread(){
+    if(checkForCurrentSnake()){
+        if(!RUNNING){
+            RUNNING = true;
+            //Adri//if(!TRACK) disableUI();
+            disableUI();
+            //Thread x = new Thread(){
+            //   public void run(){
+                   try{
+                   
+                        deformRunning();
+                   
+                   } catch(IllegalAccessException e){
+                        
+                        JOptionPane.showMessageDialog(
+                                getFrame(),
+                                "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                        );
+                        
+                        
+                   } catch(IllegalArgumentException e){
+                	   CurrentSnake.clearSnake(images.getCounter());
+                   } catch(ArrayIndexOutOfBoundsException e){
+                        CurrentSnake.clearSnake(images.getCounter());
+                   }
+                   finally {
+                    
+                        SnakeStore.purgeSnakes();
+                        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                        RUNNING=false;
+                        //Adri//if(!TRACK) enableUI();
+                        enableUI();
+                   
+                   }
+               //}
+            //};
+            //x.start();
+        }
+        
+    }
+}
 
-    /**
+    /**  Adri 4 Gen 2013
+     * 	   // ADRI 4 gen 2013: Please NOTE threads in deformSnakeMod2 are currently working in SERIAL (really? check).
+    			   // This can be improved.
        *    Causes the deformation of a snake to occur
        **/
-    public void deformSnake(){
-        if(checkForCurrentSnake()){
+   // public void deformSnakeMod2(){
+	public void deformAllSnakes(){
+    	for (int defsnak=0;defsnak<SnakeStore.getNumberOfSnakes();defsnak++){
+ 	    CurrentSnake=SnakeStore.getSnake(defsnak);
+	    if (CurrentSnake.exists(images.getCounter())){
+        //if(checkForCurrentSnake()){
+	    	TRACK = true;
             if(!RUNNING){
                 RUNNING = true;
                 disableUI();
-
-                executor.submit(new DeformingRunnable(){
-                    void modifySnake() throws IllegalAccessException{
-                        deformRunning();
-                        RUNNING=false;
-                        enableUI();
-
-                    }
-                });
+          //      Thread x = new Thread(){
+          //         public void run(){
+                       
+                       try{
+                       
+                            deformRunning();
+                       
+                       } catch(IllegalAccessException e){
+                            
+                            JOptionPane.showMessageDialog(
+                                    getFrame(),
+                                    "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                            );
+                            
+                            
+                       } catch(IllegalArgumentException e){
+                            CurrentSnake.clearSnake(images.getCounter());
+                       } catch(ArrayIndexOutOfBoundsException e){
+                            CurrentSnake.clearSnake(images.getCounter());
+                       }
+                       finally {
+                        
+                            SnakeStore.purgeSnakes();
+                            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                            RUNNING=false;
+                            enableUI();
+                       
+                       }
+           //        }
+           //     };
+           //     x.start();
+           //     while (x.isAlive()){
+           //   	  }
+           //     if(x.isAlive()==false){
+           //   	  if (deformedsnakes<(SnakeStore.getNumberOfSnakes()-1)){
+           //   		  deformedsnakes++;
+           //   	      deformAllSnakesRecursive();
+           //   	  }
+              	  
+           //   	  }
+            TRACK = false;
             }
             
         }
-    
     }
-
+    	updateImagePanel();
+    }
     
+    
+    /**   Adri modified method 10/01/2013 
+     *    It's like deformsnake but it allows multithreading for snakes of the same frame
+     *    Causes the deformation of a snake to occur
+     **/
+  public void deformSnakeOneFrame(){
+
+      if(checkForCurrentSnake()){
+          if(!RUNNING){
+              RUNNING = true;
+              disableUI();
+              Thread x = new Thread(){
+                 public void run(){
+                     
+                     try{
+                 	    int frame = images.getCounter();
+                	    ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+                	    nextImage();
+                	    CurrentSnake.addCoordinates(images.getCounter(),Xs);
+                	    updateImagePanel();              
+                        deformRunning();
+                     
+                     } catch(IllegalAccessException e){
+                          
+                          JOptionPane.showMessageDialog(
+                                  getFrame(),
+                                  "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                          );
+                          
+                          
+                     } catch(IllegalArgumentException e){
+                          CurrentSnake.clearSnake(images.getCounter());
+                     } catch(ArrayIndexOutOfBoundsException e){
+                          CurrentSnake.clearSnake(images.getCounter());
+                     }
+                     finally {
+                      
+                          SnakeStore.purgeSnakes();
+                          snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                          RUNNING=false;
+                          enableUI();
+                     
+                     }
+                 }
+              };
+              x.start();
+       
+          }
+          
+      }
+  }
+
+
+    /**  
+     *    Causes the deformation of a snake to occur
+     **/
+  public void deformSnake(){
+      if(checkForCurrentSnake()){
+          if(!RUNNING){
+              RUNNING = true;
+              disableUI();
+              Thread x = new Thread(){
+                 public void run(){
+                     
+                     try{
+                     
+                          deformRunning();
+                     
+                     } catch(IllegalAccessException e){
+                          
+                          JOptionPane.showMessageDialog(
+                                  getFrame(),
+                                  "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                          );
+                          
+                          
+                     } catch(IllegalArgumentException e){
+                          CurrentSnake.clearSnake(images.getCounter());
+                     } catch(ArrayIndexOutOfBoundsException e){
+                          CurrentSnake.clearSnake(images.getCounter());
+                     }
+                     finally {
+                      
+                          SnakeStore.purgeSnakes();
+                          snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                          RUNNING=false;
+                          enableUI();
+                     
+                     }
+                 }
+              };
+              x.start();
+       
+          }
+          
+      }
+  }
+
     
     /**
        *    Sets the flag so the next click on the image pane extends the snake
@@ -673,8 +1476,13 @@ public class SnakeModel{
     
         forIntMean = f;    
     }
+
     public void setAlpha(double a){
         alpha = a;        
+    }
+    
+    public void setCircleRadius(double cr){
+        circleradius = cr;        
     }
     
     public void setBeta(double b){
@@ -747,7 +1555,8 @@ public class SnakeModel{
     /**
        *    Loads an image from an existing image plus
        *    the principle useage of this function is to load an
-       *    image when started through ImageJ.
+       *    image when trac
+       *    ed through ImageJ.
        *
        *    @param implus   the ImagePlus preloaded via ImageJ
        **/
@@ -784,6 +1593,9 @@ public class SnakeModel{
         snake_panel.repaint();
     
     }
+    
+
+    
     
     /** stops any other input except for the MouseListener on the displayed Image */
     public void disableUI(){
@@ -876,223 +1688,28 @@ public class SnakeModel{
      */
     void showVersion(){
 
-        try{
-            snakeprogram3d.HelpMessages.showAbout();
-        } catch(Exception e){
             String s = "<html>" +
                        "<body>" +
                        "You are using a version of jfilament w/out jfilament3d" +
                        "<br> version info cannot be shown <br>" +
                        "see:  <br> http://athena.physics.lehigh.edu/jfilament<br>" +
                        " for more info " +
-                       "</body></html>";
+                       "</body></html>"+
+                       "Please note that this is a modified version of JFilament"+
+                       "with some additional features added by adriano.bonforti@upf.edu"+
+                       "see attached pdf for details";            
+            
             final JFrame shower = new JFrame("JFilament2D About");
             JEditorPane helper = new JEditorPane("text/html",s);
+        
             shower.setSize(400,400);
             helper.setEditable(false);
 
             shower.add(helper);
             shower.setVisible(true);
-        }
+        
 
     }
 
-    /**
-     * Takes the current snake and tracks its shape for all frames forwards. This will start from the
-     * current snake and proceed both forwards and backwards.
-     *
-     *
-     */
-    public void trackAllFrames(int modifiers) {
 
-        boolean f = true;
-        boolean b = false;
-
-
-        if((modifiers&ActionEvent.SHIFT_MASK)>0){
-            b = true;
-            if((modifiers&ActionEvent.CTRL_MASK)>0){
-                f=true;
-            } else{
-                f=false;
-            }
-        }
-
-        final boolean forwards = f;
-        final boolean backwards = b;
-        if((!RUNNING)&&checkForCurrentSnake()){
-            RUNNING = true;
-            disableUI();
-
-            executor.submit(new DeformingRunnable(){
-                void modifySnake() throws IllegalAccessException{
-
-                    int start = images.getCounter();
-
-                    if(forwards){
-                        while(RUNNING&&images.getCounter()<images.getStackSize()){
-
-                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
-
-                            nextImage();
-
-                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
-
-                            updateImagePanel();
-                            deformRunning();
-                        }
-
-                    }
-                    if(backwards){
-
-                        images.setImage(start);
-                        while(RUNNING&&images.getCounter()>1){
-
-                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
-
-                            previousImage();
-
-                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
-
-                            updateImagePanel();
-                            deformRunning();
-                        }
-                    }
-
-                    RUNNING=false;
-                    enableUI();
-                }
-            });
-        }
-
-
-    }
-
-    /**
-     * Tracks the current snake on frame backwards.
-     *
-     */
-    public void trackBackwards() {
-        int frame = images.getCounter();
-        if(checkForCurrentSnake()&&(frame-1)>0){
-
-            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
-
-            previousImage();
-
-            CurrentSnake.addCoordinates(images.getCounter(),Xs);
-
-            updateImagePanel();
-            deformSnake();
-        }
-    }
-
-    /**
-     * Deforms the current snake through all of the frames it exists in. Especially useful
-     * for changing point sizes and ensuring that the parameter is set in every frame.
-     *
-     */
-    public void deformAllFrames(int modifiers) {
-
-        int b = 0;
-
-        if((modifiers&ActionEvent.SHIFT_MASK)>0||(modifiers&ActionEvent.CTRL_MASK)>0){
-            b = images.getCounter();
-        }
-        final int before = b;
-        if(checkForCurrentSnake()&&!RUNNING){
-            RUNNING = true;
-            disableUI();
-
-            executor.submit(new DeformingRunnable(){
-                void modifySnake() throws IllegalAccessException{
-                    for(Integer i: CurrentSnake){
-                        if(i<before) continue;
-                        images.setImage(i);
-                        updateImagePanel();
-                        deformRunning();
-
-
-                        if(!RUNNING){
-                            break;
-                        }
-                    }
-                    RUNNING=false;
-                    enableUI();
-                }
-            });
-
-        }
-
-
-
-
-    }
-
-    /**
-     * Inappropriately named at the moment.
-     *
-     */
-    public void timeSmoothSnakes() {
-       if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
-
-           ImageProcessor image = images.getProcessor().convertToFloat();
-           ImageProcessor blurred_image = image.duplicate();
-           GaussianBlur gb = new GaussianBlur();
-           gb.blurGaussian(blurred_image, IMAGE_SIGMA, IMAGE_SIGMA, .01);
-
-           double[] means = BalloonGradientEnergy.getAverageIntensity(
-
-                   CurrentSnake.getCoordinates(images.getCounter()),
-                   blurred_image
-                   );
-           snake_panel.ForegroundIntensity.setText(String.format("%2.2f",means[0]));
-           snake_panel.BackgroundIntensity.setText(String.format("%2.2f",means[1]));
-           snake_panel.setForegroundIntensity();
-           snake_panel.setBackgroundIntensity();
-       }
-
-    }
-
-    public double getSigma() {
-        return IMAGE_SIGMA;
-    }
-
-    /**
-     * Contains the nescessary exception catches when deforming or modifying a snake.
-     *
-     */
-    abstract private class DeformingRunnable implements Runnable{
-        public void run(){
-
-            try{
-
-                modifySnake();
-
-            } catch(IllegalAccessException e){
-
-                JOptionPane.showMessageDialog(
-                        getFrame(),
-                        "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
-                );
-
-
-            } catch(IllegalArgumentException e){
-                CurrentSnake.clearSnake(images.getCounter());
-            } catch(ArrayIndexOutOfBoundsException e){
-                CurrentSnake.clearSnake(images.getCounter());
-            }
-            finally {
-
-                SnakeStore.purgeSnakes();
-                snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
-                RUNNING=false;
-                enableUI();
-
-            }
-        }
-
-        abstract void modifySnake() throws IllegalAccessException;
-    }
 }
-

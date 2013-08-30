@@ -22,7 +22,6 @@ public class SnakeListener implements ActionListener{
     
     public void actionPerformed(ActionEvent evt){
         SnakeActions act = SnakeActions.valueOf(evt.getActionCommand());
-
         switch(act){
             case getandload:
                 snake_model.getAndLoadImage();
@@ -35,6 +34,9 @@ public class SnakeListener implements ActionListener{
                 break;
             case setalpha:
                 snake_frame.setAlpha();
+                break;
+            case setcircleradius:
+                snake_frame.setCircleRadius();
                 break;
             case setbeta:
                 snake_frame.setBeta();
@@ -78,6 +80,10 @@ public class SnakeListener implements ActionListener{
             case deletesnake:
                 snake_model.deleteSnake();
                 break;
+            // Adri 26/12/2012
+            case deleteallsnakes:
+                snake_model.deleteAllSnakes();
+                break;
             case initializezoom:
                 snake_model.initializeZoomIn();
                 break;
@@ -99,6 +105,38 @@ public class SnakeListener implements ActionListener{
             case tracksnake:
                 snake_model.trackSnakes();
                 break;
+            //ADRI 09/01/2013   
+            case tracksnakeallframes:
+                snake_model.trackSnakeAllFrames();
+                break;
+            //ADRI 09/01/2013 
+            case trackallsnakesallframes:
+                snake_model.trackAllSnakesAllFrames();
+                break;
+            //ADRI 10/01/2013 
+            //case trackallsnakesinoneframe:
+            //    snake_model.trackAllSnakesInOneFrame();
+            //    break;
+            //ADRI 21/12/2012     
+            // I add button continuesnake, which allows to draw in the next frame a snake linked with the selected snake of the previous frame
+            case continuesnake:
+                snake_model.continueSnakeInNextFrame();
+                break;
+           //ADRI 22/12/2012     
+                // I add button redrawsnake, which allows to draw an already existing snake in the frame without loosing connection with linked snake in neighbour frames
+           case redrawsnake:
+               snake_model.redrawSnakeInThisFrame();
+               break;
+           //ADRI 22/12/2012     
+               // I add button Add CircleSnake, which allows to draw a circular snake with a single click.
+           case pointtocirclesnake:
+               snake_model.addPointToCircleSnake();
+               break;
+           //ADRI 22/12/2012     
+               // I add button Deform All Snakes, to deform all snakes in a frame.
+           case deformallsnakes:
+               snake_model.deformAllSnakes();
+               break;
             case savedata:
                 snake_model.saveElongationData();
                 break;
@@ -114,22 +152,19 @@ public class SnakeListener implements ActionListener{
             case setlinewidth:
                 snake_model.setLineWidth();
                 break;
-            case trackallframes:
-                snake_model.trackAllFrames(evt.getModifiers());
-                break;
-            case trackbackwards:
-                snake_model.trackBackwards();
-                break;
-            case deformallframes:
-                snake_model.deformAllFrames(evt.getModifiers());
-                break;
-            case timesmoothsnakes:
-                snake_model.timeSmoothSnakes();
-                break;
             case showversion:
                 snake_model.showVersion();
                 break;
-
+            //ADRI 07/01/2013     
+            // I add button countsnakeintensity
+            //case countsnakeintensity:
+            //     snake_model.countSnakeIntensity();
+            //     break;
+            //ADRI 08/01/2013     
+            // I add button countallsnakesallframesintensity
+            case countallsnakesallframesintensity:
+                 snake_model.countAllSnakesAllFramesIntensity();
+                break;
         }
     }
 }

@@ -65,9 +65,7 @@ public class InitializeSnake implements SnakeInteraction {
             //SnakeRaw.add(pt);
 
             Snake snake = new Snake(SnakeRaw, images.getCounter(), type);
-
             model.addNewSnake(snake);
-
             model.setSnakeRaw(null);
             model.unRegisterSnakeInteractor(this);
             images.setFollow(false);

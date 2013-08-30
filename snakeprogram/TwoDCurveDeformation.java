@@ -1,7 +1,6 @@
 package snakeprogram;
 
 import ij.process.ImageProcessor;
-import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
 /**
@@ -80,7 +79,7 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         int newPointListSize = (int)(cumulativeDistance/MAX_SEGMENT_LENGTH);
         
         if(newPointListSize>SnakeModel.MAXLENGTH)
-            throw new IllegalAccessException("" + newPointListSize);
+            throw new IllegalAccessException("" + pointListSize);
             
         double segmentLength = cumulativeDistance/(double)newPointListSize;
 
