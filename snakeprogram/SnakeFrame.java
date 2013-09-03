@@ -274,16 +274,30 @@ public class SnakeFrame{
         bp.add(createActionButton("Stretch Fix", SnakeActions.stretchfix.name()));
         bp.add(createActionButton("Zoom In", SnakeActions.initializezoom.name()));
         bp.add(createActionButton("Zoom Out", SnakeActions.zoomout.name()));
-        bp.add(createActionButton("Track All Frames", SnakeActions.trackallframes.name()));
+        bp.add(createActionButton("Track All Frames", SnakeActions.trackallframes.name(),
+                "Track from current frame,+SHIFT track backwards from current frame, +SHIFT+CTRL all frames"));
         bp.add(createActionButton("Track Backwards", SnakeActions.trackbackwards.name()));
-        bp.add(createActionButton("Deform All Frames", SnakeActions.deformallframes.name()));
+        bp.add(createActionButton("Deform All Frames", SnakeActions.deformallframes.name(),
+                "All frames, +CTRL only frames after current"));
         bp.add(createActionButton("Surprise", SnakeActions.timesmoothsnakes.name()));
         return bp;
         
     }
-    
-    
 
+    public JButton createActionButton(String label, String cmd, String tooltip){
+
+        JButton butt = createActionButton(label, cmd);
+        butt.setToolTipText(tooltip);
+        return butt;
+    }
+
+    /**
+     *  Creates an action button that will be enabled/disabled with the
+     *
+     * @param label
+     * @param cmd
+     * @return
+     */
     public JButton createActionButton(String label, String cmd){
         JButton butt = new JButton(label);
         butt.setActionCommand(cmd);
