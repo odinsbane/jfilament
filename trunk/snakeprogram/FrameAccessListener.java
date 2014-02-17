@@ -4,7 +4,7 @@ package snakeprogram;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-
+import java.util.ArrayList;
 
 
 /**
@@ -21,9 +21,9 @@ import java.awt.event.*;
 class FrameAccessListener implements MouseListener{
 
         private boolean IGNORING;
-        private JTextField[] text_fields;
-        private AbstractButton[] buttons;
-        private JMenu[] menus;
+        private ArrayList<JTextField> text_fields = new ArrayList<JTextField>();
+        private ArrayList<AbstractButton> buttons = new ArrayList<AbstractButton>();
+        private ArrayList<JMenu> menus = new ArrayList<JMenu>();
         private SnakeSelector selector;
         
         FrameAccessListener(){
@@ -36,6 +36,7 @@ class FrameAccessListener implements MouseListener{
                 
                 e.getComponent().setEnabled(true);
                 disableButtons();
+                e.getComponent().requestFocus();
                 IGNORING = true;
             
             }
@@ -51,19 +52,24 @@ class FrameAccessListener implements MouseListener{
         public void mouseExited(MouseEvent e){}
         
         public void setButtons(AbstractButton[] b){
-            buttons = b;
+
+            for(AbstractButton button: b) buttons.add(button);
+
         }
         
         public void setFields(JTextField[] jtf){
-            text_fields = jtf;
+
             for(JTextField j: jtf){
+                text_fields.add(j);
                 j.setEnabled(false);
                 j.addMouseListener(this);
             }
         }
+
         public void setMenus(JMenu[] jtm){
-			menus = jtm;
+
 			for(JMenu j: jtm){
+                menus.add(j);
 				j.setEnabled(false);
 			}
 		}
@@ -118,15 +124,17 @@ class FrameAccessListener implements MouseListener{
         
         public void enableOpenImage(){
 			String s;
-                        for(JMenu m: menus){
-                            s = m.getText();
-                            System.out.println(s);
-                            if(s.compareTo("image")==0||s.compareTo("help")==0)
+            for(JMenu m: menus){
+                s = m.getText();
+                if(s.compareTo("image")==0||s.compareTo("help")==0)
 				m.setEnabled(true);
-                        }
+            }
 		}
 
-        
+
+    public void registerButton(AbstractButton b) {
+        buttons.add(b);
+    }
 }
 
 class SnakeSelector extends MouseAdapter implements KeyListener{

@@ -60,8 +60,9 @@ public class SnakeFrame{
     }
     
     public void disableUI(){
-        FRAME.getContentPane().requestFocus();
         field_watcher.disableUI();
+        FRAME.getContentPane().requestFocus();
+
     }
     
     private void createFrameListener(){
@@ -237,7 +238,13 @@ public class SnakeFrame{
         energies.add(balloon);
 
         intensity.setSelected(true);
-        
+
+        energies.addSeparator();
+        JMenuItem external = new JMenuItem("external forces");
+        external.setActionCommand(SnakeActions.showannotations.name());
+        external.addActionListener(snake_listener);
+
+        energies.add(external);
         MENUS.add(energies);
         bar.add(energies);
 
@@ -279,7 +286,8 @@ public class SnakeFrame{
         bp.add(createActionButton("Track Backwards", SnakeActions.trackbackwards.name()));
         bp.add(createActionButton("Deform All Frames", SnakeActions.deformallframes.name(),
                 "All frames, +CTRL only frames after current"));
-        bp.add(createActionButton("Surprise", SnakeActions.timesmoothsnakes.name()));
+        bp.add(createActionButton("Move End Points", SnakeActions.repositionend.name(),
+                "Move the location of the beginning and end points for closed contour."));
         return bp;
         
     }
@@ -363,8 +371,10 @@ public class SnakeFrame{
         row.add(createActionButton("Get",SnakeActions.getbackground.name()));
         BackgroundIntensity = TRANSIENT;
         parameter_pane.add(row);
+        parameter_pane.add(createActionButton("Guess Intensities", SnakeActions.guessforebackground.name()));
         parameter_pane.add(Box.createVerticalStrut(vspace));
-        
+
+
         
 		parameter_pane.add(createSeparator("Curve Type"));
         
@@ -471,6 +481,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setImageSmoothing(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
         }
         catch (NumberFormatException nfe) {
             System.out.println("NumberFormatException: " + nfe.getMessage());
@@ -487,6 +499,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setResolution(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -505,6 +519,8 @@ public class SnakeFrame{
             double v = (int)Double.parseDouble(s.trim());
             snake_model.setDeformIterations((int)v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -523,6 +539,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setBackgroundIntensity(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -541,6 +559,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setStretch(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -559,6 +579,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setForegroundIntensity(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -577,6 +599,8 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setWeight(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
+
 
         }
         catch (NumberFormatException nfe) {
@@ -595,6 +619,7 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setGamma(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
 
         }
         catch (NumberFormatException nfe) {
@@ -613,6 +638,7 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setBeta(v);
             field_watcher.valueUpdated();
+            FRAME.validate();
 
         }
         catch (NumberFormatException nfe) {
@@ -631,7 +657,7 @@ public class SnakeFrame{
             double v = Double.parseDouble(s.trim());
             snake_model.setAlpha(v);
             field_watcher.valueUpdated();
-
+            FRAME.validate();
         }
         catch (NumberFormatException nfe) {
 
@@ -643,12 +669,11 @@ public class SnakeFrame{
     
     public void enableUI(){
         field_watcher.enableUI();
+        FRAME.validate();
     }
-    
+
     public void repaint(){
-        
         FRAME.repaint();
-        
     }
     
     public void setNumberOfSnakesLabel(int x){
@@ -692,6 +717,10 @@ public class SnakeFrame{
         }
 
         return i;
+    }
+
+    public void registerButton(AbstractButton b){
+        field_watcher.registerButton(b);
     }
     
     public void updateForegroundText(String s){
@@ -800,6 +829,8 @@ enum SnakeActions{
         trackallframes,
         deformallframes,
         trackbackwards,
-        timesmoothsnakes
-        
-        }
+        guessforebackground,
+        repositionend,
+        showannotations;
+
+}

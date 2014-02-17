@@ -26,6 +26,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -62,7 +64,7 @@ public class SnakeModel{
     //Model Values 
     public static int squareSize = 3;            //This is the size of the square that averaging is performed over for the 'getIntForMean' ops
     private int deformIterations = 100;          //Number of iterations when a 'deformSnake' is clicked
-    private double IMAGE_SIGMA = 1.01;          //For bluring
+    private double IMAGE_SIGMA = 1.01;          //For blurring
     public double MAXIMUM_SPACING = 1.;
 
     
@@ -70,8 +72,7 @@ public class SnakeModel{
     //What to do with the tracking data!?
     private MultipleSnakesStore SnakeStore;
     private SnakeInteraction interactor;
-
-    
+    private AnnotationEnergies annotations;
     /**
        *    Starts the snakes application.
        **/
@@ -80,6 +81,19 @@ public class SnakeModel{
         images = new SnakeImages(SnakeStore);
         snake_panel = new SnakeFrame(this);
 
+    }
+
+    private void submit(final Runnable r){
+        executor.submit(new Runnable(){
+           public void run(){
+               try{
+                   r.run();
+               }catch(Exception e){
+                   System.out.println("exception: " + e.getMessage());
+                   e.printStackTrace();
+               }
+           }
+        });
     }
     
      /**    
@@ -174,6 +188,44 @@ public class SnakeModel{
 
     }
     public ImageEnergy energyFactory(){
+
+        final Set<ExternalEnergy> active = annotations==null?new HashSet<ExternalEnergy>():annotations.getActiveForces();
+        final ImageEnergy image_energy = imageEnergyFactory();
+
+        if(active.size()==0){
+            return image_energy;
+        } else{
+
+            return new ImageEnergy(){
+
+                @Override
+                public double getMaxPixel(double x, double y) {
+                    return image_energy.getMaxPixel(x,y);
+                }
+
+                @Override
+                public double[] getImageEnergy(double x, double y) {
+
+                    double[] sum = image_energy.getImageEnergy(x,y);
+                    for(ExternalEnergy erg: active){
+                        double[] f = erg.getForce(x, y);
+                        sum[0] += f[0];
+                        sum[1] += f[1];
+                    }
+                    return sum;
+
+                }
+
+                @Override
+                public ImageProcessor getProcessor() {
+                    return image_energy.getProcessor();
+                }
+            };
+
+        }
+    }
+
+    public ImageEnergy imageEnergyFactory(){
         int item = snake_panel.getEnergyType();
         switch(item){
             case ImageEnergy.INTENSITY:
@@ -197,6 +249,8 @@ public class SnakeModel{
         return null;
 
     }
+
+
     
 
     
@@ -236,27 +290,7 @@ public class SnakeModel{
     }
 
     
-    /**
-       *    When initializing a snake this will add points a right click will end
-       *    the process and re-enable the UI.
-       **/
-    private void initializeSnakeClicked(MouseEvent evt){
 
-
-    }
-    
-    /**
-       *    Finds the location of the current mouse click and finds the 
-       *    mean intensity about that point.  Then sets the value for 
-       *    background intensity, and updates the UI.
-       **/
-    private void getBackgroundClicked(MouseEvent evt){
-
-    }
-    
-
-
-    
     /**
        *    Chooses the nearest snake.  This method is called
        *    by another listener added by the snake_frame which is
@@ -364,7 +398,7 @@ public class SnakeModel{
     public void loadSnake(){
         disableUI();
         HashMap<String,Double> values = snake_panel.getConstants();
-        MultipleSnakesStore ss = SnakeIO.loadSnakes(getFrame(),values);
+        MultipleSnakesStore ss = SnakeIO.loadSnakes(getFrame(), values);
         snake_panel.setConstants(values);
         if(ss != null){
             SnakeStore = ss;
@@ -427,6 +461,16 @@ public class SnakeModel{
             SnakeInteraction si = new DeleteEndFixer(this, images, CurrentSnake);
             registerSnakeInteractor(si);
         }
+    }
+
+    public void repositionEnd() {
+
+        if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
+            SnakeInteraction si = new RepositionContourEnds(this, images, CurrentSnake);
+            registerSnakeInteractor(si);
+        }
+
+
     }
     
     /** moves to the previous image */
@@ -544,11 +588,10 @@ public class SnakeModel{
             if(!RUNNING){
                 RUNNING = true;
                 disableUI();
-
-                executor.submit(new DeformingRunnable(){
-                    void modifySnake() throws IllegalAccessException{
+                submit(new DeformingRunnable() {
+                    void modifySnake() throws IllegalAccessException {
                         deformRunning();
-                        RUNNING=false;
+                        RUNNING = false;
                         enableUI();
 
                     }
@@ -774,10 +817,12 @@ public class SnakeModel{
 
         if(SnakeRaw!=null)
             images.setRawData(SnakeRaw);
-
+        if(annotations!=null){
+            annotations.setFrame(images.getCounter());
+        }
         images.setCurrentSnake(CurrentSnake);
         images.updateImagePanel();
-        
+
         snake_panel.updateStackProgressionLabel(images.getCounter(),images.getStackSize());
         snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
 
@@ -830,7 +875,7 @@ public class SnakeModel{
     public void setMaxLength(){
         GenericDialog gd = new GenericDialog("Enter a new Max Length");
 
-        gd.addNumericField("Max Length",SnakeModel.MAXLENGTH,0);
+        gd.addNumericField("Max Length", SnakeModel.MAXLENGTH, 0);
 
         gd.showDialog();
         if(gd.wasCanceled()) return;
@@ -924,42 +969,42 @@ public class SnakeModel{
             RUNNING = true;
             disableUI();
 
-            executor.submit(new DeformingRunnable(){
-                void modifySnake() throws IllegalAccessException{
+            submit(new DeformingRunnable() {
+                void modifySnake() throws IllegalAccessException {
 
                     int start = images.getCounter();
 
-                    if(forwards){
-                        while(RUNNING&&images.getCounter()<images.getStackSize()){
+                    if (forwards) {
+                        while (RUNNING && images.getCounter() < images.getStackSize()) {
 
                             ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
 
                             nextImage();
 
-                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+                            CurrentSnake.addCoordinates(images.getCounter(), Xs);
 
                             updateImagePanel();
                             deformRunning();
                         }
 
                     }
-                    if(backwards){
+                    if (backwards) {
 
                         images.setImage(start);
-                        while(RUNNING&&images.getCounter()>1){
+                        while (RUNNING && images.getCounter() > 1) {
 
                             ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
 
                             previousImage();
 
-                            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+                            CurrentSnake.addCoordinates(images.getCounter(), Xs);
 
                             updateImagePanel();
                             deformRunning();
                         }
                     }
 
-                    RUNNING=false;
+                    RUNNING = false;
                     enableUI();
                 }
             });
@@ -1004,20 +1049,20 @@ public class SnakeModel{
             RUNNING = true;
             disableUI();
 
-            executor.submit(new DeformingRunnable(){
-                void modifySnake() throws IllegalAccessException{
-                    for(Integer i: CurrentSnake){
-                        if(i<before) continue;
+            submit(new DeformingRunnable() {
+                void modifySnake() throws IllegalAccessException {
+                    for (Integer i : CurrentSnake) {
+                        if (i < before) continue;
                         images.setImage(i);
                         updateImagePanel();
                         deformRunning();
 
 
-                        if(!RUNNING){
+                        if (!RUNNING) {
                             break;
                         }
                     }
-                    RUNNING=false;
+                    RUNNING = false;
                     enableUI();
                 }
             });
@@ -1030,10 +1075,11 @@ public class SnakeModel{
     }
 
     /**
-     * Inappropriately named at the moment.
+     * Attempts to determine the foreground and background intensities based on the current snake describing the
+     * desired curve.
      *
      */
-    public void timeSmoothSnakes() {
+    public void guessForegroundBackground() {
        if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
 
            ImageProcessor image = images.getProcessor().convertToFloat();
@@ -1057,6 +1103,17 @@ public class SnakeModel{
     public double getSigma() {
         return IMAGE_SIGMA;
     }
+
+    public void showAnnotationFrame() {
+        if(annotations==null){
+
+            annotations=new AnnotationEnergies(this, images);
+            annotations.registerButtons(snake_panel);
+
+        }
+        annotations.setVisible(true);
+    }
+
 
     /**
      * Contains the nescessary exception catches when deforming or modifying a snake.

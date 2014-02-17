@@ -123,11 +123,17 @@ public class SnakeListener implements ActionListener{
             case deformallframes:
                 snake_model.deformAllFrames(evt.getModifiers());
                 break;
-            case timesmoothsnakes:
-                snake_model.timeSmoothSnakes();
+            case guessforebackground:
+                snake_model.guessForegroundBackground();
                 break;
             case showversion:
                 snake_model.showVersion();
+                break;
+            case repositionend:
+                snake_model.repositionEnd();
+                break;
+            case showannotations:
+                snake_model.showAnnotationFrame();
                 break;
 
         }
