@@ -8,6 +8,7 @@ import ij.process.ImageProcessor;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 /**
    *    A class for controlling the image data.
@@ -56,7 +57,8 @@ public class SnakeImages{
     //This is the snake data
     
     ArrayList<double[]> SnakeRaw;
-    
+    HashSet<ProcDrawable> drawables = new HashSet<ProcDrawable>();
+    ArrayList<ImageCounterListener> counter_listeners = new ArrayList<ImageCounterListener>();
 
     SnakeImages(MultipleSnakesStore ss){
         DRAW_SNAKE = false;
@@ -174,6 +176,19 @@ public class SnakeImages{
             double[] markA = toZoom(STATIC_MARKERS.get(0));
             double[] markB = toZoom(STATIC_MARKERS.get(1));
             imp.drawLine((int)markA[0], (int)markA[1], (int)markB[0], (int)markB[1]);
+        }
+
+        if(drawables.size()>0){
+            Transform tranny = new Transform(){
+
+                @Override
+                public double[] transform(double[] pt) {
+                    return toZoom(pt);
+                }
+            };
+            for(ProcDrawable drawable: drawables){
+                drawable.draw(imp, tranny);
+            }
         }
 
         imageDrawSnake.setProcessor("update", imp);
@@ -406,18 +421,21 @@ public class SnakeImages{
     }
     
     public void nextImage(){
-        if(imagecounter+1 <= stackLoad.getSize())
-            imagecounter++;
+        if(imagecounter<stackLoad.getSize())
+            setImage(imagecounter+1);
     }
     
     public void previousImage(){
         if(imagecounter>1)
-            imagecounter--;
+            setImage(imagecounter-1);
     }
 
     public void setImage(int i){
         if(i>0&&i<=stackLoad.getSize()){
             imagecounter=i;
+            for(ImageCounterListener peon: counter_listeners){
+                peon.setFrame(i);
+            }
         } else{
             throw new IllegalArgumentException("index of: " + i + "is out of image bounds[0:" + stackLoad.getSize()+ "])");
         }
@@ -557,4 +575,35 @@ public class SnakeImages{
     public String getTitle(){
 		return FILENAME;
 	}
+
+    public void addDrawable(ProcDrawable drawable){
+
+        drawables.add(drawable);
+
+    }
+
+    public void removeDrawable(ProcDrawable drawable){
+        drawables.remove(drawable);
+    }
+
+}
+
+/**
+ * An interface to add and remove items from the window for drawing.
+ *
+ */
+
+interface ProcDrawable{
+    /**
+     * The image processor is already scaled, the transform is the nescessary transform to go from real coordinates to
+     * displayed coordantes.
+     *
+     * @param proc
+     * @param transform
+     */
+    public void draw(ImageProcessor proc, Transform transform);
+}
+
+interface Transform{
+    public double[] transform(double[] pt);
 }
