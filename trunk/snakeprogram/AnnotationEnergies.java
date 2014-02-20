@@ -459,8 +459,10 @@ class AnnotationForce implements ProcDrawable, ExternalEnergy{
 
         double[] atleast = null;
         boolean valid_found = false;
-        for(Integer i: positions.keySet()){
+        Iterator<Integer> iter = positions.keySet().iterator();
 
+        while(iter.hasNext()){
+            Integer i = iter.next();
             if(i<first || i>last){
                 if(atleast==null){
                     //just in case.
@@ -468,7 +470,7 @@ class AnnotationForce implements ProcDrawable, ExternalEnergy{
 
                 }
 
-                positions.remove(i);
+                iter.remove();
 
             } else if(!valid_found){
                 atleast = positions.get(i);
