@@ -13,6 +13,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -43,9 +44,11 @@ public class DataCanvas extends Canvas3D {
 
     CanvasController controller;
 
+    private OffScreenCanvas3D offscreen;
     
     public DataCanvas(GraphicsConfiguration gc,Color3f back){
         super(gc,false);
+        offscreen = new OffScreenCanvas3D(gc, true);
         background = back;
         createUniverse();
         }
@@ -53,6 +56,7 @@ public class DataCanvas extends Canvas3D {
 
     public DataCanvas(GraphicsConfiguration gc){
         super(gc,false);
+        offscreen = new OffScreenCanvas3D(gc, true);
         createUniverse();
     }
 
@@ -98,6 +102,14 @@ public class DataCanvas extends Canvas3D {
         pickCanvas.setMode(PickTool.GEOMETRY_INTERSECT_INFO);
         //pickCanvas.setTolerance(0.1f);
         //pickCanvas.setShapeRay(new Point3d(0,0,-1000), new Vector3d(0,0,2000));
+
+        Screen3D screen = getScreen3D();
+        Screen3D off = offscreen.getScreen3D();
+        Dimension dim = screen.getSize();
+        off.setSize(dim);
+        off.setPhysicalScreenWidth(screen.getPhysicalScreenWidth());
+        off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
+        universe.getViewer().getView().addCanvas3D(offscreen);
     }
 
 
@@ -246,6 +258,11 @@ public class DataCanvas extends Canvas3D {
             return good;
         }
 
+    public BufferedImage snapShot(){
+
+        return offscreen.doRender(getWidth(), getHeight());
+    }
+
 }
 
 /**
@@ -303,3 +320,31 @@ interface CanvasView {
     public void updatePick(PickResult[] result, MouseEvent evt, boolean clicked);
         
     }
+
+class OffScreenCanvas3D extends Canvas3D {
+    OffScreenCanvas3D(GraphicsConfiguration graphicsConfiguration,
+                      boolean offScreen) {
+
+        super(graphicsConfiguration, offScreen);
+    }
+
+    BufferedImage doRender(int width, int height) {
+
+        BufferedImage bImage = new BufferedImage(width, height,
+                BufferedImage.TYPE_INT_ARGB);
+
+        ImageComponent2D buffer = new ImageComponent2D(
+                ImageComponent.FORMAT_RGBA, bImage);
+
+        setOffScreenBuffer(buffer);
+        renderOffScreenBuffer();
+        waitForOffScreenRendering();
+        bImage = getOffScreenBuffer().getImage();
+
+        return bImage;
+    }
+
+    public void postSwap() {
+        // No-op since we always wait for off-screen rendering to complete
+    }
+}
