@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *     This is a minimal surface type, it can only be deformed by giving it a new dataset, it is also
- *     only visible from 1 side
+ *     A Line for representing snakes.
  *
  * @author Matt Smith
  *
@@ -29,8 +28,21 @@ public class PolyLine implements DataObject{
     int FRAME;
     private BranchGroup BG;
     ColoringAttributes c_at;
-    
-    
+
+    /**
+     * Snakes exist in the image coordinates where x-y-z all correspond to the same distance.
+     * They image space is defined by the height, width, and depth.
+     *
+     * Each axis is scaled by the longest, principle, axis.
+     *
+     *
+     * The center of the box is at 0, 0, depth/(2*principle). The image coordinates w/2, h/2, 0 would correspond to 0,0,0 in
+     * @param s
+     * @param height
+     * @param width
+     * @param depth
+     * @param frame
+     */
     public PolyLine(Snake s,double height,double width,double depth, int frame){
         double principle = (height>width)?(height>depth?height:depth):(width>depth?width:depth);
         snake = s;
@@ -43,13 +55,13 @@ public class PolyLine implements DataObject{
 
        }
         line3d = new Shape3D(line);
-        
-        
-        
-        
-        
+
+
+
+
+
         line3d.setAppearance(createAppearance());
-        
+
         line3d.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
         
         Vector3d saxis = new Vector3d(new double[]{1./principle,-1./principle,1./principle});
