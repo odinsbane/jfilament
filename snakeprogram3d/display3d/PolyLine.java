@@ -6,6 +6,7 @@ import javax.media.j3d.*;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *     This is a minimal surface type, it can only be deformed by giving it a new dataset, it is also
@@ -33,7 +34,7 @@ public class PolyLine implements DataObject{
     public PolyLine(Snake s,double height,double width,double depth, int frame){
         double principle = (height>width)?(height>depth?height:depth):(width>depth?width:depth);
         snake = s;
-        ArrayList<double[]> spts = s.getCoordinates(frame);
+        List<double[]> spts = s.getCoordinates(frame);
         FRAME = frame;
         LineArray line = new LineArray(2*(spts.size()-1),GeometryArray.COORDINATES);
         for(int i=0; i<spts.size()-1; i++){

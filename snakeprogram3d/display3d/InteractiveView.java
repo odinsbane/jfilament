@@ -10,11 +10,12 @@ import javax.swing.*;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector4f;
-import java.awt.*;
+import java.awt.Component;
+import java.awt.GraphicsConfiguration;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 /**
  * Shows 3 perpendicular planes, that can be clicked on during certain times.
  * @author Matt Smith
@@ -85,11 +86,11 @@ public class InteractiveView implements CanvasView{
          y = new DataCanvas(gc,new Color3f(0.06f,0.3f,0.06f));
         
         cursor = new MoveableSphere(0.01);
-        MARKERS = new HashMap<String, MoveableSphere>();
+        MARKERS = new HashMap<>();
         
         y.addObject(cursor);
 
-        snakes = new ArrayList<PolyLine>();
+        snakes = new ArrayList<>();
         
     }
     
@@ -337,7 +338,7 @@ public class InteractiveView implements CanvasView{
             y.addObject(XY);
 
             //create boundary line
-            ArrayList<Point3d> pts = new ArrayList<Point3d>();
+            List<Point3d> pts = new ArrayList<Point3d>();
             pts.add(new Point3d(0,0,0));
             pts.add(new Point3d(xs,0,0));
             pts.add(new Point3d(xs,ys,0));
@@ -573,7 +574,7 @@ public class InteractiveView implements CanvasView{
      *
      * @param raw coordinates representing the snake being initialized.
      */
-    public void drawRawSnake(ArrayList<double[]> raw){
+    public void drawRawSnake(List<double[]> raw){
         if(raw.size()==1){
             FOLLOWING=true;
             LAST_POINT = raw.get(0);

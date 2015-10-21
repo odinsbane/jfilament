@@ -7,10 +7,14 @@ import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+
 /**
  *    A class for accessing original and or smoothed image data.
  *
@@ -69,7 +73,7 @@ public class SnakeImages{
     float[] KERNEL;
     //This is the snake data
     
-    ArrayList<double[]> SnakeRaw;
+    List<double[]> SnakeRaw;
 
     /**
      * Creates a new snake images which keeps track of the 2D display and
@@ -79,7 +83,7 @@ public class SnakeImages{
      */
     SnakeImages(MultipleSnakesStore ss){
 
-        BLURRED_IMAGES = new HashMap<Integer,ImageProcessor>();
+        BLURRED_IMAGES = new HashMap<>();
 
         DRAW_SNAKE = false;
         ZOOMIN = false;
@@ -200,7 +204,7 @@ public class SnakeImages{
     }
     
     
-    public void setRawData(ArrayList<double[]> xv){
+    public void setRawData(List<double[]> xv){
             SnakeRaw = xv;
             
         if(xv!=null&&xv.size()>0){
@@ -281,7 +285,7 @@ public class SnakeImages{
         else
             improc.setColor(Color.YELLOW);
         if(s.exists(getCurrentFrame())){
-            ArrayList<double[]> psnake = s.getCoordinates(getCurrentFrame());
+            List<double[]> psnake = s.getCoordinates(getCurrentFrame());
             //creates vectors to store transformed coordinates
             ArrayList<double[] > SnakeDraw = new ArrayList<double[]>();
             

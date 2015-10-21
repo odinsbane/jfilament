@@ -18,10 +18,13 @@ import snakeprogram3d.display3d.InteractiveView;
 import snakeprogram3d.display3d.ThreeDSnake;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.EventQueue;
+import java.awt.GraphicsConfiguration;
+import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SnakeModel{
@@ -29,7 +32,7 @@ public class SnakeModel{
     private SnakeImages images;             //Contains all of the image data
     private SnakeFrame snake_panel;        //Contians the controls
     /**These contain the currently displayed snake data. x and y values*/
-    private ArrayList<double[]> SnakeRaw;
+    private List<double[]> SnakeRaw;
     private Snake CurrentSnake;
     /**The deformation for an open deformation*/
     private ThreeDDeformation curveDeformation;
@@ -250,7 +253,7 @@ public class SnakeModel{
      */
     public double[] getClosestSnakePoint(double x, double y, double z){
         double[] n = new double[]{x,y,z};
-        ArrayList<double[]> pts = CurrentSnake.getCoordinates(images.getCurrentFrame());
+        List<double[]> pts = CurrentSnake.getCoordinates(images.getCurrentFrame());
         double min = Double.MAX_VALUE;
         double d;
         double[] ret = null;
@@ -683,7 +686,7 @@ public class SnakeModel{
             for(Snake s: SnakeStore){
                 double distance = 1e6;
                 if(s.exists(frame)){
-                    ArrayList<double[]> cx = s.getCoordinates(frame);
+                    List<double[]> cx = s.getCoordinates(frame);
                     int size = s.getSize(frame);
                     for(int i = 0; i<size;i++){
                         double cd = ThreeDCurveDeformation.pointDistance(mouse_pt,cx.get(i));
@@ -1369,8 +1372,8 @@ public class SnakeModel{
                         if(TDS==null){
                             GraphicsConfiguration gc = DataCanvas.getBestConfigurationOnSameDevice(snake_panel.FRAME);
                             TDS = new ThreeDSnake(gc);
-                            EventQueue.invokeLater(new Runnable(){
-                                public void run(){
+                            EventQueue.invokeLater(new Runnable() {
+                                public void run() {
                                     snake_panel.set3DPanel(TDS.getComponent());
                                 }
                             });
@@ -1689,7 +1692,7 @@ public class SnakeModel{
         PROC.submitJob(new ThreeDSynchronizer());
     }
 
-    private ThreeDDeformation getThreeDDeformation(ArrayList<double[]> verts, SnakeImages images, double max_seg){
+    private ThreeDDeformation getThreeDDeformation(List<double[]> verts, SnakeImages images, double max_seg){
         ThreeDDeformation tdd;
         switch(deformation_type){
             case CURVE_DEFORMATION:

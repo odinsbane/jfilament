@@ -1,10 +1,12 @@
 package snakeprogram3d;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -183,7 +185,7 @@ public class SnakeIO{
         bw.write("#\n");
         bw.write("" + s.TYPE + "\n");
         for(Integer i: s){
-            ArrayList<double[]> x = s.getCoordinates(i);
+            List<double[]> x = s.getCoordinates(i);
             for(int j=0;j<x.size();j++){
                 
                 double[] pt = x.get(j);

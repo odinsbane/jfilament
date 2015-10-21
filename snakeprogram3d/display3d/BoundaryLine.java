@@ -4,6 +4,7 @@ import javax.media.j3d.*;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  This is a minimal surface type, it can only be deformed by giving it a new dataset, it is also
@@ -28,7 +29,7 @@ public class BoundaryLine implements DataObject{
     
     TransformGroup tg;
     
-    public BoundaryLine(ArrayList<Point3d> spts){
+    public BoundaryLine(List<Point3d> spts){
         
         LineArray line = new LineArray(2*(spts.size()-1),GeometryArray.COORDINATES);
         

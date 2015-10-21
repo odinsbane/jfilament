@@ -4,6 +4,7 @@ package snakeprogram3d;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -18,16 +19,16 @@ import java.util.TreeMap;
 public class Snake implements Iterable<Integer>{
 
     /** The Integer is the frame in time and the ArrayList are the coordinates */
-    TreeMap<Integer,ArrayList<double[]>> Coordinates;
+    TreeMap<Integer,List<double[]>> Coordinates;
     public int TYPE = 0;
     public Snake(){
-        Coordinates = new TreeMap<Integer,ArrayList<double[]>>();
+        Coordinates = new TreeMap<>();
         
     }
     
 
-    public Snake(ArrayList<double[]> coord, int i){
-        Coordinates = new TreeMap<Integer,ArrayList<double[]>>();
+    public Snake(List<double[]> coord, int i){
+        Coordinates = new TreeMap<>();
         
         Coordinates.put(i,coord);
                 
@@ -35,13 +36,13 @@ public class Snake implements Iterable<Integer>{
     }
 
     
-    public ArrayList<double[]> getCoordinates(int i){
+    public List<double[]> getCoordinates(int i){
         return Coordinates.get(i);
     }
 
     public double findLength(int time){
     
-        ArrayList<double[]> coordinates = Coordinates.get(time);
+        List<double[]> coordinates = Coordinates.get(time);
         
         int size = coordinates.size();
         double distance = 0;
@@ -70,7 +71,7 @@ public class Snake implements Iterable<Integer>{
     
     }
     
-    public void addCoordinates(int frame, ArrayList<double[]> Xs){
+    public void addCoordinates(int frame, List<double[]> Xs){
         Coordinates.put(frame,Xs);
     }
     

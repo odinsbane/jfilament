@@ -4,6 +4,7 @@ import Jama.LUDecomposition;
 import Jama.Matrix;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *This class deforms a three-d snake, and re-positions points so that they are equally 
@@ -18,7 +19,7 @@ import java.util.ArrayList;
  */
 public class ThreeDContourDeformation  implements ThreeDDeformation{
 
-    ArrayList<double[]> vertices;
+    List<double[]> vertices;
 
     double[][] matrixA;
     SnakeImages images;
@@ -35,7 +36,7 @@ public class ThreeDContourDeformation  implements ThreeDDeformation{
      * @param images image data of the snake
      * @param max_seg maximum size of a segment, otherwise it will be subsampled.
      */
-    ThreeDContourDeformation(ArrayList<double[]> verts, SnakeImages images, double max_seg){
+    ThreeDContourDeformation(List<double[]> verts, SnakeImages images, double max_seg){
         MAX_SEGMENT_LENGTH = max_seg;
         this.vertices = verts;
         this.images=images;
