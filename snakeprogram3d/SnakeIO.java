@@ -310,6 +310,35 @@ public class SnakeIO{
         return SS;
     }
 
+    public static MultipleSnakesStore loadSnakes(String fname) throws Exception {
+
+            BACKUP_NAME=fname + "~";
+            FileInputStream fis = new FileInputStream(fname);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            HashMap<String,Double> constants = new HashMap<String,Double>();
+            boolean CONSTANTS=true;
+            String s=null;
+
+            //load constants
+            while(CONSTANTS){
+                s = br.readLine();
+                if(s==null||s.charAt(0)=='#')
+                    CONSTANTS=false;
+                else{
+                    StringTokenizer ft = new StringTokenizer(s,"\t");
+                    String k = ft.nextToken();
+                    Double v = Double.parseDouble(ft.nextToken());
+                    constants.put(k,v);
+                }
+            }
+
+            MultipleSnakesStore SS = new MultipleSnakesStore();
+            int tally = loadSnakes(br,SS);
+
+
+            return SS;
+    }
+
     /**
        *    Loads the actual snake data. #'s separate snakes returns a test to make sure that
        *    the points are inserted in the same order.
