@@ -3,6 +3,7 @@ package snakeprogram;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  *  This type of curve is attached at the two end points and forms a closed loop
@@ -19,7 +20,7 @@ public class TwoDContourDeformation extends TwoDDeformation{
     /**
        *
        */
-     public TwoDContourDeformation(ArrayList<double[]> vertex_X, ImageEnergy ie){
+     public TwoDContourDeformation(List<double[]> vertex_X, ImageEnergy ie){
          super(vertex_X, ie);
      }
      

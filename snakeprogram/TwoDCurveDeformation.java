@@ -4,6 +4,8 @@ import ij.process.ImageProcessor;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
+import java.util.List;
+
 /**
  *  This is an open snake with a stretching for a both ends.
  * @author Lisa,Matt
@@ -14,7 +16,7 @@ import java.util.ArrayList;
  *
  */
 public class TwoDCurveDeformation extends TwoDDeformation{
-    public TwoDCurveDeformation(ArrayList<double[]> vertex_X, ImageEnergy ie){
+    public TwoDCurveDeformation(List<double[]> vertex_X, ImageEnergy ie){
             super(vertex_X,ie);
     }
 

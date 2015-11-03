@@ -10,6 +10,7 @@ import Jama.Matrix;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
    *    This class deforms snakes.  You create an instance of this class either a TwoDContourDeformation or a TwoDCurveDevormation
@@ -25,7 +26,7 @@ import java.util.ArrayList;
    **/
 public abstract class TwoDDeformation {
     
-    ArrayList<double[]> vertices;
+    List<double[]> vertices;
 
     /** This is the spring constant for the stretch term*/
     double alpha;
@@ -63,7 +64,7 @@ public abstract class TwoDDeformation {
     /**
        *    Creates a new 2-d deformation of this image.  
        **/
-    TwoDDeformation(ArrayList<double[]> vertex_X, ImageEnergy ie){
+    TwoDDeformation(List<double[]> vertex_X, ImageEnergy ie){
         this.vertices = vertex_X;
         IMAGE_ENERGY = ie;
             

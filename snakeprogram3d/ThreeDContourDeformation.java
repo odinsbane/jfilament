@@ -179,7 +179,6 @@ public class ThreeDContourDeformation  implements ThreeDDeformation{
     * @throws IllegalAccessException when the snake is too long.
     */
     public void addSnakePoints() throws IllegalAccessException{
-        System.out.println("3d contour");
         int pointListSize = vertices.size();
 
 

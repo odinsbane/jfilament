@@ -24,10 +24,7 @@ import javax.swing.*;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -1112,6 +1109,14 @@ public class SnakeModel{
 
         }
         annotations.setVisible(true);
+    }
+
+    public List<Snake> getSnakes() {
+        List<Snake> snakes = new ArrayList();
+        for(Snake s: SnakeStore){
+            snakes.add(s);
+        }
+        return snakes;
     }
 
 
