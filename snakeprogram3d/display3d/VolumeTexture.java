@@ -31,7 +31,7 @@ public class VolumeTexture extends Texture3D{
     //float XDIM, YDIM, ZDIM;
  
 	//WHITE:
-	private Color3f color = new Color3f(1,1,1);
+	private Color3f color;
  
     
 	private double cal_min;
@@ -42,6 +42,28 @@ public class VolumeTexture extends Texture3D{
     private double CLAMP_MIN;
     private double CLAMP_MAX;
 
+    public VolumeTexture(double[][][] double3d, double cl_min, double cl_max, Color3f c){
+        super(Texture.BASE_LEVEL, Texture.RGBA, double3d.length, double3d[0].length, double3d[0][0].length);
+
+        CLAMP_MIN = cl_min;
+
+        CLAMP_MAX = cl_max;
+
+        this.double3d = double3d;
+
+        this.xDim = double3d.length;
+        this.yDim = double3d[0].length;
+        this.zDim = double3d[0][0].length;
+
+        color = c;
+
+        findMinAndMaxValues();
+
+        setClamps();
+
+
+        clamp();
+    }
     /**
      * Creates the volume texture.
      *
@@ -52,26 +74,7 @@ public class VolumeTexture extends Texture3D{
      */
     public VolumeTexture(double[][][] double3d, double cl_min, double cl_max) {
 
-        super(Texture.BASE_LEVEL, Texture.RGBA, double3d.length, double3d[0].length, double3d[0][0].length);
-        
-        CLAMP_MIN = cl_min;
-        
-        CLAMP_MAX = cl_max;
-        
-        this.double3d = double3d;
-
-        this.xDim = double3d.length;
-        this.yDim = double3d[0].length;
-        this.zDim = double3d[0][0].length;
-
-
-
-        findMinAndMaxValues();
-        
-        setClamps();
-		
- 
-        clamp();
+        this(double3d, cl_min, cl_max, new Color3f(1,1,1));
  
     }
 
@@ -112,8 +115,7 @@ public class VolumeTexture extends Texture3D{
      *
      */
     private void clamp() {
-
-                ImageComponent3D pArray = new ImageComponent3D(ImageComponent.FORMAT_RGBA, xDim, yDim, zDim);
+        ImageComponent3D pArray = new ImageComponent3D(ImageComponent.FORMAT_RGBA, xDim, yDim, zDim);
  
 		ColorSpace colorSpace = ColorSpace.getInstance(ColorSpace.CS_sRGB);
  
@@ -131,7 +133,7 @@ public class VolumeTexture extends Texture3D{
  
 		//COLORS: [0;255] 0 - black, 255 - white
 		//TRANSP: [0;255] 0 - fully transparent, 255 - opaque
-		final Vector4f color4f = new Vector4f(color.x, color.y, color.z, 1);
+		final Vector4f color4f = new Vector4f(color.x, color.y, color.z, 0.15f);
 
                 
 
@@ -148,7 +150,7 @@ public class VolumeTexture extends Texture3D{
                                         
 					Vector4f v = new Vector4f(color4f);
 					v.scale((float)scale);
- 
+ 					//Vector4f v = new Vector4f(color4f.x, color4f.y, color4f.z, (float)(scale*255));
 					//R
 					byteData[index++] = (byte)(255*v.x);
 					//G
@@ -176,6 +178,11 @@ public class VolumeTexture extends Texture3D{
  
 		
         }
+
+    public void setColor(double x, double y, double z){
+        color = new Color3f((float)x,(float)y,(float)z);
+        clamp();
+    }
 
 
 }
