@@ -3,8 +3,8 @@ package snakeprogram.util;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 
-import lightgraph.Graph;
-import lightgraph.DataSet;
+//import lightgraph.Graph;
+//import lightgraph.DataSet;
 
 import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
@@ -30,183 +30,7 @@ import java.util.HashMap;
  */
 public class AreaAndCentroid {
     static int LINE_WIDTH=5; //for calculating value along perimeter.
-    static double RESOLUTION = 0.188; //um per px.
-    public static void main(String[] args){
-        //test();
 
-        /* load snake file and use the last snake for data.*/
-        HashMap<String, Double> params = new HashMap<String, Double>();
-        MultipleSnakesStore store = SnakeIO.loadSnakes((JFrame)null, params);
-        if(store==null) return;
-        Snake snake = store.getLastSnake();
-
-        /* start a graph for plotting the contours extracted, rotated with a furrow line */
-        Graph graph = new Graph();
-
-        ArrayList<double[]> cm = moveToCOM(snake);
-        ArrayList<Double> angles = rotateToPrincipleAxis(snake);
-
-        ArrayList<double[]> furrows = getCleavageFurrow(snake);
-        furrows = smoothFurrow(furrows);
-        //furrows = smoothFurrow(furrows);
-        //furrows = smoothFurrow(furrows);
-        plotCleavageFurrow(furrows, graph);
-
-        plotContours(snake, graph);
-
-        graph.show(true, "Contours");
-        /* load image data */
-        String file_name = SnakeIO.getOpenFileName(null);
-        ImagePlus implus = new ImagePlus(file_name);
-
-        /* get the left and right sides of the snake relative to the cleavage furrow. */
-
-        Snake left = new Snake(Snake.CLOSED_SNAKE);
-        Snake right = new Snake(Snake.CLOSED_SNAKE);
-
-        int FRAMES = 0;
-        for(Integer i: snake){
-            FRAMES++;
-        }
-
-
-        double[] lv = new double[FRAMES];
-        double[] rv = new double[FRAMES];
-        double[] f = new double[FRAMES];
-
-        double[] lintensity = new double[FRAMES];
-        double[] rintensity = new double[FRAMES];
-
-        double total_intensity = 0;
-
-        int i = 0;
-        for(Integer frame: snake){
-            ImageProcessor proc = implus.getImageStack().getProcessor(frame);
-
-            ArrayList<double[]> points = snake.getCoordinates(frame);
-            HashMap<String, ArrayList<double[]>> spit = furrowSplit(points, furrows.get(i));
-            ArrayList<double[]> working = spit.get("left");
-
-            lv[i] = estimateLobeVolume(working);
-            f[i] = frame;
-            working = rotate(-angles.get(i), working);
-            working = translate(cm.get(i), working);
-
-            left.addCoordinates(frame,working);
-
-            double intensity = averageIntensityAlongCurve(working, proc) - getAverageIntensity(working, proc);
-            lintensity[i] = intensity;
-            total_intensity += intensity;
-
-            working = spit.get("right");
-            rv[i] = estimateLobeVolume(working);
-            working = rotate(-angles.get(i), working);
-            working = translate(cm.get(i), working);
-
-            right.addCoordinates(frame,working);
-
-            intensity = averageIntensityAlongCurve(working, proc) - getAverageIntensity(working, proc);
-            rintensity[i] = intensity;
-            total_intensity += intensity;
-
-
-            i++;
-        }
-
-        total_intensity = total_intensity/(2*FRAMES);
-
-        Graph split_snakes = new Graph();
-
-        plotContours(left, split_snakes);
-        plotContours(right, split_snakes);
-
-        split_snakes.show(false, "Split Snake PLots");
-
-        MultipleSnakesStore mss = new MultipleSnakesStore();
-        mss.addSnake(left);
-        mss.addSnake(right);
-        SnakeIO.writeSnakes((JFrame)null, params, mss);
-
-        double sum = 0;
-        double rnot_sum = 0;
-        for(i = 0; i<FRAMES; i++){
-            sum += lv[i] + rv[i];
-
-            rnot_sum += Math.cbrt((lv[i]/2. + rv[i]/2.)*3./(4*Math.PI));
-
-        }
-
-        sum = sum/(FRAMES);
-        rnot_sum = rnot_sum/FRAMES;
-
-        for(i = 0; i<FRAMES; i++){
-            double v = (lv[i] - rv[i])/sum;
-            double total_volume = (lv[i] + rv[i])/sum;
-
-            lv[i] = total_volume;
-            rv[i] = v;
-
-            lintensity[i] = lintensity[i]/total_intensity;
-            rintensity[i] = rintensity[i]/total_intensity;
-
-        }
-
-
-        Graph volumes = new Graph();
-        volumes.addData(f,lv).setLabel("total volume");
-        volumes.addData(f,rv).setLabel("left - right volume");
-        volumes.addData(f,lintensity).setLabel("left-actin");
-        volumes.addData(f,rintensity).setLabel("right-actin");
-
-        volumes.show(false, "Time Volume Traces.");
-
-        String mVolume = "volume = [";
-        String lhsActin = "lhsActin = [";
-        String rhsActin = "rhsActin = [";
-        String furrowRadius = "furrowRadius = [";
-
-        for(i = 0; i<lv.length; i++){
-            if(i>0){
-                mVolume += ", ";
-                lhsActin += ", ";
-                rhsActin += ", ";
-                furrowRadius += ", ";
-            }
-
-            mVolume += rv[i];
-            lhsActin += lintensity[i];
-            rhsActin += rintensity[i];
-            double[] furrow = furrows.get(i);
-            double radius = Math.sqrt(square(furrow[0]-furrow[2])+ square(furrow[1] - furrow[3]))/2.;
-            furrowRadius += radius/rnot_sum;
-
-
-
-        }
-
-        mVolume += "];";
-        lhsActin += "];";
-        rhsActin += "];";
-        furrowRadius += "];";
-
-        File output = new File("transition.m");
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(output));
-            bw.write(mVolume);
-            bw.write('\n');
-            bw.write(lhsActin);
-            bw.write('\n');
-            bw.write(rhsActin);
-            bw.write('\n');
-            bw.write(furrowRadius);
-            bw.write('\n');
-            bw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
 
     /**
      * Splits a single snake into two snakes, a left and right side snake, based on the furrow.
@@ -344,32 +168,6 @@ public class AreaAndCentroid {
 
     }
 
-
-
-    public static void plotCleavageFurrow(ArrayList<double[]>furrows, Graph g){
-        double i = 0.0;
-        double n = furrows.size();
-        for(double[] furrow: furrows){
-
-            DataSet ds = g.addData(
-                new double[]{
-                        furrow[0], furrow[2]
-                },
-                new double[]{
-                        furrow[1], furrow[3]
-                }
-
-            );
-
-            ds.setColor(new Color(0, (int)(255*i/n), 0));
-            i++;
-
-
-        }
-
-
-    }
-
     /**
      * Finds a cleavage furrow for a give snake
      * @param s contains coordinates of a closed polygon defining a cell.
@@ -457,49 +255,6 @@ public class AreaAndCentroid {
 
     }
 
-    public static void plotContours(Snake snake, Graph graph){
-        double minx = Double.MAX_VALUE;
-        double maxx = 0;
-        double miny = Double.MAX_VALUE;
-        double maxy = 0;
-
-        double global_max = 0;
-        double global_min = Double.MAX_VALUE;
-
-        double n = 0; for(int i: snake) n++;
-
-
-
-        for(int i: snake){
-            ArrayList<double[]> points = snake.getCoordinates(i);
-            double[] x = new double[points.size()];
-            double[] y = new double[points.size()];
-            for(int j = 0; j<points.size(); j++){
-                double[] xy = points.get(j);
-                x[j] = xy[0];
-                y[j] = xy[1];
-                minx = minx<xy[0]?minx:xy[0];
-                miny = miny<xy[1]?miny:xy[1];
-                maxx = maxx>xy[0]?maxx:xy[0];
-                maxy = maxy>xy[1]?maxy:xy[1];
-
-
-            }
-            DataSet ds = graph.addData(x,y);
-            ds.setPoints(null);
-            ds.setColor(new Color((int)(255*(i/n)), 0, 0));
-
-            global_max = global_max>maxx?global_max:maxx;
-            global_max = global_max>maxy?global_max:maxy;
-            global_min = global_min<minx?global_min:minx;
-            global_min = global_min<miny?global_min:miny;
-        }
-
-        graph.setXRange(global_min, global_max);
-        graph.setYRange(global_min, global_max);
-
-
-    }
 
     /**
      * Finds the center of mass of the snake.
