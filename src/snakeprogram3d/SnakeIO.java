@@ -176,12 +176,12 @@ public class SnakeIO{
        *    This writes a snake, no headings are used because this is meant to be read by
        *    the program only.  The first line is a "#", followed by a line with an int which 
        *    represents the snake type.  Then each line following is a point in the snake
-       *    <frame> \t <index> \t <x> \t <y>
+       *    frame \t index \t x \t y \t z
        *    the index is used as a check to make sure the snake has been saved and loaded 
        *    correctly
        *    
        **/
-    private static void writeASnake(BufferedWriter bw,Snake s) throws Exception{
+    public static void writeASnake(BufferedWriter bw,Snake s) throws IOException{
         bw.write("#\n");
         bw.write("" + s.TYPE + "\n");
         for(Integer i: s){
