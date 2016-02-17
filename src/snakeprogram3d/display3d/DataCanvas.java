@@ -270,6 +270,15 @@ public class DataCanvas extends Canvas3D {
 
     }
 
+    /*
+    *  Interface to allow receiving 'pickresults'
+    * */
+    public interface CanvasView {
+
+        void updatePick(PickResult[] result, MouseEvent evt, boolean clicked);
+
+    }
+
 }
 
 /**
@@ -317,16 +326,10 @@ class CanvasController extends MouseAdapter{
         }
     }
 
+
 }
 
-/*
- *  Interface to allow receiving 'pickresults'
- * */
-interface CanvasView {
-    
-    public void updatePick(PickResult[] result, MouseEvent evt, boolean clicked);
-        
-    }
+
 
 class OffScreenCanvas3D extends Canvas3D {
     OffScreenCanvas3D(GraphicsConfiguration graphicsConfiguration,
