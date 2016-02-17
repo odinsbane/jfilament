@@ -270,14 +270,6 @@ public class DataCanvas extends Canvas3D {
 
     }
 
-    /*
-    *  Interface to allow receiving 'pickresults'
-    * */
-    public interface CanvasView {
-
-        void updatePick(PickResult[] result, MouseEvent evt, boolean clicked);
-
-    }
 
 }
 
