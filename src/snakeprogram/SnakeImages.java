@@ -325,6 +325,10 @@ public class SnakeImages{
                 improc.drawLine((int)pt1[0],(int)pt1[1],(int)pt2[0],(int)pt2[1]);
                 pt1 = pt2;
             }
+            improc.setColor(Color.BLUE);
+            for(double[] p: SnakeDraw){
+                improc.drawDot((int)p[0], (int)p[1]);
+            }
         }
     }
     

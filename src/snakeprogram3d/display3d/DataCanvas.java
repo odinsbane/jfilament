@@ -40,16 +40,16 @@ public class DataCanvas extends Canvas3D {
     
     CanvasView CV;
     
-    Color3f background = new Color3f(0f,0f,0f);
-
+    Color3f backgroundColor = new Color3f(0f,0f,0f);
+    Background background;
     CanvasController controller;
 
     private OffScreenCanvas3D offscreen;
-    
+
     public DataCanvas(GraphicsConfiguration gc,Color3f back){
         super(gc,false);
         offscreen = new OffScreenCanvas3D(gc, true);
-        background = back;
+        backgroundColor = back;
         createUniverse();
         }
 
@@ -71,13 +71,13 @@ public class DataCanvas extends Canvas3D {
         
         group.setCapability(Group.ALLOW_CHILDREN_EXTEND);
         group.setCapability(Group.ALLOW_CHILDREN_WRITE);
-        
         bounds =  new BoundingSphere(new Point3d(0.0,0.0,0.0), 10000.0);
 
-        Background bg = new Background();
-        bg.setColor(background);
-        bg.setApplicationBounds(bounds);
-        group.addChild(bg);
+        background = new Background();
+        background.setCapability(Background.ALLOW_COLOR_WRITE);
+        background.setColor(backgroundColor);
+        background.setApplicationBounds(bounds);
+        group.addChild(background);
 
         // universe.getViewingPlatform().setCapability(Node.ALLOW_BOUNDS_WRITE);
         // universe.getViewingPlatform().setBounds(bounds);
@@ -263,6 +263,13 @@ public class DataCanvas extends Canvas3D {
         return offscreen.doRender(getWidth(), getHeight());
     }
 
+    public void changeBackgroundColor(Color color){
+
+        backgroundColor = new Color3f(color);
+        background.setColor(backgroundColor);
+
+    }
+
 }
 
 /**
@@ -347,4 +354,6 @@ class OffScreenCanvas3D extends Canvas3D {
     public void postSwap() {
         // No-op since we always wait for off-screen rendering to complete
     }
+
+
 }
