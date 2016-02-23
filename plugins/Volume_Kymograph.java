@@ -8,8 +8,9 @@ import snakeprogram3d.MultipleSnakesStore;
 import snakeprogram3d.Snake;
 import snakeprogram3d.SnakeIO;
 
-import java.awt.*;
+import java.awt.Frame;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 
 /**
@@ -31,7 +32,7 @@ public class Volume_Kymograph implements PlugInFilter {
 
     public void run(ImageProcessor imageProcessor) {
         HashMap<String, Double> constants = new HashMap<String, Double>();
-        MultipleSnakesStore store = SnakeIO.loadSnakes((Frame)IJ.getInstance(), constants);
+        MultipleSnakesStore store = SnakeIO.loadSnakes(IJ.getInstance(), constants);
         Z = 1;
         try{
             Z = constants.get("zresolution");
@@ -55,7 +56,7 @@ public class Volume_Kymograph implements PlugInFilter {
 
         for(Integer frame: s){
 
-            ArrayList<double[]> cnets = s.getCoordinates(frame);
+            List<double[]> cnets = s.getCoordinates(frame);
             int pts = cnets.size();
             double[] x = new double[pts];
             double[] y = new double[pts];

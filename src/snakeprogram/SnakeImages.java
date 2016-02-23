@@ -297,12 +297,7 @@ public class SnakeImages{
     }
     
     public void drawSnake(Snake s,ImageProcessor improc){
-        improc.setLineWidth(LINEWIDTH);
-        //sets line color
-        if(s==CurrentSnake)
-            improc.setColor(Color.RED);
-        else
-            improc.setColor(Color.YELLOW);
+
         if(s.exists(imagecounter)){
             ArrayList<double[]> snake = s.getCoordinates(imagecounter);
             
@@ -317,7 +312,18 @@ public class SnakeImages{
                 SnakeDraw.add(toZoom(snake.get(0)));
             }
 
-            
+            improc.setLineWidth(2*LINEWIDTH);
+            improc.setColor(Color.GREEN);
+            for(double[] p: SnakeDraw){
+                improc.drawDot((int)p[0], (int)p[1]);
+            }
+
+            if(s==CurrentSnake)
+                improc.setColor(Color.RED);
+            else
+                improc.setColor(Color.YELLOW);
+            improc.setLineWidth(LINEWIDTH);
+
             //draws the snake to the processor
             double[] pt1 = SnakeDraw.get(0);
             for(int i = 1; i<SnakeDraw.size(); i++){
@@ -325,10 +331,7 @@ public class SnakeImages{
                 improc.drawLine((int)pt1[0],(int)pt1[1],(int)pt2[0],(int)pt2[1]);
                 pt1 = pt2;
             }
-            improc.setColor(Color.BLUE);
-            for(double[] p: SnakeDraw){
-                improc.drawDot((int)p[0], (int)p[1]);
-            }
+
         }
     }
     

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import snakeprogram.*;
+import snakeprogram.energies.ImageEnergy;
+import snakeprogram.energies.IntensityEnergy;
 
 import javax.swing.SwingUtilities;
 /**
