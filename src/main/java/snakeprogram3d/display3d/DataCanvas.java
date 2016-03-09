@@ -324,26 +324,30 @@ class CanvasController extends MouseAdapter{
 
 
 class OffScreenCanvas3D extends Canvas3D {
+    ImageComponent2D buffer;
     OffScreenCanvas3D(GraphicsConfiguration graphicsConfiguration,
                       boolean offScreen) {
 
         super(graphicsConfiguration, offScreen);
+
     }
 
     BufferedImage doRender(int width, int height) {
 
-        BufferedImage bImage = new BufferedImage(width, height,
-                BufferedImage.TYPE_INT_ARGB);
 
-        ImageComponent2D buffer = new ImageComponent2D(
-                ImageComponent.FORMAT_RGBA, bImage);
+        if(buffer==null) {
+            BufferedImage bImage = new BufferedImage(width, height,
+                    BufferedImage.TYPE_INT_ARGB);
+            buffer = new ImageComponent2D(
+                    ImageComponent.FORMAT_RGBA, bImage);
+            setOffScreenBuffer(buffer);
+        }
 
-        setOffScreenBuffer(buffer);
+
         renderOffScreenBuffer();
         waitForOffScreenRendering();
-        bImage = getOffScreenBuffer().getImage();
 
-        return bImage;
+        return getOffScreenBuffer().getImage();
     }
 
     public void postSwap() {
