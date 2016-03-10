@@ -1,11 +1,23 @@
 package snakeprogram3d.display3d;
 
 
-import javax.media.j3d.*;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
+import org.scijava.java3d.Appearance;
+import org.scijava.java3d.BranchGroup;
+import org.scijava.java3d.Geometry;
+import org.scijava.java3d.GeometryArray;
+import org.scijava.java3d.Material;
+import org.scijava.java3d.Node;
+import org.scijava.java3d.PolygonAttributes;
+import org.scijava.java3d.Shape3D;
+import org.scijava.java3d.TexCoordGeneration;
+import org.scijava.java3d.Texture3D;
+import org.scijava.java3d.Transform3D;
+import org.scijava.java3d.TransformGroup;
+import org.scijava.java3d.TriangleArray;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Vector3d;
+import org.scijava.vecmath.Vector3f;
 
 /**
  *
@@ -42,7 +54,7 @@ public class VariableTextured3dSurface implements DataObject{
       *     points are the x,y,z values
       **/
     
-    public VariableTextured3dSurface(Texture3D texture,TexCoordGeneration tg, double[][] points){
+    public VariableTextured3dSurface(Texture3D texture, TexCoordGeneration tg, double[][] points){
         
         
         

@@ -1,6 +1,7 @@
 package snakeprogram3d.display3d;
 
-import com.sun.j3d.utils.picking.PickResult;
+
+import org.scijava.java3d.utils.picking.PickResult;
 
 import java.awt.event.MouseEvent;
 

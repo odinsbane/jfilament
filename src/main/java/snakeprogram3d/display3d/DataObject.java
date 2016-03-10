@@ -1,7 +1,7 @@
 package snakeprogram3d.display3d;
 
-import javax.media.j3d.BranchGroup;
 
+import org.scijava.java3d.BranchGroup;
 
 /**
  * Wrapper for a branch group.  This is a stripped down version

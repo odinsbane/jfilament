@@ -1,10 +1,19 @@
 package snakeprogram3d.display3d;
 
+import org.scijava.java3d.Appearance;
+import org.scijava.java3d.BranchGroup;
+import org.scijava.java3d.ColoringAttributes;
+import org.scijava.java3d.GeometryArray;
+import org.scijava.java3d.LineArray;
+import org.scijava.java3d.LineAttributes;
+import org.scijava.java3d.Node;
+import org.scijava.java3d.Shape3D;
+import org.scijava.java3d.Transform3D;
+import org.scijava.java3d.TransformGroup;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Vector3d;
 import snakeprogram3d.Snake;
 
-import javax.media.j3d.*;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,7 +120,7 @@ public class PolyLine implements DataObject{
         int N =spts.size();
         if(N>1){
             int nodes = 2*(N-1);
-            LineArray line = new LineArray(nodes,GeometryArray.COORDINATES);
+            LineArray line = new LineArray(nodes, GeometryArray.COORDINATES);
 
             for(int i=0; i<N-1; i++){
                 line.setCoordinate(2*i,new Point3d(spts.get(i)));

@@ -1,11 +1,12 @@
 package snakeprogram3d.display3d;
 
-import javax.media.j3d.ImageComponent;
-import javax.media.j3d.ImageComponent3D;
-import javax.media.j3d.Texture;
-import javax.media.j3d.Texture3D;
-import javax.vecmath.Color3f;
-import javax.vecmath.Vector4f;
+import org.scijava.java3d.ImageComponent;
+import org.scijava.java3d.ImageComponent3D;
+import org.scijava.java3d.Texture;
+import org.scijava.java3d.Texture3D;
+import org.scijava.vecmath.Color3f;
+import org.scijava.vecmath.Vector4f;
+
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
@@ -22,7 +23,7 @@ import java.awt.image.*;
  *       see COPYING for license.
  *
  */
-public class VolumeTexture extends Texture3D{
+public class VolumeTexture extends Texture3D {
     private double[][][] double3d;
     
     //image indecies

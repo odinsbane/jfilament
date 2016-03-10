@@ -1,15 +1,20 @@
 package snakeprogram3d.display3d;
 
-import com.sun.j3d.utils.picking.PickIntersection;
-import com.sun.j3d.utils.picking.PickResult;
-import snakeprogram3d.*;
+import org.scijava.java3d.BadTransformException;
+import org.scijava.java3d.Node;
+import org.scijava.java3d.TexCoordGeneration;
+import org.scijava.java3d.utils.picking.PickIntersection;
+import org.scijava.java3d.utils.picking.PickResult;
+import org.scijava.vecmath.Color3f;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Vector4f;
+import snakeprogram3d.MultipleSnakesStore;
+import snakeprogram3d.Snake;
+import snakeprogram3d.SnakeBufferedImages;
+import snakeprogram3d.SnakeModel;
+import snakeprogram3d.ThreeDEvent;
 
-import javax.media.j3d.Node;
-import javax.media.j3d.TexCoordGeneration;
-import javax.swing.*;
-import javax.vecmath.Color3f;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector4f;
+import javax.swing.SwingUtilities;
 import java.awt.Component;
 import java.awt.GraphicsConfiguration;
 import java.awt.event.MouseEvent;
@@ -163,7 +168,7 @@ public class InteractiveView implements CanvasView{
             Point3d p = new Point3d(x/principle_axis -0.5*xs,-y/principle_axis + 0.5*ys,z/principle_axis);
             try{
                 cursor.moveTo(p);
-            } catch(javax.media.j3d.BadTransformException e){
+            } catch(BadTransformException e){
                 cursor.moveTo(new Point3d(0,0,0));
                 System.out.println("fault");
             }

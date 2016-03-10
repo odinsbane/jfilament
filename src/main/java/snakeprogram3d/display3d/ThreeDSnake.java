@@ -1,12 +1,13 @@
 package snakeprogram3d.display3d;
 
-import com.sun.j3d.utils.picking.PickIntersection;
-import com.sun.j3d.utils.picking.PickResult;
+import org.scijava.java3d.BadTransformException;
+import org.scijava.java3d.Node;
+import org.scijava.java3d.utils.picking.PickIntersection;
+import org.scijava.java3d.utils.picking.PickResult;
+import org.scijava.vecmath.Point3d;
 import snakeprogram3d.*;
 
-import javax.media.j3d.Node;
 import javax.swing.*;
-import javax.vecmath.Point3d;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class ThreeDSnake implements CanvasView{
         
         try{
             cursor.moveTo(p);
-        } catch(javax.media.j3d.BadTransformException e){
+        } catch(BadTransformException e){
             System.out.println(x + "::" + y + "::" + z);
         }
     }

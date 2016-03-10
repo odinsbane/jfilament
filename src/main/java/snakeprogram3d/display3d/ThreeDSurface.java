@@ -1,11 +1,20 @@
 package snakeprogram3d.display3d;
 
-import javax.media.j3d.*;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3f;
-import javax.vecmath.Vector4f;
 
-
+import org.scijava.java3d.Appearance;
+import org.scijava.java3d.BranchGroup;
+import org.scijava.java3d.Material;
+import org.scijava.java3d.PolygonAttributes;
+import org.scijava.java3d.QuadArray;
+import org.scijava.java3d.Shape3D;
+import org.scijava.java3d.TexCoordGeneration;
+import org.scijava.java3d.Texture3D;
+import org.scijava.java3d.Transform3D;
+import org.scijava.java3d.TransformGroup;
+import org.scijava.java3d.TransparencyAttributes;
+import org.scijava.vecmath.Point3f;
+import org.scijava.vecmath.Vector3f;
+import org.scijava.vecmath.Vector4f;
 
 /**This uses a 3D texture for 3 sets of orthoganol planes to simulate a volume
  * texture.

@@ -5,9 +5,10 @@ package snakeprogram3d.display3d;
  * 
  */
 
-import javax.media.j3d.Canvas3D;
-import javax.media.j3d.GraphicsConfigTemplate3D;
-import javax.media.j3d.VirtualUniverse;
+import org.scijava.java3d.Canvas3D;
+import org.scijava.java3d.GraphicsConfigTemplate3D;
+import org.scijava.java3d.VirtualUniverse;
+
 import java.awt.*;
 import java.util.Map;
 

@@ -1,14 +1,26 @@
 package snakeprogram3d.display3d;
 
-import com.sun.j3d.utils.picking.PickCanvas;
-import com.sun.j3d.utils.picking.PickResult;
-import com.sun.j3d.utils.picking.PickTool;
-import com.sun.j3d.utils.universe.SimpleUniverse;
+import org.scijava.java3d.Background;
+import org.scijava.java3d.BoundingSphere;
+import org.scijava.java3d.BranchGroup;
+import org.scijava.java3d.Canvas3D;
+import org.scijava.java3d.GraphicsConfigTemplate3D;
+import org.scijava.java3d.Group;
+import org.scijava.java3d.ImageComponent;
+import org.scijava.java3d.ImageComponent2D;
+import org.scijava.java3d.PointLight;
+import org.scijava.java3d.Screen3D;
+import org.scijava.java3d.Transform3D;
+import org.scijava.java3d.TransformGroup;
+import org.scijava.java3d.View;
+import org.scijava.java3d.utils.picking.PickCanvas;
+import org.scijava.java3d.utils.picking.PickResult;
+import org.scijava.java3d.utils.picking.PickTool;
+import org.scijava.java3d.utils.universe.SimpleUniverse;
+import org.scijava.vecmath.Color3f;
+import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Vector3d;
 
-import javax.media.j3d.*;
-import javax.vecmath.Color3f;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
