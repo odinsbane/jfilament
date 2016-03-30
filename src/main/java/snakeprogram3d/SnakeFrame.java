@@ -644,8 +644,17 @@ public class SnakeFrame{
             
             }
     }
-	
-     /**
+
+    /**
+     * For setting the label, in case the value is set when opening a 3D image.
+     *
+     * @param d
+     */
+    public void setZResolutionLabel(double d){
+        ZResolution.setText(String.format("%f", d));
+    }
+
+    /**
      * Trys to set the 'images smoothing' value.  First validates input, if it can be a double
      * then the value is set and the ui is enabled
      * Called when parameter has been changed.

@@ -13,6 +13,7 @@ package snakeprogram3d;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.GenericDialog;
+import ij.io.FileInfo;
 import snakeprogram3d.display3d.DataCanvas;
 import snakeprogram3d.display3d.InteractiveView;
 import snakeprogram3d.display3d.ThreeDSnake;
@@ -1318,7 +1319,11 @@ public class SnakeModel{
        *    @param implus   the ImagePlus preloaded via ImageJ
        **/
     public void loadImage(ImagePlus implus){
-        
+        FileInfo info = implus.getFileInfo();
+        if(info!=null) {
+            snake_panel.setZResolutionLabel(info.pixelDepth / info.pixelWidth);
+            setZResolution(info.pixelDepth/info.pixelWidth);
+        }
         images.loadImage(implus);
         snake_panel.imageLoaded(images.hasImage());
         if(images.hasImage()){
