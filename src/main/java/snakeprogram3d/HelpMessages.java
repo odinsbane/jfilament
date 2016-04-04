@@ -89,7 +89,7 @@ public class HelpMessages implements HyperlinkListener {
                     checking=false;
                 }
                 s.append(line);
-                s.append("\n");
+                //s.append("\n");
                 line = br.readLine();
             }
             br.close();
