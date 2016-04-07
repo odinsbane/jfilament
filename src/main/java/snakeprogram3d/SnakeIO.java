@@ -4,9 +4,11 @@ import javax.swing.*;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
@@ -77,7 +79,7 @@ public class SnakeIO{
         if(fname!=null){
 
             try{
-                BufferedWriter bw = new BufferedWriter( new FileWriter(fname));
+                BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(fname), StandardCharsets.UTF_8));
                 createHeading(parent,bw);
                 for(Snake s: SnakeStore)
                     writeOneSnakeElongationData(bw,s,total_frames);
@@ -110,7 +112,7 @@ public class SnakeIO{
        *    separate with a heading
        *    
        **/
-    private static void writeOneSnakeElongationData(BufferedWriter bw, Snake s, int total_frames) throws Exception{
+    private static void writeOneSnakeElongationData(BufferedWriter bw, Snake s, int total_frames) throws IOException{
         bw.write("\n\n#Snake Data\n#time\tlength\n");
         for(int i = 1; i<=total_frames; i++){
             if(s.exists(i)){
@@ -137,12 +139,8 @@ public class SnakeIO{
         if(fname!=null){
             BACKUP_NAME=fname + "~";
             try{
-                BufferedWriter bw = new BufferedWriter( new FileWriter(fname));
-                writeConstants(bw,parent);
-                for(Snake s: SnakeStore)
-                    writeASnake(bw,s);
-                bw.close();
-            } catch(Exception e) {
+                writeSnakes(parent.getConstants(), SnakeStore, new File(fname));
+            } catch(IOException e) {
                 JOptionPane.showMessageDialog(parent.getFrame(),"Could not write" + e.getMessage());    
             }    
         }
@@ -162,16 +160,33 @@ public class SnakeIO{
         
         if(f!=null){
             try{
-                BufferedWriter bw = new BufferedWriter( new FileWriter(f));
-                writeConstants(bw,parent);
-                for(Snake s: SnakeStore)
-                    writeASnake(bw,s);
-                bw.close();
-            } catch(Exception e) {
+                writeSnakes(parent.getConstants(), SnakeStore, f);
+            } catch(IOException e) {
                 JOptionPane.showMessageDialog(parent.getFrame(),"Could not write" + e.getMessage());    
             }    
         }
       }
+
+    /**
+     *    Writes out the Snake Data for saving and restoring the actual traced snakes.
+     *    Includes the constants and all of the snake points. Doesn't pop up a window
+     *    but uses the parent for constants.
+     *
+     *    @param values input values for deforming snakes.
+     *    @param SnakeStore   Contains the snake data
+     *    @param f    uses this file.
+     **/
+    public static void writeSnakes(HashMap<String, Double> values, MultipleSnakesStore SnakeStore, File f) throws IOException {
+        SnakeStore.purgeSnakes();
+        BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8) );
+        writeConstants(bw,values);
+        for(Snake s: SnakeStore) {
+            writeASnake(bw, s);
+        }
+        bw.close();
+    }
+
+
     /**
        *    This writes a snake, no headings are used because this is meant to be read by
        *    the program only.  The first line is a "#", followed by a line with an int which 
@@ -181,7 +196,7 @@ public class SnakeIO{
        *    correctly
        *    
        **/
-    public static void writeASnake(BufferedWriter bw,Snake s) throws IOException{
+    private static void writeASnake(BufferedWriter bw,Snake s) throws IOException{
         bw.write("#\n");
         bw.write("" + s.TYPE + "\n");
         for(Integer i: s){
@@ -201,11 +216,10 @@ public class SnakeIO{
        *    tabs.
        *    
        **/
-    private static void writeConstants(BufferedWriter bw,SnakeFrame parent) throws Exception{
-        HashMap<String,Double> values = parent.getConstants();
-        for(String k: values.keySet())
-            bw.write("" + k + "\t" + values.get(k)+"\n");
-    
+    private static void writeConstants(BufferedWriter bw, HashMap<String,Double> values) throws IOException{
+        for(String k: values.keySet()) {
+            bw.write("" + k + "\t" + values.get(k) + "\n");
+        }
     }
 
     /**
@@ -221,33 +235,7 @@ public class SnakeIO{
         if(fname!=null){
 
             try {
-
-                FileInputStream fis = new FileInputStream(fname);
-                BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-                boolean CONSTANTS=true;
-                String s=null;
-
-                //load constants
-                while(CONSTANTS){
-                    s = br.readLine();
-                    if(s==null||s.charAt(0)=='#')
-                        CONSTANTS=false;
-                    else{
-                        StringTokenizer ft = new StringTokenizer(s,"\t");
-                        String k = ft.nextToken();
-                        Double v = Double.parseDouble(ft.nextToken());
-                        constants.put(k,v);
-                    }
-                }
-
-                SS = new MultipleSnakesStore();
-                int tally=0;
-                if(s!=null)
-                    tally = loadSnakes(br,SS);
-
-                if(tally>0)
-                    JOptionPane.showMessageDialog(frame,"Some of the data did not load correctly");
-
+                SS = loadSnakes(fname, constants);
             } catch(Exception e){
                 JOptionPane.showMessageDialog(frame,"Could not Load file" + e.getMessage());
                 e.printStackTrace();
@@ -268,40 +256,15 @@ public class SnakeIO{
         String fname = getOpenFileName(parent.getFrame());
         MultipleSnakesStore SS = null;
         if(fname!=null){
-            
             BACKUP_NAME=fname + "~";
             try {
-            
-                FileInputStream fis = new FileInputStream(fname);
-                BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-                HashMap<String,Double> constants = new HashMap<String,Double>();
-                boolean CONSTANTS=true;
-                String s=null;
-                
-                //load constants
-                while(CONSTANTS){
-                    s = br.readLine();
-                    if(s==null||s.charAt(0)=='#')
-                        CONSTANTS=false;
-                    else{
-                        StringTokenizer ft = new StringTokenizer(s,"\t");
-                        String k = ft.nextToken();
-                        Double v = Double.parseDouble(ft.nextToken());
-                        constants.put(k,v);
-                    }
-                }
-                
+                HashMap<String,Double> constants = new HashMap<>();
+                SS = loadSnakes(fname, constants);
+
                 parent.setConstants(constants);
                 
-                SS = new MultipleSnakesStore();
-                int tally=0;
-                if(s!=null)
-                    tally = loadSnakes(br,SS);
-                
-                if(tally>0)
-                    JOptionPane.showMessageDialog(parent.getFrame(),"Some of the data did not load correctly");
-            
-            } catch(Exception e){
+
+            } catch(IOException e){
                 JOptionPane.showMessageDialog(parent.getFrame(),"Could not Load file" + e.getMessage());
                 e.printStackTrace();
             }
@@ -310,34 +273,41 @@ public class SnakeIO{
         return SS;
     }
 
-    public static MultipleSnakesStore loadSnakes(String fname) throws Exception {
-
-            BACKUP_NAME=fname + "~";
-            FileInputStream fis = new FileInputStream(fname);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            HashMap<String,Double> constants = new HashMap<String,Double>();
-            boolean CONSTANTS=true;
-            String s=null;
-
-            //load constants
-            while(CONSTANTS){
-                s = br.readLine();
-                if(s==null||s.charAt(0)=='#')
-                    CONSTANTS=false;
-                else{
-                    StringTokenizer ft = new StringTokenizer(s,"\t");
-                    String k = ft.nextToken();
-                    Double v = Double.parseDouble(ft.nextToken());
-                    constants.put(k,v);
-                }
+    private static void loadConstants(BufferedReader br, Map<String, Double> constants) throws IOException {
+        boolean CONSTANTS=true;
+        String s;
+        while(CONSTANTS){
+            s = br.readLine();
+            if(s==null||s.charAt(0)=='#') {
+                CONSTANTS = false;
+            } else{
+                StringTokenizer ft = new StringTokenizer(s,"\t");
+                String k = ft.nextToken();
+                Double v = Double.parseDouble(ft.nextToken());
+                constants.put(k,v);
             }
-
-            MultipleSnakesStore SS = new MultipleSnakesStore();
-            int tally = loadSnakes(br,SS);
-
-
-            return SS;
+        }
     }
+
+    public static MultipleSnakesStore loadSnakes(String fname) throws IOException {
+        return loadSnakes(fname, new HashMap<>());
+    }
+    public static MultipleSnakesStore loadSnakes(String fname, HashMap<String, Double> constants) throws IOException {
+
+        BACKUP_NAME=fname + "~";
+        FileInputStream fis = new FileInputStream(fname);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8));
+
+        loadConstants(br, constants);
+
+        MultipleSnakesStore SS = new MultipleSnakesStore();
+
+        loadSnakes(br,SS);
+
+        return SS;
+    }
+
+
 
     /**
        *    Loads the actual snake data. #'s separate snakes returns a test to make sure that
@@ -346,7 +316,7 @@ public class SnakeIO{
        *    @param SS is modified in place
        *
        **/
-    private static int loadSnakes(BufferedReader br,MultipleSnakesStore SS) throws Exception{
+    private static int loadSnakes(BufferedReader br,MultipleSnakesStore SS) throws IOException{
         int tally = 0;
         String s;
         Snake ns = new Snake();

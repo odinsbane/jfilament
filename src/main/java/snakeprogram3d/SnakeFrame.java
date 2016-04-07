@@ -993,16 +993,42 @@ public class SnakeFrame{
      * @param values string value
      */
     public void setConstants(HashMap<String,Double> values){
-        Alpha.setText(values.get("alpha").toString());
-        Beta.setText(values.get("beta").toString());
-        BackgroundIntensity.setText(values.get("background").toString());
-        Weight.setText(values.get("weight").toString());
-        Stretch.setText(values.get("stretch").toString());
-        PointSpacing.setText(values.get("spacing").toString());
-        ImageSmoothing.setText(values.get("smoothing").toString());
-        Gamma.setText(values.get("gamma").toString());
-        ForegroundIntensity.setText(values.get("foreground").toString());
-        ZResolution.setText(values.get("zresolution").toString());
+        for(String key: values.keySet()){
+            switch(key){
+                case "alpha":
+                    Alpha.setText(values.get("alpha").toString());
+                    break;
+                case "beta":
+                    Beta.setText(values.get("beta").toString());
+                    break;
+                case "background":
+                    BackgroundIntensity.setText(values.get("background").toString());
+                    break;
+                case "weight":
+                    Weight.setText(values.get("weight").toString());
+                    break;
+                case "stretch":
+                    Stretch.setText(values.get("stretch").toString());
+                    break;
+                case "spacing":
+                    PointSpacing.setText(values.get("spacing").toString());
+                    break;
+                case "smoothing":
+                    ImageSmoothing.setText(values.get("smoothing").toString());
+                    break;
+                case "gamma":
+                    Gamma.setText(values.get("gamma").toString());
+                    break;
+                case "foreground":
+                    ForegroundIntensity.setText(values.get("foreground").toString());
+                    break;
+                case "zresolution":
+                    ZResolution.setText(values.get("zresolution").toString());
+                    break;
+                default:
+                    System.out.println(key + " not implemented");
+            }
+        }
         resetConstants();
         
     }
