@@ -52,10 +52,6 @@
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/JFilament/</url>
 	</ciManagement>
-    <properties>
-        <scijava.jvm.version>1.7</scijava.jvm.version>
-    </properties>
-
     <scm>
 		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
 		<developerConnection>scm:git:git@github.com:odinsbane/jfilament</developerConnection>
