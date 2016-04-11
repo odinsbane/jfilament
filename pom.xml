@@ -71,36 +71,27 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
         <dependency>
-            <groupId>gov.nih.imagej</groupId>
-            <artifactId>imagej</artifactId>
-            <version>1.47</version>
-			<scope>compile</scope>
+            <groupId>net.imagej</groupId>
+            <artifactId>ij</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>gov.nist.math</groupId>
 			<artifactId>jama</artifactId>
-			<version>1.0.3</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>j3dcore</artifactId>
-			<version>1.6.0-scijava-2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>vecmath</artifactId>
-			<version>1.6.0-scijava-2</version>
 		</dependency>
         <dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>j3dutils</artifactId>
-			<version>1.6.0-scijava-2</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
     <build>
