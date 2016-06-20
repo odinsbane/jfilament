@@ -1,5 +1,6 @@
 package snakeprogram3d.display3d;
 
+import org.scijava.java3d.AmbientLight;
 import org.scijava.java3d.Background;
 import org.scijava.java3d.BoundingSphere;
 import org.scijava.java3d.BranchGroup;
@@ -19,6 +20,7 @@ import org.scijava.java3d.utils.picking.PickTool;
 import org.scijava.java3d.utils.universe.SimpleUniverse;
 import org.scijava.vecmath.Color3f;
 import org.scijava.vecmath.Point3d;
+import org.scijava.vecmath.Point3f;
 import org.scijava.vecmath.Vector3d;
 
 import java.awt.*;
@@ -91,20 +93,6 @@ public class DataCanvas extends Canvas3D {
         background.setApplicationBounds(bounds);
         group.addChild(background);
 
-        // universe.getViewingPlatform().setCapability(Node.ALLOW_BOUNDS_WRITE);
-        // universe.getViewingPlatform().setBounds(bounds);
-        /*
-        AmbientLight amb = new AmbientLight();
-        amb.setInfluencingBounds(bounds);
-        group.addChild(amb);
-        */
-        PointLight pls = new PointLight();
-        pls.setInfluencingBounds(bounds);
-        pls.setPosition(0.5f,0.5f,1f);
-        //pls.setAttenuation(new Point3f(0,0,0.2f));
-        pls.setColor(new Color3f(1.0f,0f,0f));
-        group.addChild(pls);
-        
         universe.addBranchGraph(group);
         universe.getViewer().getView().setMinimumFrameCycleTime(5);
         controller = new CanvasController(this);
@@ -220,7 +208,7 @@ public class DataCanvas extends Canvas3D {
         }
         
         /**
-         *  Transforms the coordinates and sends the action on down
+         *  Transforms the coordinates and sends the actions on down
          *  the line to the snake listener.
          *  
          **/

@@ -187,7 +187,7 @@ class FrameAccessListener implements MouseListener{
 
         /**
          * Sets the selector to be a key listener, originally only used for
-         * canceling a long running action, now used for moving images too.
+         * canceling a long running actions, now used for moving images too.
          *
          * @param c
          */

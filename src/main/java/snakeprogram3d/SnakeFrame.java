@@ -79,7 +79,7 @@ public class SnakeFrame{
     }
     
     /**
-     * When an action is running this prevents any input.
+     * When an actions is running this prevents any input.
      * */
     public void disableUI(){
         FRAME.getContentPane().requestFocus();
@@ -250,7 +250,7 @@ public class SnakeFrame{
     }
 
     /**
-     * Creates the menu bar with all of the menus, handles setting action
+     * Creates the menu bar with all of the menus, handles setting actions
      * listeners and placing menus in a list for enabling / disabling.
      *
      * @return the jmenu bar.
@@ -438,7 +438,7 @@ public class SnakeFrame{
      *  creates a button and adds it to the list of buttons
      *  @param label that shows up on the button
      *  @param cmd the String name of a SnakeActions enum constant
-     *  @return new jbutton that has an action command and is in the list of buttons.
+     *  @return new jbutton that has an actions command and is in the list of buttons.
      **/
     public JButton createActionButton(String label, String cmd){
         JButton butt = new JButton(label);
@@ -582,7 +582,7 @@ public class SnakeFrame{
      *
      * @param label text that is displayed next to input field.
      * @param value initial value
-     * @param act action command.
+     * @param act actions command.
      * @return a jpanel with a label, and JTextField.
      */
     private JPanel createInputPair(String label, String value, SnakeActions act){
@@ -597,7 +597,7 @@ public class SnakeFrame{
      *
      * @param label text that is displayed next to input field.
      * @param value initial value
-     * @param cmd name of action command.
+     * @param cmd name of actions command.
      * @return a jpanel with a label, and JTextField.
      */
     private JPanel createInputPair(String label, String value, String cmd){

@@ -300,7 +300,7 @@ public class SnakeFrame{
     }
 
     /**
-     *  Creates an action button that will be enabled/disabled with the
+     *  Creates an actions button that will be enabled/disabled with the
      *
      * @param label
      * @param cmd

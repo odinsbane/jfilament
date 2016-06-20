@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * When dealing with a contour, the ends of the snake can be troublesome. When this action is started, it will
+ * When dealing with a contour, the ends of the snake can be troublesome. When this actions is started, it will
  * highlight the closest snake point and if the user clicks the ends of the snake will be repositioned to that point.
  * The order of the snake should not change, merely the location of the first and last points in the backing arraylist.
  *

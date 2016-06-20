@@ -1,6 +1,6 @@
 package snakeprogram3d;
 /**
- * The action commands for all of the buttons, menu items and parameters.
+ * The actions commands for all of the buttons, menu items and parameters.
  *
  *
  *       Copyright (c) 2010, Lehigh University

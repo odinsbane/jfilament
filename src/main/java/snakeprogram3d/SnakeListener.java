@@ -25,7 +25,7 @@ class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
     }
     /**
      * Switches the Action event based on the SnakeActions enum, with a value
-     * matched to the string of the ActionEvent action command.
+     * matched to the string of the ActionEvent actions command.
      * 
      * @param evt
      */
