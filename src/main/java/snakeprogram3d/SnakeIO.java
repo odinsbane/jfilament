@@ -290,7 +290,7 @@ public class SnakeIO{
     }
 
     public static MultipleSnakesStore loadSnakes(String fname) throws IOException {
-        return loadSnakes(fname, new HashMap<>());
+        return loadSnakes(fname, new HashMap<String, Double>());
     }
     public static MultipleSnakesStore loadSnakes(String fname, HashMap<String, Double> constants) throws IOException {
 

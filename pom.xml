@@ -12,7 +12,7 @@
 	</parent>
 
 	<artifactId>JFilament_</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1-SNAPSHOT</version>
     <name>JFilament</name>
 	<description>JFilament, 2D and 3D active contours.</description>
     <url>http://athena.physics.lehigh.edu/jfilament</url>
