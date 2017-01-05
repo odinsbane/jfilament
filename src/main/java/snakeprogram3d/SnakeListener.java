@@ -32,118 +32,118 @@ class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
     public void actionPerformed(ActionEvent evt){
         SnakeActions act = SnakeActions.valueOf(evt.getActionCommand());
         switch(act){
-            case getandload:
+            case getAndLoad:
                 snake_model.getAndLoadImage();
                 break;
-            case addsnake:
+            case addSnake:
                 snake_model.addSnake();
                 break;
-            case deformsnake:
+            case deformSnake:
                 snake_model.deformSnake();
                 break;
-            case setalpha:
+            case setAlpha:
                 snake_frame.setAlpha();
                 break;
-            case setbeta:
+            case setBeta:
                 snake_frame.setBeta();
                 break;
-            case setgamma:
+            case setGamma:
                 snake_frame.setGamma();
                 break;
-            case setweight: 
+            case setWeight:
                 snake_frame.setWeight();
                 break;
-            case getforeground:
+            case getForeground:
                 snake_model.getForegroundIntensity();
                 break;
-            case setforeground:
+            case setForeground:
                 snake_frame.setForegroundIntensity();
                 break;
-            case setstretch:
+            case setStretch:
                 snake_frame.setStretch();
                 break;
-            case stretchfix:
+            case stretchFix:
                 snake_model.setFixSnakePoints();
                 break;
-            case getbackground:
+            case getBackground:
                 snake_model.getBackgroundIntensity();
                 break;
-            case setbackground:
+            case setBackground:
                 snake_frame.setBackgroundIntensity();
                 break;
-            case clearscreen:
+            case clearScreen:
                 snake_model.clearScreen();
                 break;
-            case setiterations:
+            case setIterations:
                 snake_frame.setDeformIterations();
                 break;
-            case savesnakes:
+            case saveSnakes:
                 snake_model.saveSnake();
                 break;
-            case loadsnakes:
+            case loadSnakes:
                 snake_model.loadSnake();
                 break;
-            case deletesnake:
+            case deleteSnake:
                 snake_model.deleteSnake();
                 break;
-            case initializezoom:
+            case initializeZoom:
                 snake_model.initializeZoomIn();
                 break;
-            case zoomout:
+            case zoomOut:
                 snake_model.zoomOut();
                 break;
-            case nextimage:
+            case nextImage:
                 snake_model.nextImage();
                 break;
-            case previousimage:
+            case previousImage:
                 snake_model.previousImage();
                 break;
-            case deleteend:
+            case deleteEnd:
                 snake_model.deleteEndFix();
                 break;
-            case deletemiddle:
+            case deleteMiddle:
                 snake_model.deleteMiddleFix();
                 break;
-            case tracksnake:
+            case trackSnake:
                 snake_model.trackSnake();
                 break;
-            case savedata:
+            case saveData:
                 snake_model.saveElongationData();
                 break;
-            case setresolution:
+            case setResolution:
                 snake_frame.setResolution();
                 break;
-            case setsigma:
+            case setSigma:
                 snake_frame.setImageSmoothing();
                 break;
-            case setzresolution:
+            case setZResolution:
                 snake_frame.setZResolution();
                 break;
-            case nextframe:
+            case nextFrame:
                 snake_model.nextFrame();
                 break;
-            case previousframe:
+            case previousFrame:
                 snake_model.previousFrame();
                 break;
-            case pmax:
+            case pMax:
                 snake_model.increaseMax();
                 break;
-            case mmax:
+            case mMax:
                 snake_model.decreaseMax();
                 break;
-            case pmin:
+            case pMin:
                 snake_model.increaseMin();
                 break;
-            case mmin:
+            case mMin:
                 snake_model.decreaseMin();
                 break;
-            case viewselected:
+            case viewSelected:
                 snake_frame.setView();
                 break;
-            case showhelp:
+            case showHelp:
                 HelpMessages.showHelp();
                 break;
-            case showabout:
+            case showAbout:
                 HelpMessages.showAbout();
                 break;
             case reduce3d:
@@ -155,16 +155,16 @@ class SnakeListener implements ActionListener,MouseListener,MouseMotionListener{
                 }
 
                 break;
-            case tracksnakeback:
+            case trackSnakeback:
                 snake_model.trackSnakeBackwards();
                 break;
-            case clearsnake:
+            case clearSnake:
                 snake_model.clearCurrentSnake();
                 break;
-            case setmaxlength:
+            case setMaxLength:
                 snake_model.setMaxLength();
                 break;
-            case deformupdate:
+            case deformUpdate:
                 snake_frame.setDeformType();
                 break;
         }

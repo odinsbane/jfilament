@@ -259,7 +259,7 @@ public class SnakeFrame{
         JMenuBar bar = new JMenuBar();
         JMenu img = new JMenu("image");
         JMenuItem load_img = new JMenuItem("Open Image");
-        load_img.setActionCommand(SnakeActions.getandload.name());
+        load_img.setActionCommand(SnakeActions.getAndLoad.name());
         load_img.addActionListener(snake_listener);
         img.add(load_img);
         
@@ -268,13 +268,13 @@ public class SnakeFrame{
         
         JMenu snakes = new JMenu("snakes");
         JMenuItem save_snakes = new JMenuItem("Save Snakes");
-        save_snakes.setActionCommand(SnakeActions.savesnakes.name());
+        save_snakes.setActionCommand(SnakeActions.saveSnakes.name());
         save_snakes.addActionListener(snake_listener);
         snakes.add(save_snakes);
         
         
         JMenuItem load_snakes = new JMenuItem("Load Snakes");
-        load_snakes.setActionCommand(SnakeActions.loadsnakes.name());
+        load_snakes.setActionCommand(SnakeActions.loadSnakes.name());
         load_snakes.addActionListener(snake_listener);
         snakes.add(load_snakes);
         
@@ -283,13 +283,13 @@ public class SnakeFrame{
         
         JMenu data = new JMenu("data");
         JMenuItem save_data =new JMenuItem("Save Elongation Data");
-        save_data.setActionCommand(SnakeActions.savedata.name());
+        save_data.setActionCommand(SnakeActions.saveData.name());
         save_data.addActionListener(snake_listener);
         
         data.add(save_data);
 
         JMenuItem set_max_length = new JMenuItem("Set Max Length");
-        set_max_length.setActionCommand(SnakeActions.setmaxlength.name());
+        set_max_length.setActionCommand(SnakeActions.setMaxLength.name());
         set_max_length.addActionListener(snake_listener);
 
         data.add(set_max_length);
@@ -329,14 +329,14 @@ public class SnakeFrame{
         deform_group = new ButtonGroup();
 
         JMenuItem curve_deform = new JCheckBoxMenuItem("Open Curve Deformation");
-        curve_deform.setActionCommand(SnakeActions.deformupdate.name());
+        curve_deform.setActionCommand(SnakeActions.deformUpdate.name());
         curve_deform.addActionListener(snake_listener);
         curve_deform.setSelected(true);
         deform_group.add(curve_deform);
         deformation_type.add(curve_deform);
 
         JMenuItem contour_deform = new JCheckBoxMenuItem("Closed Contour Deformation");
-        contour_deform.setActionCommand(SnakeActions.deformupdate.name());
+        contour_deform.setActionCommand(SnakeActions.deformUpdate.name());
         contour_deform.addActionListener(snake_listener);
         deform_group.add(contour_deform);
         deformation_type.add(contour_deform);
@@ -347,14 +347,14 @@ public class SnakeFrame{
 
         JMenu help = new JMenu("help");
         JMenuItem show_help = new JMenuItem("overview");
-        show_help.setActionCommand(SnakeActions.showhelp.name());
+        show_help.setActionCommand(SnakeActions.showHelp.name());
         show_help.addActionListener(snake_listener);
         help.add(show_help);
 
         help.add(new JSeparator());
 
         JMenuItem about = new JMenuItem("about");
-        about.setActionCommand(SnakeActions.showabout.name());
+        about.setActionCommand(SnakeActions.showAbout.name());
         about.addActionListener(snake_listener);
         help.add(about);
         
@@ -372,7 +372,7 @@ public class SnakeFrame{
      */
     private JRadioButtonMenuItem addViewItem(String label){
         JRadioButtonMenuItem item = new JRadioButtonMenuItem(label);
-        item.setActionCommand("viewselected");
+        item.setActionCommand("viewSelected");
         item.addActionListener(snake_listener);
         view_group.add(item);
         return item;
@@ -401,30 +401,30 @@ public class SnakeFrame{
 
         bp.setLayout(gl);
 
-        bp.add(createActionButton("Previous Time Frame", SnakeActions.previousframe.name()));
-        bp.add(createActionButton("Next Time Frame", SnakeActions.nextframe.name()));
+        bp.add(createActionButton("Previous Time Frame", SnakeActions.previousFrame.name()));
+        bp.add(createActionButton("Next Time Frame", SnakeActions.nextFrame.name()));
 
-        bp.add(createActionButton("Lower Image Slice",SnakeActions.previousimage.name()));
-        bp.add(createActionButton("Raise Image Slice", SnakeActions.nextimage.name()));
+        bp.add(createActionButton("Lower Image Slice",SnakeActions.previousImage.name()));
+        bp.add(createActionButton("Raise Image Slice", SnakeActions.nextImage.name()));
 
 
-        bp.add(createActionButton("Add Snake", SnakeActions.addsnake.name()));
-        bp.add(createActionButton("Delete Snake", SnakeActions.deletesnake.name()));
-        bp.add(createActionButton("Deform Snake", SnakeActions.deformsnake.name()));
-        bp.add(createActionButton("Clear Current",SnakeActions.clearsnake.name()));
-        bp.add(createActionButton("Track Snake", SnakeActions.tracksnake.name()));
-        bp.add(createActionButton("Track Backwards",SnakeActions.tracksnakeback.name()));
-        bp.add(createActionButton("Clear Screen", SnakeActions.clearscreen.name()));
-        bp.add(createActionButton("Delete End Fix", SnakeActions.deleteend.name()));
-        bp.add(createActionButton("Delete Middle Fix", SnakeActions.deletemiddle.name()));
-        bp.add(createActionButton("Stretch Fix", SnakeActions.stretchfix.name()));
-        bp.add(createActionButton("Zoom In", SnakeActions.initializezoom.name()));
-        bp.add(createActionButton("Zoom Out", SnakeActions.zoomout.name()));
+        bp.add(createActionButton("Add Snake", SnakeActions.addSnake.name()));
+        bp.add(createActionButton("Delete Snake", SnakeActions.deleteSnake.name()));
+        bp.add(createActionButton("Deform Snake", SnakeActions.deformSnake.name()));
+        bp.add(createActionButton("Clear Current",SnakeActions.clearSnake.name()));
+        bp.add(createActionButton("Track Snake", SnakeActions.trackSnake.name()));
+        bp.add(createActionButton("Track Backwards",SnakeActions.trackSnakeback.name()));
+        bp.add(createActionButton("Clear Screen", SnakeActions.clearScreen.name()));
+        bp.add(createActionButton("Delete End Fix", SnakeActions.deleteEnd.name()));
+        bp.add(createActionButton("Delete Middle Fix", SnakeActions.deleteMiddle.name()));
+        bp.add(createActionButton("Stretch Fix", SnakeActions.stretchFix.name()));
+        bp.add(createActionButton("Zoom In", SnakeActions.initializeZoom.name()));
+        bp.add(createActionButton("Zoom Out", SnakeActions.zoomOut.name()));
         
-        bp.add(createActionButton("+MAX", SnakeActions.pmax.name()));
-        bp.add(createActionButton("-MAX", SnakeActions.mmax.name()));
-        bp.add(createActionButton("+MIN", SnakeActions.pmin.name()));
-        bp.add(createActionButton("-MIN",SnakeActions.mmin.name()));
+        bp.add(createActionButton("+MAX", SnakeActions.pMax.name()));
+        bp.add(createActionButton("-MAX", SnakeActions.mMax.name()));
+        bp.add(createActionButton("+MIN", SnakeActions.pMin.name()));
+        bp.add(createActionButton("-MIN",SnakeActions.mMin.name()));
 
         half.add(bp);
         half.add(Box.createVerticalGlue());
@@ -470,46 +470,46 @@ public class SnakeFrame{
         BoxLayout vert = new BoxLayout(parameter_pane, BoxLayout.PAGE_AXIS);
         parameter_pane.setLayout(vert);
         
-        parameter_pane.add(createInputPair("Alpha", "15", SnakeActions.setalpha));
+        parameter_pane.add(createInputPair("Alpha", "15", SnakeActions.setAlpha));
         Alpha = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Beta","10", SnakeActions.setbeta));
+        parameter_pane.add(createInputPair("Beta","10", SnakeActions.setBeta));
         Beta = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Gamma", "40", SnakeActions.setgamma));
+        parameter_pane.add(createInputPair("Gamma", "40", SnakeActions.setGamma));
         Gamma = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Weight","0.5", SnakeActions.setweight));
+        parameter_pane.add(createInputPair("Weight","0.5", SnakeActions.setWeight));
         Weight = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Stretch Force","100", SnakeActions.setstretch));
+        parameter_pane.add(createInputPair("Stretch Force","100", SnakeActions.setStretch));
         Stretch = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Deform Iterations","100", SnakeActions.setiterations));
+        parameter_pane.add(createInputPair("Deform Iterations","100", SnakeActions.setIterations));
         DeformIterations = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Snake Point Separation", "1", SnakeActions.setresolution));
+        parameter_pane.add(createInputPair("Snake Point Separation", "1", SnakeActions.setResolution));
         PointSpacing = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Image Smoothing", "0", SnakeActions.setsigma));
+        parameter_pane.add(createInputPair("Image Smoothing", "0", SnakeActions.setSigma));
         ImageSmoothing = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
-        parameter_pane.add(createInputPair("Z Spacing","2",SnakeActions.setzresolution));
+        parameter_pane.add(createInputPair("Z Spacing","2",SnakeActions.setZResolution));
         ZResolution = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
         parameter_pane.add(createSeparator("Intensities"));
         
-        JPanel row = createInputPair("Foreground","255", SnakeActions.setforeground);
-        row.add(createActionButton("Get",SnakeActions.getforeground.name()));
+        JPanel row = createInputPair("Foreground","255", SnakeActions.setForeground);
+        row.add(createActionButton("Get",SnakeActions.getForeground.name()));
         ForegroundIntensity = TRANSIENT;
         ForegroundIntensity.setMinimumSize(new Dimension(100,25));
         ForegroundIntensity.setMaximumSize(new Dimension(100,25));
@@ -518,8 +518,8 @@ public class SnakeFrame{
         parameter_pane.add(Box.createVerticalStrut(vspace));
         
         
-        row = createInputPair("Background","0", SnakeActions.setbackground);
-        row.add(createActionButton("Get",SnakeActions.getbackground.name()));
+        row = createInputPair("Background","0", SnakeActions.setBackground);
+        row.add(createActionButton("Get",SnakeActions.getBackground.name()));
         BackgroundIntensity = TRANSIENT;
         BackgroundIntensity.setMinimumSize(new Dimension(100,25));
         BackgroundIntensity.setMaximumSize(new Dimension(100,25));

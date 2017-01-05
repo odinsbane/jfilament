@@ -24,115 +24,115 @@ public class SnakeListener implements ActionListener{
         SnakeActions act = SnakeActions.valueOf(evt.getActionCommand());
 
         switch(act){
-            case getandload:
+            case getAndLoad:
                 snake_model.getAndLoadImage();
                 break;
-            case addsnake:
+            case addSnake:
                 snake_model.addSnake();
                 break;
-            case deformsnake:
+            case deformSnake:
                 snake_model.deformSnake();
                 break;
-            case setalpha:
+            case setAlpha:
                 snake_frame.setAlpha();
                 break;
-            case setbeta:
+            case setBeta:
                 snake_frame.setBeta();
                 break;
-            case setgamma:
+            case setGamma:
                 snake_frame.setGamma();
                 break;
-            case setweight: 
+            case setWeight:
                 snake_frame.setWeight();
                 break;
-            case getforeground:
+            case getForeground:
                 snake_model.getForegroundIntensity();
                 break;
-            case setforeground:
+            case setForeground:
                 snake_frame.setForegroundIntensity();
                 break;
-            case setstretch:
+            case setStretch:
                 snake_frame.setStretch();
                 break;
-            case stretchfix:
+            case stretchFix:
                 snake_model.setFixSnakePoints();
                 break;
-            case getbackground:
+            case getBackground:
                 snake_model.getBackgroundIntensity();
                 break;
-            case setbackground:
+            case setBackground:
                 snake_frame.setBackgroundIntensity();
                 break;
-            case deformfix:
+            case deformFix:
                 snake_model.moveMiddleFix();
                 break;
-            case setiterations:
+            case setIterations:
                 snake_frame.setDeformIterations();
                 break;
-            case savesnakes:
+            case saveSnakes:
                 snake_model.saveSnake();
                 break;
-            case loadsnakes:
+            case loadSnakes:
                 snake_model.loadSnake();
                 break;
-            case deletesnake:
+            case deleteSnake:
                 snake_model.deleteSnake();
                 break;
-            case initializezoom:
+            case initializeZoom:
                 snake_model.initializeZoomIn();
                 break;
-            case zoomout:
+            case zoomOut:
                 snake_model.zoomOut();
                 break;
-            case nextimage:
+            case nextImage:
                 snake_model.nextImage();
                 break;
-            case previousimage:
+            case previousImage:
                 snake_model.previousImage();
                 break;
-            case deleteend:
+            case deleteEnd:
                 snake_model.deleteEndFix();
                 break;
-            case deletemiddle:
+            case deleteMiddle:
                 snake_model.deleteMiddleFix();
                 break;
-            case tracksnake:
+            case trackSnake:
                 snake_model.trackSnakes();
                 break;
-            case savedata:
+            case saveData:
                 snake_model.saveElongationData();
                 break;
-            case setresolution:
+            case setResolution:
                 snake_frame.setResolution();
                 break;
-            case setsigma:
+            case setSigma:
                 snake_frame.setImageSmoothing();
                 break;
-            case setmaxlength:
+            case setMaxLength:
                 snake_model.setMaxLength();
                 break;
-            case setlinewidth:
+            case setLineWidth:
                 snake_model.setLineWidth();
                 break;
-            case trackallframes:
+            case trackAllFrames:
                 snake_model.trackAllFrames(evt.getModifiers());
                 break;
-            case trackbackwards:
+            case trackBackwards:
                 snake_model.trackBackwards();
                 break;
-            case deformallframes:
+            case deformAllFrames:
                 snake_model.deformAllFrames(evt.getModifiers());
                 break;
-            case guessforebackground:
+            case guessForeBackground:
                 snake_model.guessForegroundBackground();
                 break;
-            case showversion:
+            case showVersion:
                 snake_model.showVersion();
                 break;
-            case repositionend:
+            case repositionEnd:
                 snake_model.repositionEnd();
                 break;
-            case showannotations:
+            case showAnnotations:
                 snake_model.showAnnotationFrame();
                 break;
 

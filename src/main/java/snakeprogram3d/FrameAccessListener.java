@@ -69,8 +69,8 @@ class FrameAccessListener implements MouseListener{
                 but.setFocusable(false);
                 SnakeActions sa = SnakeActions.valueOf(but.getActionCommand());
                 switch(sa){
-                    case previousimage:
-                    case nextimage:
+                    case previousImage:
+                    case nextImage:
                         directions.add(but);
                         break;
 
