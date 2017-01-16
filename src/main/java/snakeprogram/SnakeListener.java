@@ -57,6 +57,9 @@ public class SnakeListener implements ActionListener{
             case stretchFix:
                 snake_model.setFixSnakePoints();
                 break;
+            case moveAndRotate:
+                snake_model.startSnakeTransform();
+                break;
             case getBackground:
                 snake_model.getBackgroundIntensity();
                 break;

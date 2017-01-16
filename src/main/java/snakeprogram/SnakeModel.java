@@ -1119,6 +1119,13 @@ public class SnakeModel{
         return snakes;
     }
 
+    public void startSnakeTransform() {
+        if(checkForCurrentSnake()){
+            SnakeInteraction si = new MoveAndRotate(this,images,CurrentSnake);
+            registerSnakeInteractor(si);
+        }
+    }
+
 
     /**
      * Contains the nescessary exception catches when deforming or modifying a snake.

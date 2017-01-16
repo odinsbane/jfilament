@@ -197,7 +197,13 @@ public class SnakeFrame{
         load_snakes.setActionCommand(SnakeActions.loadSnakes.name());
         load_snakes.addActionListener(snake_listener);
         snakes.add(load_snakes);
-        
+
+        JMenuItem transform_snake = new JMenuItem("Transform Selected");
+        transform_snake.setActionCommand(SnakeActions.moveAndRotate.name());
+        transform_snake.addActionListener(snake_listener);
+        transform_snake.setAccelerator(KeyStroke.getKeyStroke('m'));
+        snakes.add(transform_snake);
+
         bar.add(snakes);
         MENUS.add(snakes);
         

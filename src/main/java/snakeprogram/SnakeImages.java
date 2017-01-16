@@ -595,22 +595,3 @@ public class SnakeImages{
 
 }
 
-/**
- * An interface to add and remove items from the window for drawing.
- *
- */
-
-interface ProcDrawable{
-    /**
-     * The image processor is already scaled, the transform is the nescessary transform to go from real coordinates to
-     * displayed coordantes.
-     *
-     * @param proc
-     * @param transform
-     */
-    public void draw(ImageProcessor proc, Transform transform);
-}
-
-interface Transform{
-    public double[] transform(double[] pt);
-}
