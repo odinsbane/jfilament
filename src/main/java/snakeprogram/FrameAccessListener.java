@@ -70,7 +70,6 @@ class FrameAccessListener implements MouseListener{
 
 			for(JMenu j: jtm){
                 menus.add(j);
-				j.setEnabled(false);
 			}
 		}
         
@@ -81,8 +80,15 @@ class FrameAccessListener implements MouseListener{
             for(JTextField f: text_fields){
                 f.setEnabled(false);
             }
-            for(JMenu m: menus)
-				m.setEnabled(true);
+            for(JMenu m: menus) {
+                for(int i = 0; i<m.getItemCount(); i++){
+                    JMenuItem item = m.getItem(i);
+                    if(item!=null) {
+                        item.setEnabled(true);
+                    }
+                }
+            }
+            menus.get(0).getParent().validate();
 				
             IGNORING = false;
         }
@@ -99,8 +105,14 @@ class FrameAccessListener implements MouseListener{
             for(JTextField f: text_fields){
                 f.setEnabled(false);
             }
-            for(JMenu m: menus)
-				m.setEnabled(false);
+            for(JMenu m: menus) {
+                for(int i = 0; i<m.getItemCount(); i++){
+                    JMenuItem item = m.getItem(i);
+                    if(item!=null){
+                        item.setEnabled(false);
+                    }
+                }
+            }
             IGNORING = true;
             selector.setActive(false);
         }
@@ -126,8 +138,13 @@ class FrameAccessListener implements MouseListener{
 			String s;
             for(JMenu m: menus){
                 s = m.getText();
-                if(s.compareTo("image")==0||s.compareTo("help")==0)
-				m.setEnabled(true);
+                if(s.compareTo("image")==0||s.compareTo("help")==0){
+                    for(int i = 0; i<m.getItemCount(); i++){
+                        JMenuItem item = m.getItem(i);
+                        if(item!=null)
+                            item.setEnabled(true);
+                    }
+                }
             }
 		}
 
