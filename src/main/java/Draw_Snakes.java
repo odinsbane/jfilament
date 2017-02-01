@@ -33,7 +33,7 @@ public class Draw_Snakes implements PlugInFilter{
         ImageStack outstack = new ImageStack(implus.getWidth(), implus.getHeight());
         ImageStack istack = implus.getStack();
         
-        for(int i = 1; i<=implus.getNSlices(); i++){
+        for(int i = 1; i<=istack.getSize(); i++){
                             
             ImageProcessor ip = istack.getProcessor(i).convertToRGB().duplicate();
             outstack.addSlice("label", ip);

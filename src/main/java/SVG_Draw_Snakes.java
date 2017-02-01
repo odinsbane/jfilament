@@ -216,7 +216,6 @@ class SvgAnimatedPainter{
 
 
     public void finish(File f){
-        System.out.println("finsihed");
         if(CLIPPING)
             OUTPUT.append("</g>\n");
         OUTPUT.append("</svg>");
