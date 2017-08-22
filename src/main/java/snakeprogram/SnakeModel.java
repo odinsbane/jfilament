@@ -73,7 +73,7 @@ public class SnakeModel{
     /**
        *    Starts the snakes application.
        **/
-    SnakeModel(){
+    public SnakeModel(){
         SnakeStore = new MultipleSnakesStore();
         images = new SnakeImages(SnakeStore);
         snake_panel = new SnakeFrame(this);
