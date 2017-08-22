@@ -2,6 +2,8 @@ package snakeprogram;
 
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -41,6 +43,7 @@ public class SnakeFrame{
     /** interface to the original snake model */
     final SnakeModel snake_model;
     final SnakeListener snake_listener;
+    JSlider frameSlider;
     JFrame FRAME; 
 
     FrameAccessListener field_watcher;
@@ -60,9 +63,9 @@ public class SnakeFrame{
     }
     
     public void disableUI(){
+        frameSlider.setEnabled(false);
         field_watcher.disableUI();
         FRAME.getContentPane().requestFocus();
-
     }
     
     private void createFrameListener(){
@@ -401,8 +404,22 @@ public class SnakeFrame{
         ALLBUTTONS.add(contour);
         parameter_pane.add(contour);
         
-        
-        
+        frameSlider = new JSlider();
+        frameSlider.addChangeListener(new ChangeListener(){
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if(frameSlider.getValue()!=snake_model.getCurrentFrame() && frameSlider.isEnabled()){
+                    snake_model.setImageFrame(frameSlider.getValue());
+                }
+            }
+        });
+
+
+        frameSlider.setEnabled(false);
+
+        parameter_pane.add(frameSlider);
+
         parameter_pane.setMinimumSize(new Dimension(200,512));
         parameter_pane.setMaximumSize(new Dimension(200,512));
         parameter_pane.setPreferredSize(new Dimension(200,512));
@@ -674,6 +691,7 @@ public class SnakeFrame{
     
     
     public void enableUI(){
+        frameSlider.setEnabled(true);
         field_watcher.enableUI();
         FRAME.validate();
     }
@@ -688,6 +706,12 @@ public class SnakeFrame{
     
     public void updateStackProgressionLabel(int x, int total){
         image_counter_label.setText( "   Image Counter: " + x + "/" + total );
+
+        frameSlider.setValue(x);
+
+        frameSlider.setMinimum(1);
+        frameSlider.setMaximum(total);
+
     }
     
     public void imageLoaded(boolean t){

@@ -486,6 +486,24 @@ public class SnakeModel{
         updateImagePanel();
     
     }
+
+    /**
+     * Set the current frame.
+     * @param i frame to select (1-based).
+     */
+    public void setImageFrame(int i){
+        images.setImage(i);
+        updateImagePanel();
+    }
+
+    /**
+     * Gets the current frame.
+     *
+     * @return number of the current frame (1-based)
+     */
+    public int getCurrentFrame(){
+        return images.getCounter();
+    }
     
     /**
        *    Disables UI and begins a zoom in routine

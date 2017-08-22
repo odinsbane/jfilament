@@ -54,10 +54,4 @@ public class SnakeApplication implements PlugInFilter{
         });
 	}
 
-    static public SnakeModel createSnakeModel(){
-        final SnakeModel sm = new SnakeModel();
-        return sm;
-    }
-
-
    }
