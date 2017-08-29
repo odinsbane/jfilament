@@ -54,7 +54,7 @@ public class Draw_Snakes implements PlugInFilter{
      * @param ip image processor that the snake is drawn upon.
      * @param c the color the snake is drawn
      */
-    public void drawSnake(ArrayList<double[]> snake, ImageProcessor ip, Color c){
+    public static void drawSnake(ArrayList<double[]> snake, ImageProcessor ip, Color c){
         ip.setColor(c);
         for(int i =1; i<snake.size(); i++){
             double[] current = snake.get(i);

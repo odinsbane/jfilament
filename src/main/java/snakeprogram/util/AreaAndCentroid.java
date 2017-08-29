@@ -11,14 +11,15 @@ import snakeprogram.Snake;
 import snakeprogram.SnakeIO;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.geom.Path2D;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -30,7 +31,8 @@ import java.util.HashMap;
  */
 public class AreaAndCentroid {
     static int LINE_WIDTH=5; //for calculating value along perimeter.
-
+    public final static String LEFT = "left";
+    public final static String RIGHT = "right";
 
     /**
      * Splits a single snake into two snakes, a left and right side snake, based on the furrow.
@@ -39,13 +41,13 @@ public class AreaAndCentroid {
      * @param furrow two points to define the furrow {x1,y1,x2,y2}.
      * @return Two arraylists, left and right, cnets.
      */
-    static public HashMap<String, ArrayList<double[]>> furrowSplit(ArrayList<double[]> points, double[] furrow){
+    static public HashMap<String, List<double[]>> furrowSplit(ArrayList<double[]> points, double[] furrow){
         ArrayList<double[]> left = new ArrayList<double[]>();
         ArrayList<double[]> right = new ArrayList<double[]>();
 
-        HashMap<String, ArrayList<double[]>> left_right = new HashMap<String,ArrayList<double[]>>();
-        left_right.put("left",left);
-        left_right.put("right",right);
+        HashMap<String, List<double[]>> left_right = new HashMap<String,List<double[]>>();
+        left_right.put(LEFT,left);
+        left_right.put(RIGHT,right);
 
         //direction furrow points.
         double[] dir = new double[]{
@@ -384,7 +386,7 @@ public class AreaAndCentroid {
      * @param points list of points that define a simple closed polygon.
      * @return the area, positive or negative depend on the winding
      */
-    public static double calculateArea(ArrayList<double[]> points) {
+    public static double calculateArea(List<double[]> points) {
         double sum = 0;
         int n = points.size();
         for(int i =0; i<points.size(); i++){
@@ -411,7 +413,7 @@ public class AreaAndCentroid {
      *
      * @return x,y coordinates of the centroid
      */
-    public static double[] calculateCentroid(double area, ArrayList<double[]> points){
+    public static double[] calculateCentroid(double area, List<double[]> points){
         double sumx = 0;
         double sumy = 0;
         int n = points.size();
