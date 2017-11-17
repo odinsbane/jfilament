@@ -405,7 +405,15 @@ public class SnakeModel{
         enableUI();
         updateImagePanel();
     }
-    
+
+    public void importSnakes(MultipleSnakesStore store){
+
+        SnakeStore = store;
+        images.setSnakes(store);
+        CurrentSnake = store.getLastSnake();
+
+    }
+
     /**
        *    Goes to the next frame and copies the current snake.  
        *    then deforms that snake.
