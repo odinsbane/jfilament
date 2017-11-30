@@ -2,6 +2,7 @@ package snakeprogram;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 /**
  * @author Lisa
@@ -18,7 +19,7 @@ public class Snake implements Iterable<Integer>{
     public static final int CLOSED_SNAKE=1;
     
     /** The Integer is the frame in time and the ArrayList are the coordinates */
-    final TreeMap<Integer,ArrayList<double[]>> Coordinates;
+    final TreeMap<Integer,List<double[]>> Coordinates;
     
     final public int TYPE;
     
@@ -29,7 +30,7 @@ public class Snake implements Iterable<Integer>{
        **/
 
     public Snake(int type){
-        Coordinates = new TreeMap<Integer,ArrayList<double[]>>();
+        Coordinates = new TreeMap<Integer,List<double[]>>();
         TYPE=type;
     }
     
@@ -39,9 +40,9 @@ public class Snake implements Iterable<Integer>{
        *    @param  i       frame that the current coordinates correspond too.
        *    @param  type    could be either an OPEN_SNAKE or a CLOSED_SNAKE for the respective curve types
        **/
-    public Snake(ArrayList<double[]> coord,int i,int type){
+    public Snake(List<double[]> coord,int i,int type){
         
-        Coordinates = new TreeMap<Integer,ArrayList<double[]>>();
+        Coordinates = new TreeMap<Integer,List<double[]>>();
         Coordinates.put(i,coord);
         
         TYPE=type;
@@ -49,7 +50,7 @@ public class Snake implements Iterable<Integer>{
     }
 
     
-    public ArrayList<double[]> getCoordinates(int i){
+    public List<double[]> getCoordinates(int i){
         return Coordinates.get(i);
     }
 
@@ -59,7 +60,7 @@ public class Snake implements Iterable<Integer>{
 
     public double findLength(int time){
     
-        ArrayList<double[]> coordinates = Coordinates.get(time);
+        List<double[]> coordinates = Coordinates.get(time);
         
         int size = coordinates.size();
         double distance = 0;
@@ -117,7 +118,7 @@ public class Snake implements Iterable<Integer>{
        *    @param Xs xy coordinates
        *
        **/
-    public void addCoordinates(int frame, ArrayList<double[]> Xs){
+    public void addCoordinates(int frame, List<double[]> Xs){
         
         Coordinates.put(frame,Xs);
     }

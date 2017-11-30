@@ -1,11 +1,12 @@
 import ij.*;
 import ij.process.*;
 import ij.gui.*;
-import java.awt.*;
 import ij.plugin.filter.*;
 
+import java.awt.Frame;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.List;
 
 import snakeprogram.Snake;
 import snakeprogram.SnakeIO;
@@ -38,7 +39,7 @@ public class Boundary_Kymograph implements PlugInFilter {
 
             
         ImageProcessor improc;
-        ArrayList<double[]> cnets;
+        List<double[]> cnets;
         Plot showing = null;
         ImageStack istack = imp.getStack();
 
@@ -88,7 +89,7 @@ public class Boundary_Kymograph implements PlugInFilter {
         
 	}
     
-    public double[][] createKimograph(ArrayList<double[]> pts,ImageProcessor ip, double l, int type){
+    public double[][] createKimograph(List<double[]> pts,ImageProcessor ip, double l, int type){
         int N = pts.size();
 
         int n = type==Snake.OPEN_SNAKE?N-1:N;

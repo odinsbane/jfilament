@@ -6,10 +6,13 @@ import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 /**
    *    A class for controlling the image data.
  *
@@ -47,7 +50,7 @@ public class SnakeImages{
                 STRETCHFIX,
                 MARKED;
     double[] MARK;
-    final ArrayList<double[]> STATIC_MARKERS;
+    final List<double[]> STATIC_MARKERS;
     
     private Rectangle ZoomBox;
     
@@ -56,7 +59,7 @@ public class SnakeImages{
     
     //This is the snake data
     
-    ArrayList<double[]> SnakeRaw;
+    List<double[]> SnakeRaw;
     HashSet<ProcDrawable> drawables = new HashSet<ProcDrawable>();
     ArrayList<ImageCounterListener> counter_listeners = new ArrayList<ImageCounterListener>();
 
@@ -217,7 +220,7 @@ public class SnakeImages{
     }
     
     
-    public void setRawData(ArrayList<double[]> xv){
+    public void setRawData(List<double[]> xv){
             SnakeRaw = xv;
         if(xv!=null&&xv.size()>0){
             setDrawSnake(true);
@@ -299,7 +302,7 @@ public class SnakeImages{
     public void drawSnake(Snake s,ImageProcessor improc){
 
         if(s.exists(imagecounter)){
-            ArrayList<double[]> snake = s.getCoordinates(imagecounter);
+            List<double[]> snake = s.getCoordinates(imagecounter);
             
             //creates vectors to store transformed coordinates
             ArrayList<double[]> SnakeDraw = new ArrayList<double[]>();
@@ -565,7 +568,7 @@ public class SnakeImages{
        **/
     static public void drawSnake(Snake s, ImageProcessor ip,int frame){
         
-        ArrayList<double[]> xs = s.getCoordinates(frame);
+        List<double[]> xs = s.getCoordinates(frame);
         Iterator<double[]> it = xs.iterator();
         //draws the snake to the processor
         double[] pt1,pt2;

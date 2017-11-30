@@ -36,7 +36,7 @@ public class SnakeModel{
     private SnakeFrame snake_panel;        //Contians the controls
     private ExecutorService executor = Executors.newFixedThreadPool(1);
     /**These contain the currently displayed snake data. x and y values*/
-    private ArrayList<double[]> SnakeRaw;
+    private List<double[]> SnakeRaw;
     private Snake CurrentSnake;
     /**The deformation for an open deformation*/
     private TwoDDeformation curveDeformation;
@@ -304,7 +304,7 @@ public class SnakeModel{
         for(Snake s: SnakeStore){
             double distance = 1e6;
             if(s.exists(frame)){
-                ArrayList<double[]> cx = s.getCoordinates(frame);
+                List<double[]> cx = s.getCoordinates(frame);
                 int size = s.getSize(frame);
                 for(int i = 0; i<size;i++){
                     double cd = TwoDDeformation.pointDistance(p,cx.get(i));
@@ -351,7 +351,7 @@ public class SnakeModel{
      * @return
      */
     public double[] findClosestEnd(double x, double y){
-        ArrayList<double[]> all = CurrentSnake.getCoordinates(images.getCounter());
+        List<double[]> all = CurrentSnake.getCoordinates(images.getCounter());
         double[] hpt = all.get(0);
         double[] tpt = all.get(all.size()-1);
         double[] pt = { x, y};

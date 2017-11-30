@@ -1,10 +1,12 @@
 package snakeprogram;
 
 import javax.swing.*;
-import java.awt.*;
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -176,9 +178,9 @@ public class SnakeIO{
      **/
     public static double[] getEndpointChanges(Snake s, int cur, int prev){
         double[] ret_value = { 0, 0};
-        ArrayList<double[]> current = s.getCoordinates(cur);
-        ArrayList<double[]> previous = s.getCoordinates(prev);
-        ArrayList<double[]> longer,shorter;
+        List<double[]> current = s.getCoordinates(cur);
+        List<double[]> previous = s.getCoordinates(prev);
+        List<double[]> longer,shorter;
         
         double factor = 1;      //keep the change consistent
         
@@ -232,7 +234,7 @@ public class SnakeIO{
         return ret_value;
     }
     
-    public static double measureDistance(ArrayList<double[]> pts, int start, int stop){
+    public static double measureDistance(List<double[]> pts, int start, int stop){
         double d = 0;
         for(int i = start; i<stop; i++){
             double[] xi = pts.get(i);
@@ -311,7 +313,7 @@ public class SnakeIO{
         bw.write("#\n");
         bw.write("" + s.TYPE + "\n");
         for(Integer i: s){
-            ArrayList<double[]> x = s.getCoordinates(i);
+            List<double[]> x = s.getCoordinates(i);
             for(int j=0;j<x.size();j++)
                 bw.write(i + "\t" + j + "\t" + x.get(j)[0] + "\t" + x.get(j)[1] + "\t" + 0 + "\n");
         }

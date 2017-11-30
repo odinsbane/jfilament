@@ -7,9 +7,10 @@ import ij.process.FloatProcessor;
 import ij.process.ImageProcessor;
 import snakeprogram.*;
 
-import java.awt.*;
+import java.awt.Frame;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Uses a snake to create a distance transform.  For the Chebyshev distance transform.
@@ -39,7 +40,7 @@ public class Interpolate_2d_Snakes implements PlugInFilter {
 
         while(DEX<s.getLastFrame()){
             int frame = DEX + 1;
-            ArrayList<double[]> pts = s.getCoordinates(frame);
+            List<double[]> pts = s.getCoordinates(frame);
             ImageProcessor dt = new FloatProcessor(ip.getWidth(), ip.getHeight());
             for(int i = 0; i<ip.getWidth(); i++){
                 for(int j = 0; j<ip.getHeight(); j++){
@@ -69,7 +70,7 @@ public class Interpolate_2d_Snakes implements PlugInFilter {
             }
 
 
-            ArrayList<double[]> last_snake = s.getCoordinates(DEX);
+            List<double[]> last_snake = s.getCoordinates(DEX);
 
             new_snake.addCoordinates(DEX, new ArrayList<double[]>(last_snake));
 
@@ -107,7 +108,7 @@ public class Interpolate_2d_Snakes implements PlugInFilter {
         new ImagePlus("transform", istack).show();
     }
 
-    float closest(ArrayList<double[]> pts, int i, int j){
+    float closest(List<double[]> pts, int i, int j){
         double min =Double.MAX_VALUE;
         for(double[] d: pts){
 

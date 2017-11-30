@@ -6,6 +6,7 @@ import snakeprogram.SnakeModel;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import static snakeprogram.TwoDDeformation.pointDistance;
 
@@ -23,7 +24,7 @@ public class DeleteEndFixer implements SnakeInteraction {
         double deleteFixCounter; //keeps track of how many points have been clicked.
         SnakeModel model;
         SnakeImages images;
-        ArrayList<double[]> SnakeRaw;
+        List<double[]> SnakeRaw;
         public DeleteEndFixer(SnakeModel model, SnakeImages images, Snake current){
             this.model = model;
             this.images = images;
