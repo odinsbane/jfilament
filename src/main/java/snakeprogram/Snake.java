@@ -67,6 +67,9 @@ public class Snake implements Iterable<Integer>{
         for(int i = 0; i < (size-1); i++){
             distance+=TwoDDeformation.pointDistance(    coordinates.get(i), coordinates.get(i+1)  );
         }
+        if(TYPE==CLOSED_SNAKE){
+            distance += TwoDDeformation.pointDistance(coordinates.get(size-1), coordinates.get(0));
+        }
         return distance;
     }
     

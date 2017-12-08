@@ -30,7 +30,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class AreaAndCentroid {
-    static int LINE_WIDTH=5; //for calculating value along perimeter.
     public final static String LEFT = "left";
     public final static String RIGHT = "right";
 
@@ -553,7 +552,7 @@ public class AreaAndCentroid {
      * @param ip image processor that the data should be extracted from.
      * @return intensity per unit length.
      */
-    static public double averageIntensityAlongCurve(List<double[]> curve,ImageProcessor ip){
+    static public double averageIntensityAlongCurve(List<double[]> curve,ImageProcessor ip, double lineWidth){
 
         double l = 0;
 
@@ -578,13 +577,14 @@ public class AreaAndCentroid {
             j = i+1==N?0:i+1;
             next = curve.get(j);
 
+
             ds = calculateDistance(last, next)/l;
 
-            intensity_sum += collectBox(last, next, ip)*ds;
+            intensity_sum += collectBox(last, next, ip, lineWidth)*ds;
             last = next;
         }
 
-        return intensity_sum/l;
+        return intensity_sum;
 
 
     }
@@ -615,7 +615,7 @@ public class AreaAndCentroid {
     }
 
 
-    static public double collectBox(double[] p1, double[] p2, ImageProcessor ip){
+    static public double collectBox(double[] p1, double[] p2, ImageProcessor ip, double LINE_WIDTH){
 
         //principle axis
         double lx = p2[0] - p1[0];
