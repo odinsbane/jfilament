@@ -7,6 +7,7 @@ import snakeprogram.SnakeModel;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * When dealing with a contour, the ends of the snake can be troublesome. When this actions is started, it will
@@ -38,8 +39,8 @@ public class RepositionContourEnds implements SnakeInteraction{
                 images.fromZoomY(evt.getY())
         );
 
-        ArrayList<double[]> points = snake.getCoordinates(images.getCounter());
-        ArrayList<double[]> other = new ArrayList<double[]>();
+        List<double[]> points = snake.getCoordinates(images.getCounter());
+        List<double[]> other = new ArrayList<double[]>();
         Iterator<double[]> iter = points.iterator();
         while(iter.hasNext()){
             double[] d = iter.next();

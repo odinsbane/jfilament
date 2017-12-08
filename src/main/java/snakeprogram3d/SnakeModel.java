@@ -79,7 +79,7 @@ public class SnakeModel{
     /**
        *    Starts the snakes application.
        **/
-    SnakeModel(){
+    public SnakeModel(){
         SnakeStore = new MultipleSnakesStore();
         
         images = new SnakeImages(SnakeStore);
@@ -784,6 +784,14 @@ public class SnakeModel{
 
         }
         enableUI();
+    }
+
+    public void importSnakes(MultipleSnakesStore snakes){
+        SnakeStore = snakes;
+        images.setSnakes(snakes);
+        CurrentSnake = SnakeStore.getLastSnake();
+        PROC.submitJob(new ThreeDSynchronizer());
+        updateImagePanel();
     }
 
     public void setMaxLength(){

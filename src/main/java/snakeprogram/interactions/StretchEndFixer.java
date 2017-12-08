@@ -6,6 +6,7 @@ import snakeprogram.SnakeModel;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import static snakeprogram.TwoDDeformation.pointDistance;
 
@@ -17,7 +18,7 @@ import static snakeprogram.TwoDDeformation.pointDistance;
  * Time: 2:33 PM
  */
 public class StretchEndFixer implements SnakeInteraction {
-        ArrayList<double[]> SnakeRaw;
+        List<double[]> SnakeRaw;
         SnakeModel model;
         SnakeImages images;
 

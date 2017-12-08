@@ -30,7 +30,6 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class AreaAndCentroid {
-    static int LINE_WIDTH=5; //for calculating value along perimeter.
     public final static String LEFT = "left";
     public final static String RIGHT = "right";
 
@@ -41,7 +40,7 @@ public class AreaAndCentroid {
      * @param furrow two points to define the furrow {x1,y1,x2,y2}.
      * @return Two arraylists, left and right, cnets.
      */
-    static public HashMap<String, List<double[]>> furrowSplit(ArrayList<double[]> points, double[] furrow){
+    static public HashMap<String, List<double[]>> furrowSplit(List<double[]> points, double[] furrow){
         ArrayList<double[]> left = new ArrayList<double[]>();
         ArrayList<double[]> right = new ArrayList<double[]>();
 
@@ -180,7 +179,7 @@ public class AreaAndCentroid {
         ArrayList<double[]> furrow = new ArrayList<double[]>();
 
         for(int i: s){
-            ArrayList<double[]> points = s.getCoordinates(i);
+            List<double[]> points = s.getCoordinates(i);
 
             double min_top = Double.MAX_VALUE;
             double min_bottom = Double.MAX_VALUE;
@@ -221,9 +220,9 @@ public class AreaAndCentroid {
      *
      * @param furrow a smoothed furrow.
      */
-    static public ArrayList<double[]> smoothFurrow(ArrayList<double[]> furrow){
+    static public List<double[]> smoothFurrow(ArrayList<double[]> furrow){
         int width = 5;
-        ArrayList<double[]> smoothed = new ArrayList<double[]>();
+        List<double[]> smoothed = new ArrayList<double[]>();
         for(int i = 0; i<furrow.size(); i++){
 
             double n = 0;
@@ -268,11 +267,11 @@ public class AreaAndCentroid {
         ArrayList<double[]> centers = new ArrayList<double[]>();
         for(Integer i: snake){
 
-            ArrayList<double[]> points = snake.getCoordinates(i);
+            List<double[]> points = snake.getCoordinates(i);
             double area = calculateArea(points);
             double[] c = calculateCentroid(area, points);
             centers.add(c);
-            ArrayList<double[]> translated_points = translate(new double[]{-c[0], -c[1]},points);
+            List<double[]> translated_points = translate(new double[]{-c[0], -c[1]},points);
             points.clear();
             points.addAll(translated_points);
 
@@ -292,7 +291,7 @@ public class AreaAndCentroid {
 
         for(Integer i: snake){
 
-            ArrayList<double[]> points = snake.getCoordinates(i);
+            List<double[]> points = snake.getCoordinates(i);
 
 
 
@@ -302,7 +301,7 @@ public class AreaAndCentroid {
             double alpha = Math.atan(ixy/(ixx -iyy))/2;
 
 
-            ArrayList<double[]> rot = rotate(alpha, points);
+            List<double[]> rot = rotate(alpha, points);
             points.clear();
             points.addAll(rot);
 
@@ -322,8 +321,8 @@ public class AreaAndCentroid {
      * @param points that will be expressed in a new coordinate system.
      * @return
      */
-    public static ArrayList<double[]> rotate(double angle, ArrayList<double[]> points){
-        ArrayList<double[]> rotated_points = new ArrayList<double[]>();
+    public static List<double[]> rotate(double angle, List<double[]> points){
+        List<double[]> rotated_points = new ArrayList<double[]>();
 
         double sin = Math.sin(angle);
         double cos = Math.cos(angle);
@@ -342,7 +341,7 @@ public class AreaAndCentroid {
 
     public static void test(){
 
-        ArrayList<double[]> points = new ArrayList<double[]>();
+        List<double[]> points = new ArrayList<double[]>();
         points.add(new double[]{0.,0.});
         points.add(new double[]{1.,0.});
         points.add(new double[]{1.,1.});
@@ -364,7 +363,7 @@ public class AreaAndCentroid {
 
     }
 
-    public static void check(ArrayList<double[]> points){
+    public static void check(List<double[]> points){
         double area = calculateArea(points);
         double[] c = calculateCentroid(area, points);
         System.out.println(area + ", " + c[0] + ", " + c[1]);
@@ -430,7 +429,7 @@ public class AreaAndCentroid {
         return new double[] {sumx/(6*area), sumy/(6*area)};
     }
 
-    public static double Ixx(ArrayList<double[]> points){
+    public static double Ixx(List<double[]> points){
         double sum = 0;
         int n = points.size();
         for(int i =0; i<points.size();i++){
@@ -449,7 +448,7 @@ public class AreaAndCentroid {
 
     }
 
-    public static double Ixy(ArrayList<double[]> points){
+    public static double Ixy(List<double[]> points){
         double sum = 0;
         int n = points.size();
         for(int i =0; i<points.size();i++){
@@ -468,7 +467,7 @@ public class AreaAndCentroid {
 
     }
 
-    public static double Iyy(ArrayList<double[]> points){
+    public static double Iyy(List<double[]> points){
         double sum = 0;
         int n = points.size();
         for(int i =0; i<points.size();i++){
@@ -486,7 +485,7 @@ public class AreaAndCentroid {
         return (1./12.)*(x1 - x2)*(2*x1*x2*(y1 + y2) + x1*x1*(3*y1 + y2) + x2*x2*(y1 + 3*y2));
     }
 
-    static public ArrayList<double[]> translate(double[] t, ArrayList<double[]> points){
+    static public List<double[]> translate(double[] t, List<double[]> points){
         ArrayList<double[]> new_points = new ArrayList<double[]>(points.size());
 
         for(double[] p: points){
@@ -496,9 +495,9 @@ public class AreaAndCentroid {
 
     }
 
-    public static double estimateLobeVolume(ArrayList<double[]> lobe){
-        ArrayList<double[]> top = new ArrayList<double[]>();
-        ArrayList<double[]> bottom = new ArrayList<double[]>();
+    public static double estimateLobeVolume(List<double[]> lobe){
+        List<double[]> top = new ArrayList<double[]>();
+        List<double[]> bottom = new ArrayList<double[]>();
 
         for(double[] pt: lobe){
             if(pt[1]>0){
@@ -526,7 +525,7 @@ public class AreaAndCentroid {
      * @param surface
      * @return
      */
-    public static double estimateVolume(ArrayList<double[]> surface){
+    public static double estimateVolume(List<double[]> surface){
         double sum = 0;
         for(int i = 0;i<surface.size()-1;i++){
 
@@ -539,7 +538,7 @@ public class AreaAndCentroid {
         return -(1./3.)*sum*Math.PI;
     }
 
-    static public double estimateCircumferenceIntensity(ArrayList<double[]> points, ImageProcessor ip){
+    static public double estimateCircumferenceIntensity(List<double[]> points, ImageProcessor ip){
 
         return 0;
 
@@ -553,7 +552,7 @@ public class AreaAndCentroid {
      * @param ip image processor that the data should be extracted from.
      * @return intensity per unit length.
      */
-    static public double averageIntensityAlongCurve(ArrayList<double[]> curve,ImageProcessor ip){
+    static public double averageIntensityAlongCurve(List<double[]> curve,ImageProcessor ip, double lineWidth){
 
         double l = 0;
 
@@ -578,13 +577,14 @@ public class AreaAndCentroid {
             j = i+1==N?0:i+1;
             next = curve.get(j);
 
+
             ds = calculateDistance(last, next)/l;
 
-            intensity_sum += collectBox(last, next, ip)*ds;
+            intensity_sum += collectBox(last, next, ip, lineWidth)*ds;
             last = next;
         }
 
-        return intensity_sum/l;
+        return intensity_sum;
 
 
     }
@@ -615,7 +615,7 @@ public class AreaAndCentroid {
     }
 
 
-    static public double collectBox(double[] p1, double[] p2, ImageProcessor ip){
+    static public double collectBox(double[] p1, double[] p2, ImageProcessor ip, double LINE_WIDTH){
 
         //principle axis
         double lx = p2[0] - p1[0];
@@ -673,7 +673,7 @@ public class AreaAndCentroid {
      * @param ip
      * @return
      */
-    static public double getAverageIntensity(ArrayList<double[]> pts, ImageProcessor ip){
+    static public double getAverageIntensity(List<double[]> pts, ImageProcessor ip){
         Path2D path = new Path2D.Double();
         double[] pt = pts.get(0);
         path.moveTo(pt[0], pt[1]);

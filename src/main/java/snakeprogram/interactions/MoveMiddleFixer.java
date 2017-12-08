@@ -6,6 +6,7 @@ import snakeprogram.SnakeModel;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import static snakeprogram.TwoDDeformation.pointDistance;
 
@@ -19,7 +20,7 @@ import static snakeprogram.TwoDDeformation.pointDistance;
 public class MoveMiddleFixer implements SnakeInteraction {
     double[] deleteFixArray; //keeps track of all of the currently clicked points
     double deleteFixCounter; //keeps track of how many points have been clicked.
-    ArrayList<double[]> SnakeRaw;
+    List<double[]> SnakeRaw;
     SnakeModel model;
     SnakeImages images;
     public MoveMiddleFixer(SnakeModel model, SnakeImages images, Snake current){
@@ -29,7 +30,7 @@ public class MoveMiddleFixer implements SnakeInteraction {
         this.images = images;
         if(current.TYPE==Snake.CLOSED_SNAKE){
 
-            ArrayList<double[]> points = current.getCoordinates(images.getCounter());
+            List<double[]> points = current.getCoordinates(images.getCounter());
             images.addStaticMarker(points.get(0));
             images.addStaticMarker(points.get(points.size()-1));
             model.updateImagePanel();

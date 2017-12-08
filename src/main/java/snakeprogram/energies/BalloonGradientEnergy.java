@@ -7,6 +7,7 @@ import snakeprogram.TwoDDeformation;
 import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Uses the gradient of the image intensity to find edges. This includes a force outwards.
@@ -27,10 +28,10 @@ public class BalloonGradientEnergy implements ImageEnergy {
     public double FOREGROUND;
     public double MAGNITUDE;
     public double BACKGROUND;
-    ArrayList<double[]> points;
+    List<double[]> points;
     double[] last_point;
 
-    public BalloonGradientEnergy(ImageProcessor img, double blur_sigma, ArrayList<double[]> points){
+    public BalloonGradientEnergy(ImageProcessor img, double blur_sigma, List<double[]> points){
         image = img.convertToFloat();
         blurred_image = image.duplicate();
         GaussianBlur gb = new GaussianBlur();
@@ -211,7 +212,7 @@ public class BalloonGradientEnergy implements ImageEnergy {
      * @param com where the com will be placed.
      * @return x,y coordinates of the centroid
      */
-    public static double calculateCentroid(ArrayList<double[]> points, double[] com){
+    public static double calculateCentroid(List<double[]> points, double[] com){
         double sumx = 0;
         double sumy = 0;
         double area = 0;
@@ -243,7 +244,7 @@ public class BalloonGradientEnergy implements ImageEnergy {
      * @param ip image data
      * @return {inner average, outer average}
      */
-    static public double[] getAverageIntensity(ArrayList<double[]> pts, ImageProcessor ip){
+    static public double[] getAverageIntensity(List<double[]> pts, ImageProcessor ip){
         Path2D path = new Path2D.Double();
         double[] pt = pts.get(0);
         path.moveTo(pt[0], pt[1]);

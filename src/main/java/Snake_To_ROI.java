@@ -8,10 +8,10 @@ import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
 import snakeprogram.SnakeIO;
 
-import java.awt.*;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * .
@@ -26,7 +26,7 @@ public class Snake_To_ROI implements PlugInFilter {
     public void run(ImageProcessor ip){
         MultipleSnakesStore store = SnakeIO.loadSnakes(IJ.getInstance(), new HashMap<String, Double>());
         Snake s = store.getLastSnake();
-        ArrayList<double[]> pts = s.getCoordinates(implus.getSlice());
+        List<double[]> pts = s.getCoordinates(implus.getSlice());
         int[] x = new int[pts.size()];
         int[] y = new int[pts.size()];
         for(int i = 0; i<pts.size(); i++){

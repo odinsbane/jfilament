@@ -6,7 +6,10 @@ import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
 import snakeprogram.SnakeIO;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.FileDialog;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
 import java.io.BufferedWriter;
@@ -16,6 +19,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * New imagej plugin that ...
@@ -42,7 +46,7 @@ public class SVG_Draw_Snakes implements PlugInFilter {
         boolean first_frame = true;
 
         for(Integer frame: s){
-            ArrayList<double[]> points = s.getCoordinates(frame);
+            List<double[]> points = s.getCoordinates(frame);
             Path2D line = new Path2D.Double();
             double[] pt;
 

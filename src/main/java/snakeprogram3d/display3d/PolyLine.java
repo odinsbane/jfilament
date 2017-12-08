@@ -57,6 +57,7 @@ public class PolyLine implements DataObject{
         snake = s;
         List<double[]> spts = s.getCoordinates(frame);
         FRAME = frame;
+
         LineArray line = new LineArray(2*(spts.size()-1),GeometryArray.COORDINATES);
         for(int i=0; i<spts.size()-1; i++){
             line.setCoordinate(2*i,new Point3d(spts.get(i)));
