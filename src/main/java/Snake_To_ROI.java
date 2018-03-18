@@ -26,15 +26,23 @@ public class Snake_To_ROI implements PlugInFilter {
     }
     public void run(ImageProcessor ip){
         MultipleSnakesStore store = SnakeIO.loadSnakes(IJ.getInstance(), new HashMap<String, Double>());
-
+        if(store==null){
+            return;
+        }
         Snake s = null;
 
         RoiManager manager = new RoiManager();
         PolygonRoi pr = null;
+        int snakeNumber = 0;
         for(Snake snake: store){
+
             for(Integer i: snake){
+                String name = String.format("s-%d-fr-%d", snakeNumber, i);
                 PolygonRoi roi = createRoi(snake.getCoordinates(i), snake.TYPE);
                 manager.add(implus, roi, i);
+                int last = manager.getCount();
+                manager.select(last-1);
+                manager.runCommand("Rename", name);
 
                 if(i==implus.getFrame()){
                     pr = roi;
