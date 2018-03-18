@@ -3,6 +3,7 @@ import ij.ImagePlus;
 import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.plugin.filter.PlugInFilter;
+import ij.plugin.frame.RoiManager;
 import ij.process.ImageProcessor;
 import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
@@ -25,8 +26,29 @@ public class Snake_To_ROI implements PlugInFilter {
     }
     public void run(ImageProcessor ip){
         MultipleSnakesStore store = SnakeIO.loadSnakes(IJ.getInstance(), new HashMap<String, Double>());
-        Snake s = store.getLastSnake();
-        List<double[]> pts = s.getCoordinates(implus.getSlice());
+
+        Snake s = null;
+
+        RoiManager manager = new RoiManager();
+        PolygonRoi pr = null;
+        for(Snake snake: store){
+            for(Integer i: snake){
+                PolygonRoi roi = createRoi(snake.getCoordinates(i), snake.TYPE);
+                manager.add(implus, roi, i);
+
+                if(i==implus.getFrame()){
+                    pr = roi;
+                }
+            }
+        }
+
+
+        if(pr!=null) {
+            implus.setRoi(pr);
+        }
+    }
+
+    PolygonRoi createRoi(List<double[]> pts, int type){
         int[] x = new int[pts.size()];
         int[] y = new int[pts.size()];
         for(int i = 0; i<pts.size(); i++){
@@ -37,13 +59,11 @@ public class Snake_To_ROI implements PlugInFilter {
         }
         PolygonRoi pr;
 
-        if(s.TYPE==Snake.CLOSED_SNAKE)
+        if(type==Snake.CLOSED_SNAKE)
             pr = new PolygonRoi(x,y,y.length,Roi.POLYGON);
         else
             pr = new PolygonRoi(x,y,y.length, Roi.POLYLINE);
 
-        implus.setRoi(pr);
+        return pr;
     }
-
-
 }
