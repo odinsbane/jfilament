@@ -53,10 +53,8 @@ public class InitializeSnake implements SnakeInteraction {
 
 
     public void mouseClicked(MouseEvent evt) {
-        System.out.println("starting");
          //adding the left-click coordinates to the SnakeRawX and SnakeRawY vectors
         if(SwingUtilities.isRightMouseButton(evt)||evt.isControlDown()){
-            System.out.println("right");
             // double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
             //SnakeRaw.add(pt);
 
