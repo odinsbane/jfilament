@@ -53,14 +53,10 @@ public class InitializeSnake implements SnakeInteraction {
 
 
     public void mouseClicked(MouseEvent evt) {
+        System.out.println("starting");
          //adding the left-click coordinates to the SnakeRawX and SnakeRawY vectors
-        if(SwingUtilities.isLeftMouseButton(evt)){
-            double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
-            SnakeRaw.add(pt);
-        }
-
-        //adding the right-click coordinate to the coordinate vectors
-        if(SwingUtilities.isRightMouseButton(evt)){
+        if(SwingUtilities.isRightMouseButton(evt)||evt.isControlDown()){
+            System.out.println("right");
             // double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
             //SnakeRaw.add(pt);
 
@@ -73,7 +69,13 @@ public class InitializeSnake implements SnakeInteraction {
             images.setFollow(false);
             images.setInitializing(false);
 
+        } else if(SwingUtilities.isLeftMouseButton(evt)){
+            double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
+            SnakeRaw.add(pt);
         }
+        //adding the right-click coordinate to the coordinate vectors
+
+
 
         model.updateImagePanel();
     }
