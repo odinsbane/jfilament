@@ -3,9 +3,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>sc.fiji</groupId>
-		<artifactId>pom-fiji</artifactId>
-		<version>21.4.0</version>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>20.2.0</version>
 		<relativePath />
 	</parent>
 
@@ -16,6 +16,10 @@
 	<description>JFilament, 2D and 3D active contours.</description>
 	<url>http://athena.physics.lehigh.edu/jfilament</url>
 	<inceptionYear>2010</inceptionYear>
+	<organization>
+		<name>UCL LMCB</name>
+		<url>http://ucl.ac.uk/lmcb</url>
+	</organization>
 	<licenses>
 		<license>
 			<name>Modified BSD License</name>
@@ -43,6 +47,20 @@
 			<timezone>+1</timezone>
 		</developer>
 	</developers>
+	<contributors>
+		<contributor>
+			<name>Curtis Rueden</name>
+			<url>https://imagej.net/User:Rueden</url>
+			<properties><id>ctrueden</id></properties>
+		</contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
 
 	<scm>
 		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
@@ -59,8 +77,12 @@
 		<url>http://jenkins.imagej.net/job/JFilament/</url>
 	</ciManagement>
 
+	<properties>
+		<license.licenseName>bsd_3</license.licenseName>
+		<license.copyrightOwners>University College London</license.copyrightOwners>
+	</properties>
+
 	<repositories>
-		<!-- NB: for project parent -->
 		<repository>
 			<id>imagej.public</id>
 			<url>http://maven.imagej.net/content/groups/public</url>
@@ -101,7 +123,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -115,7 +136,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
