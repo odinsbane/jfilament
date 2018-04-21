@@ -73,13 +73,16 @@
 		<url>https://github.com/odinsbane/jfilament/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/JFilament/</url>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/odinsbane/jfilament</url>
 	</ciManagement>
 
 	<properties>
 		<license.licenseName>bsd_3</license.licenseName>
 		<license.copyrightOwners>University College London</license.copyrightOwners>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
 	</properties>
 
 	<repositories>
