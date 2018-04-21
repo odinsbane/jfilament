@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>sc.fiji</groupId>
 		<artifactId>pom-fiji</artifactId>
-		<relativePath />
 		<version>21.4.0</version>
+		<relativePath />
 	</parent>
 
 	<artifactId>JFilament_</artifactId>
 	<version>1.1.4-SNAPSHOT</version>
+
 	<name>JFilament</name>
 	<description>JFilament, 2D and 3D active contours.</description>
 	<url>http://athena.physics.lehigh.edu/jfilament</url>
@@ -21,6 +23,7 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
 	<developers>
 		<developer>
 			<id>odinsbane</id>
@@ -41,6 +44,12 @@
 		</developer>
 	</developers>
 
+	<scm>
+		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
+		<developerConnection>scm:git:git@github.com:odinsbane/jfilament</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/odinsbane/jfilament</url>
+	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
 		<url>https://github.com/odinsbane/jfilament/issues</url>
@@ -49,12 +58,7 @@
 		<system>Jenkins</system>
 		<url>http://jenkins.imagej.net/job/JFilament/</url>
 	</ciManagement>
-	<scm>
-		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
-		<developerConnection>scm:git:git@github.com:odinsbane/jfilament</developerConnection>
-		<tag>HEAD</tag>
-		<url>https://github.com/odinsbane/jfilament</url>
-	</scm>
+
 	<repositories>
 		<!-- NB: for project parent -->
 		<repository>
@@ -90,6 +94,7 @@
 			<artifactId>j3dutils</artifactId>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<!-- Generates a source code JAR during package -->
@@ -126,6 +131,3 @@
 		</plugins>
 	</build>
 </project>
-
-
-
