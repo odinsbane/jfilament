@@ -149,7 +149,7 @@ public class BalloonGradientEnergy implements ImageEnergy {
      *
      * @param x
      * @param y
-     * @return max pixel in a region about x & y.
+     * @return max pixel in a region about x and y.
      */
     public double getMaxPixel(double x, double y){
         //offset to place center point at center of pixel
