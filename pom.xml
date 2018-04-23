@@ -11,12 +11,8 @@
 
 	<artifactId>JFilament_</artifactId>
 	<version>1.1.4-SNAPSHOT</version>
-<<<<<<< HEAD
-    <name>JFilament</name>
-=======
 
 	<name>JFilament</name>
->>>>>>> master
 	<description>JFilament, 2D and 3D active contours.</description>
 	<url>http://athena.physics.lehigh.edu/jfilament</url>
 	<inceptionYear>2010</inceptionYear>
