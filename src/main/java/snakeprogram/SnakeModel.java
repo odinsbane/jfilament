@@ -14,10 +14,7 @@ import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
-import snakeprogram.energies.BalloonGradientEnergy;
-import snakeprogram.energies.GradientEnergy;
-import snakeprogram.energies.ImageEnergy;
-import snakeprogram.energies.IntensityEnergy;
+import snakeprogram.energies.*;
 import snakeprogram.interactions.*;
 
 import javax.swing.*;
@@ -241,6 +238,18 @@ public class SnakeModel{
 
                     return balloon;
                 }
+            case ImageEnergy.BALLOON2:
+                if(checkForCurrentSnake()){
+                    BalloonIntensityEnergy balloon = new BalloonIntensityEnergy(
+                            images.getProcessor(), IMAGE_SIGMA,
+                            CurrentSnake.getCoordinates(images.getCounter()) );
+
+                    balloon.FOREGROUND = forIntMean;
+                    balloon.BACKGROUND = backIntMean;
+                    balloon.MAGNITUDE = stretch;
+
+                    return balloon;
+                }
         }
 
         return null;
@@ -332,6 +341,7 @@ public class SnakeModel{
         double[] pt = { x, y};
         double min = 1e6;
         double[] result = {0,0};
+        if(!CurrentSnake.exists(images.getCounter())) return result;
         for(double[] spt: CurrentSnake.getCoordinates(images.getCounter())){
             double d = pointDistance(pt,spt);
             if(d<min){

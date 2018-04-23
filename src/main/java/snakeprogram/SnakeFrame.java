@@ -238,14 +238,15 @@ public class SnakeFrame{
         JRadioButtonMenuItem intensity =  new JRadioButtonMenuItem("Intensity( ridges )");
         JRadioButtonMenuItem gradient =  new JRadioButtonMenuItem("Gradient( edges )");
         JRadioButtonMenuItem balloon = new JRadioButtonMenuItem("Balloon + Gradient");
+        JRadioButtonMenuItem balloonIntensity = new JRadioButtonMenuItem("Balloon + Intensity");
         energy_group.add(intensity);
         energy_group.add(gradient);
         energy_group.add(balloon);
-
+        energy_group.add(balloonIntensity);
         energies.add(intensity);
         energies.add(gradient);
         energies.add(balloon);
-
+        energies.add(balloonIntensity);
         intensity.setSelected(true);
 
         energies.addSeparator();
