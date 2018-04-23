@@ -1,70 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-		http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
-		<groupId>sc.fiji</groupId>
-		<artifactId>pom-fiji</artifactId>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>20.2.0</version>
 		<relativePath />
-		<version>21.4.0</version>
 	</parent>
 
 	<artifactId>JFilament_</artifactId>
-	<version>1.1.3</version>
-    <name>JFilament</name>
-	<description>JFilament, 2D and 3D active contours.</description>
-    <url>http://athena.physics.lehigh.edu/jfilament</url>
-    <inceptionYear>2010</inceptionYear>
-    <licenses>
-        <license>
-            <name>Modified BSD License</name>
-            <url>https://opensource.org/licenses/BSD-3-Clause</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <id>odinsbane</id>
-            <name>Matthew Smith</name>
-            <email>MattTheBruce@gmail.com</email>
-            <url>https://orangepalantir.org</url>
-            <organization>UCL LMCB</organization>
-            <organizationUrl>http://ucl.ac.uk/lmcb</organizationUrl>
-            <roles>
-                <role>lead</role>
-                <role>developer</role>
-                <role>debugger</role>
-                <role>reviewer</role>
-                <role>support</role>
-                <role>maintainer</role>
-            </roles>
-            <timezone>+1</timezone>
-        </developer>
-    </developers>
+	<version>1.1.4-SNAPSHOT</version>
 
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/odinsbane/jfilament/issues</url>
-    </issueManagement>
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>http://jenkins.imagej.net/job/JFilament/</url>
-	</ciManagement>
-    <scm>
+	<name>JFilament</name>
+	<description>JFilament, 2D and 3D active contours.</description>
+	<url>http://athena.physics.lehigh.edu/jfilament</url>
+	<inceptionYear>2010</inceptionYear>
+	<organization>
+		<name>UCL LMCB</name>
+		<url>http://ucl.ac.uk/lmcb</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Modified BSD License</name>
+			<url>https://opensource.org/licenses/BSD-3-Clause</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>odinsbane</id>
+			<name>Matthew Smith</name>
+			<email>MattTheBruce@gmail.com</email>
+			<url>https://orangepalantir.org</url>
+			<organization>UCL LMCB</organization>
+			<organizationUrl>http://ucl.ac.uk/lmcb</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Curtis Rueden</name>
+			<url>https://imagej.net/User:Rueden</url>
+			<properties><id>ctrueden</id></properties>
+		</contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
 		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
 		<developerConnection>scm:git:git@github.com:odinsbane/jfilament</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/odinsbane/jfilament</url>
 	</scm>
-    <repositories>
-        <!-- NB: for project parent -->
-        <repository>
-            <id>imagej.public</id>
-            <url>http://maven.imagej.net/content/groups/public</url>
-        </repository>
-    </repositories>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/odinsbane/jfilament/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/odinsbane/jfilament</url>
+	</ciManagement>
+
+	<properties>
+		<license.licenseName>bsd_3</license.licenseName>
+		<license.copyrightOwners>University College London</license.copyrightOwners>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -72,9 +98,9 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>net.imagej</groupId>
-            <artifactId>ij</artifactId>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>gov.nist.math</groupId>
@@ -88,18 +114,18 @@
 			<groupId>org.scijava</groupId>
 			<artifactId>vecmath</artifactId>
 		</dependency>
-        <dependency>
+		<dependency>
 			<groupId>org.scijava</groupId>
 			<artifactId>j3dutils</artifactId>
 		</dependency>
 	</dependencies>
-    <build>
+
+	<build>
 		<plugins>
 			<!-- Generates a source code JAR during package -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -113,7 +139,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.3</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -129,6 +154,3 @@
 		</plugins>
 	</build>
 </project>
-
-
-
