@@ -1,6 +1,7 @@
 package snakeprogram;
 
 import ij.process.ImageProcessor;
+import snakeprogram.energies.ExternalEnergy;
 import snakeprogram.interactions.SnakeInteraction;
 
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.*;
+import java.util.List;
 
 /**
  * For adding user defined points that influence the snake by applying a force.
@@ -391,7 +393,7 @@ class AnnotationAdder extends DummyInteractor{
 
 }
 
-class AnnotationForce implements ProcDrawable, ExternalEnergy{
+class AnnotationForce implements ProcDrawable, ExternalEnergy {
     Map<Integer, double[]> positions = new TreeMap<Integer, double[]>();
     double[] position;
     double radius;
@@ -453,6 +455,11 @@ class AnnotationForce implements ProcDrawable, ExternalEnergy{
 
     }
 
+    @Override
+    public int getIndex(List<double[]> points) {
+        return -1;
+    }
+
     public void updateFrames(){
         //at least will be either the first valid element, or the first non-valid element.
         //if there are no elements in the range.
@@ -510,8 +517,4 @@ class AnnotationForce implements ProcDrawable, ExternalEnergy{
         pt[0] = image_xy[0];
         pt[1] = image_xy[1];
     }
-}
-
-interface ExternalEnergy{
-    public double[] getForce(double x, double y);
 }

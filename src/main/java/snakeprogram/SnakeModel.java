@@ -171,6 +171,7 @@ public class SnakeModel{
 
                 curveDeformation.addSnakePoints(MAXIMUM_SPACING);
                 curveDeformation.deformSnake();
+
                 updateImagePanel();
                 if(INTERRUPT){
                     RUNNING=false;
