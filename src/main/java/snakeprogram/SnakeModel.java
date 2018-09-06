@@ -363,6 +363,9 @@ public class SnakeModel{
      */
     public double[] findClosestEnd(double x, double y){
         List<double[]> all = CurrentSnake.getCoordinates(images.getCounter());
+
+        if(all==null) return new double[]{0,0};
+
         double[] hpt = all.get(0);
         double[] tpt = all.get(all.size()-1);
         double[] pt = { x, y};
