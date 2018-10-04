@@ -530,7 +530,7 @@ public class SnakeModel{
             
             SnakeStore.deleteSnake(CurrentSnake);
             CurrentSnake = SnakeStore.getLastSnake();
-            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(CurrentSnake));
             updateImagePanel();
 
     }
@@ -847,7 +847,7 @@ public class SnakeModel{
         images.updateImagePanel();
 
         snake_panel.updateStackProgressionLabel(images.getCounter(),images.getStackSize());
-        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(CurrentSnake));
 
         snake_panel.repaint();
     
@@ -1180,7 +1180,10 @@ public class SnakeModel{
             finally {
 
                 SnakeStore.purgeSnakes();
-                snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes());
+                snake_panel.setNumberOfSnakesLabel(
+                        SnakeStore.getNumberOfSnakes(),
+                        SnakeStore.indexOf(CurrentSnake)
+                );
                 RUNNING=false;
                 enableUI();
 

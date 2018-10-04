@@ -36,7 +36,13 @@ public class MultipleSnakesStore implements Iterable<Snake>{
        return linkSnake.get(index);
     
    }
-
+   public int indexOf(Snake s){
+       if(s!=null){
+           return linkSnake.indexOf(s);
+       } else{
+           return -1;
+       }
+   }
     public int getNumberOfSnakes(){
         return linkSnake.size();
     }

@@ -700,8 +700,16 @@ public class SnakeFrame{
         FRAME.repaint();
     }
     
-    public void setNumberOfSnakesLabel(int x){
-        total_snakes_label.setText(x + " Snakes Stored   ");
+    public void setNumberOfSnakesLabel(int x, int selected){
+        if(selected>=0) {
+            total_snakes_label.setText(
+                    String.format("snake %d selected of %d total snakes.", selected, x)
+            );
+        } else{
+            total_snakes_label.setText(
+                    String.format("%d total snakes.", x)
+            );
+        }
     }
     
     public void updateStackProgressionLabel(int x, int total){
