@@ -4,10 +4,7 @@ import javax.swing.*;
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
    *    This class is used for reading and writing snakes.  It uses file dialogs and
@@ -80,7 +77,7 @@ public class SnakeIO{
        *    @param SnakeStore   Contains the snake data
        *    @param total_frames for writing elongation data of every frame even when there isn't a snake
        **/
-    public static void writeSnakeElongationData(String fname,HashMap<String,Double> values ,MultipleSnakesStore SnakeStore, int total_frames){
+    public static void writeSnakeElongationData(String fname, Map<String,Double> values , MultipleSnakesStore SnakeStore, int total_frames){
         SnakeStore.purgeSnakes();
         if(fname!=null){
             try{
@@ -107,7 +104,7 @@ public class SnakeIO{
        *    @param SnakeStore   Contains the snake data
        *    @param total_frames for writing elongation data of every frame even when there isn't a snake
        **/
-    public static void writeSnakeElongationData(Frame parent,HashMap<String,Double> values ,MultipleSnakesStore SnakeStore, int total_frames){
+    public static void writeSnakeElongationData(Frame parent,Map<String,Double> values ,MultipleSnakesStore SnakeStore, int total_frames){
         String fname = getSaveFileName(parent,"elongation.txt");
         SnakeStore.purgeSnakes();
         if(fname!=null){
@@ -128,7 +125,7 @@ public class SnakeIO{
        *    Writes the constants as tab separated key/value pairs each on a new line
        *    
        **/
-    private static void createHeading(HashMap<String,Double>values, BufferedWriter bw) throws Exception{
+    private static void createHeading(Map<String,Double>values, BufferedWriter bw) throws Exception{
             
             for(String k: values.keySet()){
                 
@@ -257,7 +254,7 @@ public class SnakeIO{
        *    @param SnakeStore   Contains the snake data
        *
        **/
-    public static void writeSnakes(String fname,HashMap<String,Double> values ,MultipleSnakesStore SnakeStore){
+    public static void writeSnakes(String fname,Map<String,Double> values ,MultipleSnakesStore SnakeStore){
         SnakeStore.purgeSnakes();
         
         if(fname!=null){
@@ -283,7 +280,7 @@ public class SnakeIO{
        *    @param SnakeStore   Contains the snake data
        *
        **/
-    public static void writeSnakes(Frame parent,HashMap<String,Double> values ,MultipleSnakesStore SnakeStore){
+    public static void writeSnakes(Frame parent,Map<String,Double> values ,MultipleSnakesStore SnakeStore){
         String fname = getSaveFileName(parent,"snakes.txt");
         SnakeStore.purgeSnakes();
         
@@ -325,7 +322,7 @@ public class SnakeIO{
        *    tabs.
        *    
        **/
-    private static void writeConstants(BufferedWriter bw,HashMap<String,Double> values) throws Exception{
+    private static void writeConstants(BufferedWriter bw,Map<String,Double> values) throws Exception{
         for(String k: values.keySet())
             bw.write("" + k + "\t" + values.get(k)+"\n");
     
@@ -340,7 +337,7 @@ public class SnakeIO{
        *    @param values A hashmap that the key,value pairs will be put into.  If there are already values they will be replaced.
        *    
        **/
-    public static MultipleSnakesStore loadSnakes(String fname,HashMap<String,Double> values){
+    public static MultipleSnakesStore loadSnakes(String fname,Map<String,Double> values){
         
         MultipleSnakesStore SS = null;
         if(fname!=null){
@@ -391,7 +388,7 @@ public class SnakeIO{
        *    @param values A hashmap that the key,value pairs will be put into.  If there are already values they will be replaced.
        *    
        **/
-    public static MultipleSnakesStore loadSnakes(Frame parent,HashMap<String,Double> values){
+    public static MultipleSnakesStore loadSnakes(Frame parent,Map<String,Double> values){
         
         String fname = getOpenFileName(parent);
         MultipleSnakesStore SS = null;

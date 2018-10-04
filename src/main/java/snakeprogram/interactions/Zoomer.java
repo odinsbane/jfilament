@@ -42,18 +42,8 @@ public class Zoomer implements SnakeInteraction {
     public void mouseClicked(MouseEvent evt) {
         int x = evt.getX();
         int y = evt.getY();
-        if(SwingUtilities.isLeftMouseButton(evt)&&zoomCounter==0){
 
-                images.setZoomLocation(x,y);
-                images.trackingZoomBox(x,y);
-                zoomCounter++;
-
-                bZoomInBox = true;
-                images.setZoomIn(false);
-                images.setZoomInBox(true);
-        }
-
-        if(SwingUtilities.isRightMouseButton(evt)&&zoomCounter==1){
+        if((SwingUtilities.isRightMouseButton(evt)||evt.isControlDown())&&zoomCounter==1){
 
             //bZoomInBox = false;
             images.setZoomInBox(false);
@@ -66,7 +56,18 @@ public class Zoomer implements SnakeInteraction {
             model.unRegisterSnakeInteractor(this);
             model.updateImagePanel();
 
+        } else if(SwingUtilities.isLeftMouseButton(evt)&&zoomCounter==0){
+
+                images.setZoomLocation(x,y);
+                images.trackingZoomBox(x,y);
+                zoomCounter++;
+
+                bZoomInBox = true;
+                images.setZoomIn(false);
+                images.setZoomInBox(true);
         }
+
+
 
     }
 

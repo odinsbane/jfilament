@@ -7,6 +7,7 @@ package snakeprogram;
 
 import Jama.LUDecomposition;
 import Jama.Matrix;
+import snakeprogram.energies.ExternalEnergy;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
@@ -49,7 +50,9 @@ public abstract class TwoDDeformation {
     /** The background intensity */
     double backInt;
     
-    
+    boolean fixedFront = false;
+    boolean fixedBack = false;
+
     public static int squareSize = 6;
     
     ImageEnergy IMAGE_ENERGY;
@@ -57,6 +60,9 @@ public abstract class TwoDDeformation {
     double[][] matrixA;
     double meanInt;
     double MAX_SEGMENT_LENGTH = 1;
+
+    List<ExternalEnergy> externalEnergies = new ArrayList<>();
+
     TwoDDeformation(){
     
     }
@@ -109,6 +115,9 @@ public abstract class TwoDDeformation {
        this.stretch = stretch;
    }
 
+   public void addExternalEnergy(ExternalEnergy erg){
+       externalEnergies.add(erg);
+   }
 
    // This method solves a matrix equation to find new x and y coordinates for the points
    public void deformSnake(){
@@ -121,7 +130,38 @@ public abstract class TwoDDeformation {
        
 
        energyWithGradient(Vx,Vy);
-       
+
+       for(ExternalEnergy energy: externalEnergies){
+           int loc = energy.getIndex(vertices);
+           double[] pos = vertices.get(loc);
+
+           double[] f = energy.getForce(pos[0], pos[1]);
+           Vx[loc] += f[0];
+           Vy[loc] += f[1];
+       }
+
+       if(fixedFront) {
+
+           matrixA[0][0] = matrixA[0][0] - gamma + 1e12;
+
+           Vx[0] = 1e12 * vertices.get(0)[0];
+           Vy[0] = 1e12 * vertices.get(0)[1];
+
+       }
+
+       if(fixedBack) {
+
+           int last = matrixA.length - 1;
+           matrixA[last][last] = matrixA[last][last] - gamma + 1e12;
+
+           if(last==Vx.length){
+               System.out.println("how?");
+           }
+
+           Vx[last] = 1e12 * vertices.get(last)[0];
+           Vy[last] = 1e12 * vertices.get(last)[1];
+       }
+
        Matrix vectorX, vectorY, solutionX, solutionY;
 
        //converts Vx and Vy to matrices so they can be multiplied
@@ -142,7 +182,7 @@ public abstract class TwoDDeformation {
        for(int i = 0; i < contourSize; i++){
            vertices.add(new double[] { solutionX.get(i, 0), solutionY.get(i, 0)});
        }
-   
+
    }
    
    
@@ -175,6 +215,19 @@ public abstract class TwoDDeformation {
         
         return IMAGE_ENERGY.getImageEnergy(x,y);
    
+   }
+
+   public void setFixedEndPoints(boolean v){
+       fixedBack = v;
+       fixedFront = v;
+   }
+
+   public void setFixedFront(boolean v){
+       fixedFront = v;
+   }
+
+   public void setFixedBack(boolean v){
+       fixedBack = v;
    }
 
      /**

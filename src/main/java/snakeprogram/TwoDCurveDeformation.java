@@ -55,6 +55,8 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         
         matrixA = array;
    }
+
+
  
     /**
        *    Interpolates the points that are too far apart, and removes
@@ -111,8 +113,14 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         
         
 
-        if(vertices.size()>2)
+        if(vertices.size()>2) {
             initializeMatrix();
+        } else if(vertices.size()==2){
+            matrixA = new double[][]{
+                    { gamma , -alpha },
+                    { -alpha, gamma  }
+            };
+        }
     }
   /**
      *  Modifies Vx,Vy in place to find the forces it uses the image term and 
