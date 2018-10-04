@@ -93,10 +93,19 @@ public class SnakeImages{
         return imageDrawSnake.getWidth();
     }
 
+    public void updateDisplayRange(){
+        imageOriginal.resetDisplayRange();
+        double min = imageOriginal.getDisplayRangeMin();
+        double max = imageOriginal.getDisplayRangeMax();
+
+        System.out.println("display range: " + min + ", " + max);
+
+    }
+
     public void updateImagePanel(){
-    
+        updateDisplayRange();
         ImageProcessor improc = stackLoad.getProcessor(imagecounter);
-        
+
         ImageProcessor imp = improc.duplicate().convertToRGB();
         imp.setColor(Color.RED);
         imp.setLineWidth(LINEWIDTH);
