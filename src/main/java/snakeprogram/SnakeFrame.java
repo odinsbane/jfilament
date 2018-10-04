@@ -704,7 +704,7 @@ public class SnakeFrame{
     public void setNumberOfSnakesLabel(int x, int selected){
         if(selected>=0) {
             total_snakes_label.setText(
-                    String.format("snake %d selected of %d total snakes.", selected, x)
+                    String.format("snake %d selected of %d total snakes.", selected + 1, x)
             );
         } else{
             total_snakes_label.setText(
