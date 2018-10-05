@@ -1166,6 +1166,27 @@ public class SnakeModel{
         }
     }
 
+    public void setDisplayRange() {
+        double boundsLow = images.getExtremeDisplayMin();
+        double boundsHigh = images.getExtremeDisplayMax();
+        GenericDialog gd = new GenericDialog(String.format("Enter display range %f-%f", boundsLow, boundsHigh));
+
+        gd.addNumericField("MIN",images.getDisplayMin(),0);
+        gd.addNumericField("MAX", images.getDisplayMax(), 0);
+        gd.showDialog();
+        if(gd.wasCanceled()) return;
+
+        try{
+            double min = gd.getNextNumber();
+            double max = gd.getNextNumber();
+            if(min>=boundsLow && min<=max && max<=boundsHigh){
+                images.setDisplayRange(min, max);
+            }
+        } catch(NumberFormatException e){
+            //just in case
+        }
+    }
+
 
     /**
      * Contains the nescessary exception catches when deforming or modifying a snake.

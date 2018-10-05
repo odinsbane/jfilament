@@ -22,6 +22,11 @@ import java.util.List;
  *
    **/
 public class SnakeImages{
+    double DISPLAY_RANGE_MIN = 0;
+    double DISPLAY_RANGE_MAX = 255;
+    double DISPLAY_MAX = Double.MAX_VALUE;
+    double DISPLAY_MIN = 0;
+
     final double MAXW = 672;
     final double MAXH = 512;
     
@@ -75,7 +80,27 @@ public class SnakeImages{
 
         gb = new GaussianBlur();
     }
-    
+
+    public void setDisplayRange(double min, double max) {
+        DISPLAY_RANGE_MIN = min;
+        DISPLAY_RANGE_MAX = max;
+
+        updateImagePanel();
+
+    }
+
+    public double getExtremeDisplayMax(){
+        return DISPLAY_MAX;
+    }
+
+    public double getExtremeDisplayMin(){
+        return DISPLAY_MIN;
+    }
+
+    public double getDisplayMin() {
+        return DISPLAY_RANGE_MIN;
+    }
+
     public boolean hasImage(){
     
         return HASIMAGE;
@@ -93,20 +118,12 @@ public class SnakeImages{
         return imageDrawSnake.getWidth();
     }
 
-    public void updateDisplayRange(){
-        imageOriginal.resetDisplayRange();
-        double min = imageOriginal.getDisplayRangeMin();
-        double max = imageOriginal.getDisplayRangeMax();
 
-        System.out.println("display range: " + min + ", " + max);
-
-    }
 
     public void updateImagePanel(){
-        updateDisplayRange();
-        ImageProcessor improc = stackLoad.getProcessor(imagecounter);
-
-        ImageProcessor imp = improc.duplicate().convertToRGB();
+        ImageProcessor improc = stackLoad.getProcessor(imagecounter).duplicate();
+        improc.setMinAndMax(DISPLAY_RANGE_MIN, DISPLAY_RANGE_MAX);
+        ImageProcessor imp = improc.convertToRGB();
         imp.setColor(Color.RED);
         imp.setLineWidth(LINEWIDTH);
 
@@ -202,7 +219,6 @@ public class SnakeImages{
                 drawable.draw(imp, tranny);
             }
         }
-
         imageDrawSnake.setProcessor("update", imp);
     }
     
@@ -504,7 +520,13 @@ public class SnakeImages{
     public void loadImage(ImagePlus implus){
             
             imageOriginal = implus;
-            
+
+            DISPLAY_RANGE_MIN = implus.getDisplayRangeMin();
+            DISPLAY_RANGE_MAX = implus.getDisplayRangeMax();
+
+            DISPLAY_MAX = DISPLAY_RANGE_MAX;
+            DISPLAY_MIN = DISPLAY_MIN<DISPLAY_RANGE_MIN?DISPLAY_MIN:DISPLAY_RANGE_MIN;
+
             OW = imageOriginal.getWidth();
             OH = imageOriginal.getHeight();
             
@@ -605,5 +627,8 @@ public class SnakeImages{
         drawables.remove(drawable);
     }
 
+    public double getDisplayMax() {
+        return DISPLAY_RANGE_MAX;
+    }
 }
 

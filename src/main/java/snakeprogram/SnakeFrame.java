@@ -226,8 +226,14 @@ public class SnakeFrame{
         JMenuItem set_line_width = new JMenuItem("Set Line Width");
         set_line_width.setActionCommand(SnakeActions.setLineWidth.name());
         set_line_width.addActionListener(snake_listener);
-
         data.add(set_line_width);
+
+        JMenuItem set_display_range = new JMenuItem("set display range");
+        set_display_range.addActionListener(evt->{
+            snake_model.setDisplayRange();
+            repaint();
+        });
+        data.add(set_display_range);
 
         MENUS.add(data);
         bar.add(data);
