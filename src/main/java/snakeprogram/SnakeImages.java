@@ -525,7 +525,7 @@ public class SnakeImages{
             DISPLAY_RANGE_MAX = implus.getDisplayRangeMax();
 
             DISPLAY_MAX = DISPLAY_RANGE_MAX;
-            DISPLAY_MIN = DISPLAY_MIN<DISPLAY_RANGE_MIN?DISPLAY_MIN:DISPLAY_RANGE_MIN;
+            DISPLAY_MIN = DISPLAY_RANGE_MIN;
 
             OW = imageOriginal.getWidth();
             OH = imageOriginal.getHeight();

@@ -138,6 +138,9 @@ public class SnakeListener implements ActionListener{
             case showAnnotations:
                 snake_model.showAnnotationFrame();
                 break;
+            case sculpt:
+                snake_model.startSculpting();
+                break;
 
         }
     }

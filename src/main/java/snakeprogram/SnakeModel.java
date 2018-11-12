@@ -396,7 +396,9 @@ public class SnakeModel{
     public void saveSnake(){
         disableUI();
         HashMap<String,Double> values = snake_panel.getConstants();
-        SnakeIO.writeSnakes(getFrame(),values,SnakeStore);
+        String filenameSuggestion = getImageTitle().replaceAll("\\..+$", ".snakes");
+
+        SnakeIO.writeSnakes(getFrame(),values,SnakeStore, filenameSuggestion);
         enableUI();
     }
     
@@ -1184,6 +1186,13 @@ public class SnakeModel{
             }
         } catch(NumberFormatException e){
             //just in case
+        }
+    }
+
+    public void startSculpting() {
+        if(checkForCurrentSnake()){
+            SnakeInteraction si = new SnakeSculptor(this,images,CurrentSnake);
+            registerSnakeInteractor(si);
         }
     }
 

@@ -207,6 +207,13 @@ public class SnakeFrame{
         transform_snake.setAccelerator(KeyStroke.getKeyStroke('m'));
         snakes.add(transform_snake);
 
+        JMenuItem sculpt_snake = new JMenuItem("Sculpt Selected");
+        sculpt_snake.setActionCommand(SnakeActions.sculpt.name());
+        sculpt_snake.addActionListener(snake_listener);
+        sculpt_snake.setAccelerator(KeyStroke.getKeyStroke('s'));
+        snakes.add(sculpt_snake);
+
+
         bar.add(snakes);
         MENUS.add(snakes);
         

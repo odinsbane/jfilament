@@ -278,10 +278,10 @@ public class SnakeIO{
        *    @param parent This is a Frame for showing dialogs this could be null or a new Frame
        *    @param values This hashmap stores all of the constants for the current simulation.
        *    @param SnakeStore   Contains the snake data
-       *
+       *    @param nameSuggestion starting name.
        **/
-    public static void writeSnakes(Frame parent,Map<String,Double> values ,MultipleSnakesStore SnakeStore){
-        String fname = getSaveFileName(parent,"snakes.txt");
+    public static void writeSnakes(Frame parent,Map<String,Double> values ,MultipleSnakesStore SnakeStore, String nameSuggestion){
+        String fname = getSaveFileName(parent,nameSuggestion);
         SnakeStore.purgeSnakes();
         
         if(fname!=null){
@@ -296,16 +296,26 @@ public class SnakeIO{
             }    
         }
       }
-      
     /**
-       *    This writes a snake, no headings are used because this is meant to be read by
-       *    the program only.  The first line is a "#", followed by a line with an int which 
-       *    represents the snake type.  Then each line following is a point in the snake
-       *    <frame> \t <index> \t <x> \t <y> 
-       *    the index is used as a check to make sure the snake has been saved and loaded 
-       *    correctly
-       *    
-       **/
+     *    Writes out the Snake Data for saving and restoring the actual traced snakes.
+     *    Includes the constants and all of the snake points.
+     *
+     *    @param parent This is a Frame for showing dialogs this could be null or a new Frame
+     *    @param values This hashmap stores all of the constants for the current simulation.
+     *    @param SnakeStore   Contains the snake data
+     **/
+    public static void writeSnakes(Frame parent,Map<String,Double> values ,MultipleSnakesStore SnakeStore) {
+        writeSnakes(parent, values, SnakeStore, "snakes.txt");
+    }
+        /**
+           *    This writes a snake, no headings are used because this is meant to be read by
+           *    the program only.  The first line is a "#", followed by a line with an int which
+           *    represents the snake type.  Then each line following is a point in the snake
+           *    <frame> \t <index> \t <x> \t <y>
+           *    the index is used as a check to make sure the snake has been saved and loaded
+           *    correctly
+           *
+           **/
     private static void writeASnake(BufferedWriter bw,Snake s) throws Exception{
         bw.write("#\n");
         bw.write("" + s.TYPE + "\n");

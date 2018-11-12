@@ -19,6 +19,7 @@ import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 import javax.swing.*;
+import java.time.LocalDateTime;
 
 public class SnakeApplication implements PlugInFilter{
 
@@ -42,7 +43,6 @@ public class SnakeApplication implements PlugInFilter{
 	}
 
 	public void run(ImageProcessor ip) {
-    
         final SnakeModel sm = new SnakeModel();
         sm.getFrame().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
