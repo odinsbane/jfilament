@@ -7,6 +7,15 @@ This site has the source code of the project. For a compiled version and for use
 
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
+# release
+
+Version 1.1.4
+
+ - sculpting of snakes. By pressing 's' when a snake is selected, the snakes can be sculpted, points moved around.
+ - contrast. The display range of the image can be changed.
+ - indicator in the corner now indicates which snake is being modified, should correspond with snakes saved in file.
+ - Building/Versioning update.
+
 References:
 
 M. B. Smith, H. Li, T. Shen, X. Huang, E. Yusuf, and D. Vavylonis, "Segmentation and Tracking of Cytoskeletal Filaments using Open Active Contours," Cytoskeleton 67:693-705 (2010)
