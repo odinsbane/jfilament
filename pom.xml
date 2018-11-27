@@ -11,7 +11,7 @@
 
 	<groupId>edu.lehigh</groupId>
 	<artifactId>JFilament_</artifactId>
-	<version>1.1.4</version>
+	<version>1.1.5-SNAPSHOT</version>
 
 	<name>JFilament</name>
 	<description>JFilament, 2D and 3D active contours.</description>
