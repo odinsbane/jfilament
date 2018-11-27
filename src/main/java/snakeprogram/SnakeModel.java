@@ -603,7 +603,7 @@ public class SnakeModel{
     /**
      * Sets the raw snake for drawing purposes.
      *
-     * @param raw  @nullable
+     * @param raw
      */
     public void setSnakeRaw(ArrayList<double[]> raw){
         SnakeRaw = raw;

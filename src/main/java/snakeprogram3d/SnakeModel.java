@@ -1344,7 +1344,7 @@ public class SnakeModel{
 
     /**
      * Creates volume data and submits the job to the main process.  this is called
-     * whenever the zresolution changes, image smoothing changes, +/- MIN & MAX changes.
+     * whenever the zresolution changes, image smoothing changes, +/- MIN and MAX changes.
      * 
      */
     public void finishDisplay(){
