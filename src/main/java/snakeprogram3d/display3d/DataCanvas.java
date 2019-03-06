@@ -110,6 +110,8 @@ public class DataCanvas extends Canvas3D {
         off.setPhysicalScreenWidth(screen.getPhysicalScreenWidth());
         off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
         universe.getViewer().getView().addCanvas3D(offscreen);
+
+
     }
 
 
@@ -259,7 +261,6 @@ public class DataCanvas extends Canvas3D {
         }
 
     public BufferedImage snapShot(){
-
         return offscreen.doRender(getWidth(), getHeight());
     }
 
@@ -333,7 +334,6 @@ class OffScreenCanvas3D extends Canvas3D {
     }
 
     BufferedImage doRender(int width, int height) {
-
 
         if(buffer==null) {
             BufferedImage bImage = new BufferedImage(width, height,
