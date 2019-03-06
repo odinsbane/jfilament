@@ -41,9 +41,6 @@ public class DataCanvas extends Canvas3D {
     private PickCanvas pickCanvas;
     
     double ZOOM = 1;
-    double ROTX = 0;
-    double ROTY = 0;
-    double ROTZ = 0;
     AxisAngle4d aa = new AxisAngle4d(0, 0, 1, 0);
 
     double DX = 0;
@@ -109,7 +106,6 @@ public class DataCanvas extends Canvas3D {
         universe.getViewer().getView().addCanvas3D(offscreen);
 
         setView(StationaryViews.THREEQUARTER);
-        updateView();
     }
 
 
