@@ -108,7 +108,8 @@ public class DataCanvas extends Canvas3D {
         off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
         universe.getViewer().getView().addCanvas3D(offscreen);
 
-
+        setView(StationaryViews.THREEQUARTER);
+        updateView();
     }
 
 
@@ -131,11 +132,42 @@ public class DataCanvas extends Canvas3D {
         ZOOM = ZOOM*1.1;
         updateView();
     }
-    
+
+    public void twistView(int dz){
+        double rate = 0.005;
+        Vector4d q1 = axisAngleToQuarternion(aa);
+        Vector4d q2 = axisAngleToQuarternion(new AxisAngle4d(0, 0, 1, -rate*dz));
+        aa = new AxisAngle4d(quarternionToAxisAngle(multiplyQuarternions(q1,q2)));
+
+        updateView();
+    }
+
     public void rotateView(int dx,int dy){
 
-        ROTX += -dx*0.01;
-        ROTY += dy*0.01;
+        int mx = dx<0?-dx:dx;
+        int my = dy<0?-dy:dy;
+
+        if(mx > 3*my){
+            dy = 0;
+        }
+        if(my>3*mx){
+            dx = 0;
+        }
+
+        Vector4d q1 = axisAngleToQuarternion(aa);
+        double rate = 0.005;
+        Vector4d q2;
+        if(dx!=0 && dy!=0){
+            q2 = axisAngleToQuarternion(new AxisAngle4d(0, 1, 0, -rate*dx));
+            q2 = multiplyQuarternions(q2, axisAngleToQuarternion(new AxisAngle4d(1, 0, 0, -rate*dy)));
+        } else if(dx == 0){
+            q2 = axisAngleToQuarternion(new AxisAngle4d(1, 0, 0, -rate*dy));
+        } else{
+            q2 = axisAngleToQuarternion(new AxisAngle4d(0, 1, 0, -rate*dx));
+        }
+
+        aa = new AxisAngle4d(quarternionToAxisAngle(multiplyQuarternions(q1,q2)));
+
         updateView();
 
     }
@@ -162,14 +194,7 @@ public class DataCanvas extends Canvas3D {
         TransformGroup ctg = universe.getViewingPlatform().getViewPlatformTransform();
         Vector3d displace = new Vector3d(DX,DY,ZOOM);
         Transform3D rot = new Transform3D();
-        Transform3D rotx = new Transform3D();
-
         rot.setRotation(aa);
-        //rotx.rotX(ROTY);
-        //rot.rotY(ROTX);
-        //rot.rotZ(ROTZ);
-        System.out.println(aa.x + ", " + aa.y + ", " + aa.z + ", " + aa.angle);
-        //rot.mul(rotx);
         rot.transform(displace);
         rot.setTranslation(displace);
         
@@ -280,27 +305,11 @@ public class DataCanvas extends Canvas3D {
                 aa = new AxisAngle4d(1, 0, 0, Math.PI/2);
                 break;
             case YZ:
-                double s = Math.sin(Math.PI/4);
-                double c = Math.cos(Math.PI/4);
-
-                // minus pi/2 about z axis.
-                double q1x = 0;
-                double q1y = 0;
-                double q1z = -1*s;
-                double q1w = c;
-
-                double q2x = 0;
-                double q2y = s;
-                double q2z = 0;
-                double q2w = c;
-
-                double qx = 
-                //
-
-                aa = new AxisAngle4d(Math.sqrt(2)/2, -Math.sqrt(2)/2, 0, Math.PI);
+                double l = Math.sqrt(3)/3;
+                aa = new AxisAngle4d(l, l, l, 2*Math.PI/3);
                 break;
             case THREEQUARTER:
-                aa = new AxisAngle4d(0, 0, 1, 0);
+                aa = new AxisAngle4d(0.20032220429878106, 0.5947418035684883, 0.7785584124219587, 2.6296664043138676);
                 break;
         }
 
@@ -310,8 +319,44 @@ public class DataCanvas extends Canvas3D {
 
         updateView();
     }
+    double[] quarternionToAxisAngle(Vector4d q){
+            double theta = Math.acos(q.w)*2;
+            double x, y, z;
+            if(theta<0.0001){
+                x = 0;
+                y = 0;
+                z = 1;
+                theta = 0;
+            } else{
+                double s = Math.sqrt(1 - q.w*q.w);
+                x = q.x/s;
+                y = q.y/s;
+                z = q.z/s;
+
+            }
+
+            return new double[]{x, y, z, theta};
 
 
+    }
+
+    Vector4d axisAngleToQuarternion(AxisAngle4d aa){
+        double s = Math.sin(aa.angle/2);
+        double c = Math.cos(aa.angle/2);
+
+        return new Vector4d(aa.x*s, aa.y*s, aa.z*s, c);
+
+    }
+    Vector4d multiplyQuarternions(Vector4d q1, Vector4d q2){
+        double qw = q1.w*q2.w - q1.x*q2.x - q1.y*q2.y - q1.z*q2.z;
+        double qx = q1.x*q2.w + q1.w*q2.x + q1.y*q2.z - q1.z*q2.y;
+        double qy = q1.w*q2.y - q1.x*q2.z + q1.y*q2.w + q1.z*q2.x;
+        double qz = q1.w*q2.z + q1.x*q2.y - q1.y*q2.x + q1.z*q2.w;
+
+        return new Vector4d(qx, qy, qz, qw);
+
+
+    }
 
 }
 enum StationaryViews{
@@ -334,6 +379,7 @@ class CanvasController extends MouseAdapter{
 
             @Override
             public void keyTyped(KeyEvent e) {
+
                 if(e.getKeyChar()=='1'){
                     dc.setView(StationaryViews.XY);
                 } else if(e.getKeyChar()=='2'){
@@ -345,12 +391,15 @@ class CanvasController extends MouseAdapter{
                 }
 
 
-
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-
+                if(e.getKeyCode()==KeyEvent.VK_UP){
+                    dc.twistView(1);
+                } else if(e.getKeyCode()==KeyEvent.VK_DOWN){
+                    dc.twistView(-1);
+                }
             }
 
             @Override
