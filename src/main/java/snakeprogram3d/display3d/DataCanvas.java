@@ -18,15 +18,10 @@ import org.scijava.java3d.utils.picking.PickCanvas;
 import org.scijava.java3d.utils.picking.PickResult;
 import org.scijava.java3d.utils.picking.PickTool;
 import org.scijava.java3d.utils.universe.SimpleUniverse;
-import org.scijava.vecmath.Color3f;
-import org.scijava.vecmath.Point3d;
-import org.scijava.vecmath.Point3f;
-import org.scijava.vecmath.Vector3d;
+import org.scijava.vecmath.*;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -48,7 +43,9 @@ public class DataCanvas extends Canvas3D {
     double ZOOM = 1;
     double ROTX = 0;
     double ROTY = 0;
-    
+    double ROTZ = 0;
+    AxisAngle4d aa = new AxisAngle4d(0, 0, 1, 0);
+
     double DX = 0;
     double DY = 0;
     
@@ -136,9 +133,11 @@ public class DataCanvas extends Canvas3D {
     }
     
     public void rotateView(int dx,int dy){
+
         ROTX += -dx*0.01;
         ROTY += dy*0.01;
         updateView();
+
     }
     
     public void translateView(int dx, int dy){
@@ -164,12 +163,13 @@ public class DataCanvas extends Canvas3D {
         Vector3d displace = new Vector3d(DX,DY,ZOOM);
         Transform3D rot = new Transform3D();
         Transform3D rotx = new Transform3D();
-        
-        rotx.rotX(ROTY);
-        rot.rotY(ROTX);
-        
-        rot.mul(rotx);
-        
+
+        rot.setRotation(aa);
+        //rotx.rotX(ROTY);
+        //rot.rotY(ROTX);
+        //rot.rotZ(ROTZ);
+        System.out.println(aa.x + ", " + aa.y + ", " + aa.z + ", " + aa.angle);
+        //rot.mul(rotx);
         rot.transform(displace);
         rot.setTranslation(displace);
         
@@ -271,9 +271,52 @@ public class DataCanvas extends Canvas3D {
 
     }
 
+    public void setView(StationaryViews view){
+        switch(view){
+            case XY:
+                aa = new AxisAngle4d(0, 0, 1, 0);
+                break;
+            case XZ:
+                aa = new AxisAngle4d(1, 0, 0, Math.PI/2);
+                break;
+            case YZ:
+                double s = Math.sin(Math.PI/4);
+                double c = Math.cos(Math.PI/4);
+
+                // minus pi/2 about z axis.
+                double q1x = 0;
+                double q1y = 0;
+                double q1z = -1*s;
+                double q1w = c;
+
+                double q2x = 0;
+                double q2y = s;
+                double q2z = 0;
+                double q2w = c;
+
+                double qx = 
+                //
+
+                aa = new AxisAngle4d(Math.sqrt(2)/2, -Math.sqrt(2)/2, 0, Math.PI);
+                break;
+            case THREEQUARTER:
+                aa = new AxisAngle4d(0, 0, 1, 0);
+                break;
+        }
+
+        ZOOM = 3;
+        DX = 0;
+        DY = 0;
+
+        updateView();
+    }
+
+
 
 }
-
+enum StationaryViews{
+    XY, XZ, YZ, THREEQUARTER;
+}
 /**
 * This is the MouseListener, there is no reason for it to be an
 * inner class, really I just haven't moved it out of here
@@ -287,6 +330,34 @@ class CanvasController extends MouseAdapter{
         dc.addMouseMotionListener(this);
         dc.addMouseListener(this);
         dc.addMouseWheelListener(this);
+        dc.addKeyListener(new KeyListener(){
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(e.getKeyChar()=='1'){
+                    dc.setView(StationaryViews.XY);
+                } else if(e.getKeyChar()=='2'){
+                    dc.setView(StationaryViews.XZ);
+                } else if(e.getKeyChar()=='3'){
+                    dc.setView(StationaryViews.YZ);
+                } else if(e.getKeyChar()=='4'){
+                    dc.setView(StationaryViews.THREEQUARTER);
+                }
+
+
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
     }
     public void mouseMoved(MouseEvent e){
         dc.moved(e);
