@@ -138,8 +138,8 @@ public class CurveGeometry {
     }
 
 
-    public static ImagePlus createKimograph(ImagePlus original, Snake snake, int width) throws IOException {
-        BufferedWriter w = Files.newBufferedWriter(Paths.get("log.txt"));
+    public static ImagePlus createKimograph(ImagePlus original, Snake snake, int width){
+        //BufferedWriter w = Files.newBufferedWriter(Paths.get("log.txt"));
         ImagePlus kimo = original.createImagePlus();
 
         double length = 0;
@@ -173,9 +173,7 @@ public class CurveGeometry {
             ImageProcessor kSlice = proc.createProcessor(imgWidth, width);
             for(int i = 0; i<steps; i++){
                 double s = i;
-                if(geometry.frame==4) {
-                    System.out.println("frame 4: " + i);
-                }
+
                 double[] tangent = geometry.getTangent(s);
                 double[] normal = geometry.getNormal(tangent);
                 double[] origin = geometry.getPosition(s);
@@ -188,9 +186,6 @@ public class CurveGeometry {
                     double y = normal[1]*lat + origin[1];
                     double v = proc.getInterpolatedValue(x, y);
 
-                    if(geometry.frame==4) {
-                        w.write(String.format("%f\t%f\t%f\t%f\t%f\n", origin[0], origin[1], x, y, v));
-                    }
                     kSlice.set(i, j, (int)v);
 
                 }
@@ -199,7 +194,6 @@ public class CurveGeometry {
         }
 
         kimo.setStack(stack);
-        w.close();
         return kimo;
 
     }
