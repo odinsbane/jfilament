@@ -20,7 +20,7 @@ public class SnakeApplication{
     
    public static int MAXLENGTH=1500;
     
-   final public static String VERSION = "1.1.6";
+   final public static String VERSION = "1.1.7-dev";
 
    /**
     * From the command line.
