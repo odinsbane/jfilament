@@ -49,7 +49,7 @@ public class VariableTextured3dSurface implements DataObject{
     
     Appearance appear;
     /**
-      * Creats a surface composed of 2 triangle arrays at the four points specefied in points.
+      * Creats a surface composed of 2 triangle arrays at the four points specified in points.
       *     @param texture if this is a top surface or a bottom surface where true is top and false is bottom
       *     points are the x,y,z values
       **/
