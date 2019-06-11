@@ -242,6 +242,12 @@ public class SnakeFrame{
         });
         data.add(set_display_range);
 
+        JMenuItem create_binary_mask = new JMenuItem("create binary mask");
+        create_binary_mask.addActionListener(evt->{
+            snake_model.snakesToBinaryMask();
+        });
+        data.add(create_binary_mask);
+
         MENUS.add(data);
         bar.add(data);
 

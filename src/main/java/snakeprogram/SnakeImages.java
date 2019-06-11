@@ -516,7 +516,11 @@ public class SnakeImages{
     public ImageProcessor getProcessor(){
         return stackLoad.getProcessor(imagecounter);
     }
-    
+
+    public ImagePlus getOriginalImage(){
+        return imageOriginal;
+    }
+
     public void loadImage(ImagePlus implus){
             
             imageOriginal = implus;
