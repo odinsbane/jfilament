@@ -1,6 +1,5 @@
 package snakeprogram3d.display3d;
 
-import org.scijava.java3d.AmbientLight;
 import org.scijava.java3d.Background;
 import org.scijava.java3d.BoundingSphere;
 import org.scijava.java3d.BranchGroup;
@@ -9,7 +8,6 @@ import org.scijava.java3d.GraphicsConfigTemplate3D;
 import org.scijava.java3d.Group;
 import org.scijava.java3d.ImageComponent;
 import org.scijava.java3d.ImageComponent2D;
-import org.scijava.java3d.PointLight;
 import org.scijava.java3d.Screen3D;
 import org.scijava.java3d.Transform3D;
 import org.scijava.java3d.TransformGroup;
@@ -51,20 +49,20 @@ public class DataCanvas extends Canvas3D {
     Color3f backgroundColor = new Color3f(0f,0f,0f);
     Background background;
     CanvasController controller;
-
+    final GraphicsConfiguration gc;
     private OffScreenCanvas3D offscreen;
 
     public DataCanvas(GraphicsConfiguration gc,Color3f back){
         super(gc,false);
-        offscreen = new OffScreenCanvas3D(gc, true);
         backgroundColor = back;
+        this.gc = gc;
         createUniverse();
         }
 
 
     public DataCanvas(GraphicsConfiguration gc){
         super(gc,false);
-        offscreen = new OffScreenCanvas3D(gc, true);
+        this.gc = gc;
         createUniverse();
     }
 
@@ -97,14 +95,14 @@ public class DataCanvas extends Canvas3D {
         //pickCanvas.setTolerance(0.1f);
         //pickCanvas.setShapeRay(new Point3d(0,0,-1000), new Vector3d(0,0,2000));
 
-        Screen3D screen = getScreen3D();
+        /*Screen3D screen = getScreen3D();
         Screen3D off = offscreen.getScreen3D();
         Dimension dim = screen.getSize();
         off.setSize(dim);
         off.setPhysicalScreenWidth(screen.getPhysicalScreenWidth());
         off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
         universe.getViewer().getView().addCanvas3D(offscreen);
-
+        */
         setView(StationaryViews.THREEQUARTER);
     }
 
@@ -196,8 +194,22 @@ public class DataCanvas extends Canvas3D {
         
 
         ctg.setTransform(rot);
-        
-        }
+    }
+
+    public void debugOrentation(){
+        TransformGroup ctg = universe.getViewingPlatform().getViewPlatformTransform();
+        Transform3D transform = new Transform3D();
+        ctg.getTransform(transform);
+        Vector3d z = new Vector3d(0,0,1);
+        Vector3d y = new Vector3d(0,1,0);
+        Vector3d x = new Vector3d(1,0,0);
+        transform.transform(z);
+        transform.transform(y);
+        transform.transform(x);
+        System.out.println("Towards user: " + z);
+        System.out.println("Up: " + y);
+        System.out.println("Right: " + x);
+    }
 
     /**
      * Adding a snake listener sets 'picking' events where using the mouse on the 3d view can
@@ -278,12 +290,33 @@ public class DataCanvas extends Canvas3D {
 
 
 
-            return good;
-        }
+        return good;
+    }
+
+    public void createOffscreenCanvas(){
+        offscreen = new OffScreenCanvas3D(gc, true);
+        Screen3D screen = getScreen3D();
+        Screen3D off = offscreen.getScreen3D();
+        Dimension dim = screen.getSize();
+        off.setSize(dim);
+        off.setPhysicalScreenWidth(screen.getPhysicalScreenWidth());
+        off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
+        universe.getViewer().getView().addCanvas3D(offscreen);
+    }
+
+    public void destroyOffscreenCanvas(){
+        universe.getViewer().getView().removeCanvas3D(offscreen);
+    }
 
     public BufferedImage snapShot(){
-        return offscreen.doRender(getWidth(), getHeight());
+            if(offscreen == null){
+                createOffscreenCanvas();
+            }
+        BufferedImage img = offscreen.doRender(getWidth(), getHeight());
+        return img;
     }
+
+
 
     public void changeBackgroundColor(Color color){
 
@@ -354,6 +387,67 @@ public class DataCanvas extends Canvas3D {
 
     }
 
+    /**
+     * Rotates the view such that the new view will be facing towards the normal.
+     *
+     * @param normal
+     */
+    public void lookTowards(double[] normal, double[] up){
+        TransformGroup ctg = universe.getViewingPlatform().getViewPlatformTransform();
+        //ctg.getTransform(transform);
+
+        Vector3d z = new Vector3d(0,0,1); //towards the viewer.
+        Vector3d n = new Vector3d(normal);
+        Vector3d vup = new Vector3d(up);
+        vup.normalize();
+
+        double dot = n.dot(vup);
+
+        Vector3d v = new Vector3d(
+                vup.x - dot*n.x,
+                vup.y - dot*n.y,
+                vup.z - dot*n.z
+        );
+
+        v.normalize();
+        Vector3d u = new Vector3d();
+        u.cross(v, n);
+
+        Matrix3d matrix = new Matrix3d();
+        matrix.setColumn(0, u);
+        matrix.setColumn(1, v);
+        matrix.setColumn(2, n);
+
+
+        //we want to rotate our view such that the normal is back towards us.
+        aa = new AxisAngle4d();
+        aa.set(matrix);
+
+        Transform3D transform = new Transform3D();
+        transform.setRotation(aa);
+
+        Vector3d n2 = new Vector3d(n);
+        Vector3d u2 = new Vector3d(u);
+
+        updateView();
+
+
+    }
+
+    /**
+     * The up vector is a vector that would move in the y direction on the current display.
+     *
+     * @return {x, y, z} representing the current up vector.
+     */
+    public double[] getUp(){
+        TransformGroup ctg = universe.getViewingPlatform().getViewPlatformTransform();
+        Transform3D transform = new Transform3D();
+        ctg.getTransform(transform);
+        Vector3d up = new Vector3d(0, 1, 0);
+        transform.transform(up);
+        return new double[]{up.x, up.y, up.z};
+    }
+
 }
 enum StationaryViews{
     XY, XZ, YZ, THREEQUARTER;
@@ -391,11 +485,7 @@ class CanvasController extends MouseAdapter{
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode()==KeyEvent.VK_UP){
-                    dc.twistView(1);
-                } else if(e.getKeyCode()==KeyEvent.VK_DOWN){
-                    dc.twistView(-1);
-                }
+
             }
 
             @Override
@@ -451,19 +541,15 @@ class OffScreenCanvas3D extends Canvas3D {
 
     BufferedImage doRender(int width, int height) {
 
-        if(buffer==null) {
-            BufferedImage bImage = new BufferedImage(width, height,
-                    BufferedImage.TYPE_INT_ARGB);
-            buffer = new ImageComponent2D(
-                    ImageComponent.FORMAT_RGBA, bImage);
-            setOffScreenBuffer(buffer);
-        }
-
-
+        BufferedImage bImage = new BufferedImage(width, height,
+                BufferedImage.TYPE_INT_ARGB);
+        buffer = new ImageComponent2D(
+                ImageComponent.FORMAT_RGBA, bImage);
+        setOffScreenBuffer(buffer);
         renderOffScreenBuffer();
         waitForOffScreenRendering();
-
-        return getOffScreenBuffer().getImage();
+        BufferedImage r = getOffScreenBuffer().getImage();
+        return r;
     }
 
     public void postSwap() {
