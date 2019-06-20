@@ -16,6 +16,7 @@ import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
 import snakeprogram.energies.*;
 import snakeprogram.interactions.*;
+import snakeprogram.util.SnakesToMask;
 
 import javax.swing.*;
 import java.awt.Image;
@@ -184,7 +185,7 @@ public class SnakeModel{
     }
     public ImageEnergy energyFactory(){
 
-        final Set<ExternalEnergy> active = annotations==null?new HashSet<ExternalEnergy>():annotations.getActiveForces();
+        final Set<ExternalEnergy> active = annotations==null?new HashSet<>():annotations.getActiveForces();
         final ImageEnergy image_energy = imageEnergyFactory();
 
         if(active.size()==0){
@@ -1194,6 +1195,12 @@ public class SnakeModel{
             SnakeInteraction si = new SnakeSculptor(this,images,CurrentSnake);
             registerSnakeInteractor(si);
         }
+    }
+
+    public void snakesToBinaryMask() {
+
+        SnakesToMask.createBinaryMask(images.getOriginalImage(), SnakeStore);
+
     }
 
 
