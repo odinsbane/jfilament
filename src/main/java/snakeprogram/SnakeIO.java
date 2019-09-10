@@ -1,5 +1,7 @@
 package snakeprogram;
 
+import ij.IJ;
+
 import javax.swing.*;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -56,14 +58,9 @@ public class SnakeIO{
      * @return
      */
     public static String getOpenFileName(Frame parent, String title){
-        FileDialog fd = new FileDialog(parent,title,FileDialog.LOAD);
-        fd.setDirectory(PWD.getAbsolutePath());
-        fd.setVisible(true);
-        String fname = fd.getFile();
-        String dirname = fd.getDirectory();
-        String fullname = dirname +  fname;
-        if(fname!=null){
-            PWD = new File(dirname);
+        String fullname = IJ.getFilePath(title);
+        if(fullname!=null){
+            PWD = new File(fullname).getParentFile();
             return fullname;
         } else
             return null;
@@ -381,7 +378,7 @@ public class SnakeIO{
                     System.out.println("Some of the data did not load correctly");
             
             } catch(Exception e){
-                System.out.println("Could not Load file" + e.getMessage());
+                System.out.println("Could not full Load file: " + fname + e.getMessage());
                 e.printStackTrace();
             }
         }

@@ -40,7 +40,7 @@ public class SnakesToMask {
 
     }
 
-    public void snakeToMask(ImageProcessor proc, List<double[]> snakePoints, int color){
+    static public void snakeToMask(ImageProcessor proc, List<double[]> snakePoints, int color){
 
         proc.setColor(color);
         int[] xs = new int[snakePoints.size()];
@@ -54,5 +54,7 @@ public class SnakesToMask {
         Polygon p = new Polygon(xs, ys, xs.length);
         proc.fillPolygon(p);
     }
+
+
 
 }

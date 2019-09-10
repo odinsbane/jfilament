@@ -37,7 +37,7 @@ public class Draw_Snakes implements PlugInFilter{
         for(int i = 1; i<=istack.getSize(); i++){
                             
             ImageProcessor ip = istack.getProcessor(i).convertToRGB().duplicate();
-            outstack.addSlice("label", ip);
+            outstack.addSlice(istack.getSliceLabel(i), ip);
             for(Snake s: SNAKES){
                 Color c = Color.RED;
                 if(s.exists(i))

@@ -16,7 +16,9 @@ import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
 import snakeprogram.energies.*;
 import snakeprogram.interactions.*;
+import snakeprogram.util.AreaAndCentroid;
 import snakeprogram.util.SnakesToMask;
+import snakeprogram.util.TextWindow;
 
 import javax.swing.*;
 import java.awt.Image;
@@ -389,7 +391,39 @@ public class SnakeModel{
         SnakeIO.writeSnakeElongationData(getFrame(),values,SnakeStore,images.getStackSize());
         enableUI();
     }
-    
+
+    /**
+     * Creates a text window with the area vs time for the snakes.
+     */
+    public void showArea(){
+        String title = "enclosed area";
+
+        disableUI();
+
+        StringBuilder building = new StringBuilder("#Area of closed snakes\n#frame");
+        int n = 1;
+        List<Snake> snakes = getSnakes();
+        for(Snake snake: snakes){
+            building.append("\tsnake_" + n);
+            n++;
+        }
+
+        for(int i = 1; i<= images.getStackSize(); i++ ) {
+            building.append("\n" + i);
+            for (Snake snake : snakes) {
+                double v;
+                if(snake.TYPE==Snake.CLOSED_SNAKE && snake.exists(i)){
+                    v = AreaAndCentroid.calculateArea(snake.getCoordinates(i));
+                } else{
+                    v = 0;
+                }
+                building.append("\t" + v);
+            }
+        }
+        enableUI();
+        new TextWindow(title, building.toString()).display();
+    }
+
     /**
        *    Save all of the snakes data, so that they may be reloaded
        *    
@@ -402,7 +436,10 @@ public class SnakeModel{
         SnakeIO.writeSnakes(getFrame(),values,SnakeStore, filenameSuggestion);
         enableUI();
     }
-    
+
+
+
+
     /**
        *    Loads a snake from a file and sets the constant values in 
        *    the snake panel.  Uses the original snake_panel values

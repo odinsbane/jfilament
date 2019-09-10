@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -65,6 +66,10 @@ public class CurveGeometry {
 
         }
         return distances.length-1;
+    }
+
+    public double getLength(){
+        return length;
     }
 
     /**
@@ -137,6 +142,56 @@ public class CurveGeometry {
         return new double[]{dx/mag, dy/mag};
     }
 
+
+    public static List<double[]> createProfile(ImageProcessor proc, List<double[]> curve, int width){
+        List<double[]> points = new ArrayList<>(curve);
+
+        CurveGeometry g = new CurveGeometry(points);
+        double length =  g.length;
+        int imgWidth = (int)length;
+        if(length - imgWidth > 0){
+            imgWidth += 1;
+        }
+
+        ImageStack stack = new ImageStack(imgWidth, width);
+
+        double li = g.length;
+        int steps = (int)li;
+        if(li - steps > 0){
+            steps += 1;
+        }
+
+        double[] values = new double[steps];
+        double[] distance = new double[steps];
+        double[] maximums = new double[steps];
+        for(int i = 0; i<steps; i++){
+            double s = i;
+
+            double[] tangent = g.getTangent(s);
+            double[] normal = g.getNormal(tangent);
+            double[] origin = g.getPosition(s);
+
+
+            double offset = -width/2.0;
+
+            double v = 0;
+            double max = -Double.MAX_VALUE;
+
+            for(int j = 0; j<width; j++){
+                double lat = offset + j;
+                double x = normal[0]*lat + origin[0];
+                double y = normal[1]*lat + origin[1];
+                double px = proc.getInterpolatedPixel(x,y);
+                v  += px;
+                max = px>max?px:max;
+            }
+            distance[i] = s;
+            values[i] = v/width;
+            maximums[i] = max;
+        }
+
+        return Arrays.asList(distance, values, maximums);
+    }
 
     public static ImagePlus createKimograph(ImagePlus original, Snake snake, int width){
         //BufferedWriter w = Files.newBufferedWriter(Paths.get("log.txt"));

@@ -1,6 +1,9 @@
 package snakeprogram;
 
 
+import ij.ImagePlus;
+import ij.WindowManager;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -185,7 +188,40 @@ public class SnakeFrame{
         load_img.setActionCommand(SnakeActions.getAndLoad.name());
         load_img.addActionListener(snake_listener);
         img.add(load_img);
-        
+
+        JMenuItem selectOpen = new JMenuItem("Select open image");
+        img.add(selectOpen);
+        selectOpen.addActionListener(evt->{
+
+            String[] imageLabels = WindowManager.getImageTitles();
+
+            if(imageLabels.length==0) return;
+
+            Object[] choices = new Object[imageLabels.length];
+            for(int i = 0; i<choices.length; i++){
+                choices[i] = imageLabels[i];
+            }
+
+            Object option = JOptionPane.showInputDialog(
+                    FRAME,
+                    "Choose from open images:",
+                    "Choose Open Image",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    choices,
+                    choices[0]
+            );
+            if(option instanceof String) {
+                ImagePlus plus = WindowManager.getImage((String) option);
+                if (plus != null) {
+
+                    snake_model.loadImage(plus);
+
+                }
+            }
+
+        });
+
         bar.add(img);
         MENUS.add(img);
         
@@ -223,6 +259,12 @@ public class SnakeFrame{
         save_data.addActionListener(snake_listener);
         
         data.add(save_data);
+
+        JMenuItem show_area =new JMenuItem("Show area");
+        show_area.addActionListener(evt->snake_model.showArea());
+
+        data.add(show_area);
+
 
         JMenuItem set_max_length = new JMenuItem("Set Max Length");
         set_max_length.setActionCommand(SnakeActions.setMaxLength.name());

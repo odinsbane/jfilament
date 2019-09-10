@@ -1,9 +1,7 @@
 package snakeprogram;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+
 /**
  * @author Lisa
  *
@@ -89,7 +87,8 @@ public class Snake implements Iterable<Integer>{
        **/
 
     public boolean exists(int frame){
-        return Coordinates.containsKey(frame);
+
+        synchronized (Coordinates) {return Coordinates.containsKey(frame);}
     }
     
     /**
@@ -107,12 +106,15 @@ public class Snake implements Iterable<Integer>{
        *
        **/
     public boolean isEmpty(){
-        for(Integer k: Coordinates.keySet()){
-            if(getSize(k)<2)
-                clearSnake(k);
+        List<Integer> removable = new ArrayList<>();
+        for (Map.Entry<Integer, List<double[]>> entry : Coordinates.entrySet()) {
+            if (entry.getValue().size() < 2)
+                removable.add(entry.getKey());
         }
+        removable.forEach(this::clearSnake);
+
         return Coordinates.isEmpty();
-    
+
     }
     
     /**

@@ -328,14 +328,14 @@ public class SnakeImages{
 
         if(s.exists(imagecounter)){
             List<double[]> snake = s.getCoordinates(imagecounter);
-            
+
             //creates vectors to store transformed coordinates
             ArrayList<double[]> SnakeDraw = new ArrayList<double[]>();
-            
+
             //transforms the coordinates based on the zoom
             for(double[] p: snake)
                 SnakeDraw.add(toZoom(p));
-                    
+
             if(s.TYPE==Snake.CLOSED_SNAKE){
                 SnakeDraw.add(toZoom(snake.get(0)));
             }
