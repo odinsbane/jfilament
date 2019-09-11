@@ -8,6 +8,14 @@ This site has the source code of the project. For a compiled version and for use
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
 # release
+
+Version 1.1.7
+ - Clear current snake.
+ - Create a mask image using snakes.
+ - Look at function for 3D viewing.
+ - BUG FIX: removing snake by deleting all of its points sometimes caused a crash.
+
+
 Version 1.1.6
 
  - BUG FIX: A class file was omitted from mvn package.
