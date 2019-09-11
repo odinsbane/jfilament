@@ -243,6 +243,13 @@ public class SnakeFrame{
         transform_snake.setAccelerator(KeyStroke.getKeyStroke('m'));
         snakes.add(transform_snake);
 
+        JMenuItem clear_current = new JMenuItem("Clear from Current Frame.");
+        clear_current.addActionListener(evt->{
+            snake_model.clearCurrentSnake();
+        });
+        clear_current.setAccelerator(KeyStroke.getKeyStroke('c'));
+        snakes.add(clear_current);
+
         JMenuItem sculpt_snake = new JMenuItem("Sculpt Selected");
         sculpt_snake.setActionCommand(SnakeActions.sculpt.name());
         sculpt_snake.addActionListener(snake_listener);

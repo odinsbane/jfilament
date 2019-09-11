@@ -934,7 +934,20 @@ public class SnakeModel{
         }    
     
     }
-    
+
+    /**
+     * Clears the current snake from the current frame, without deleting the whole snake.
+     */
+    public void clearCurrentSnake(){
+        if(CurrentSnake != null){
+            Integer f = getCurrentFrame();
+            if(CurrentSnake.exists(f)){
+                CurrentSnake.Coordinates.remove(f);
+            }
+            purgeSnakes();
+            updateImagePanel();
+        }
+    }
     /**
        *    Ceases a deform iterations
        */
