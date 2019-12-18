@@ -106,6 +106,9 @@ public class DataCanvas extends Canvas3D {
         setView(StationaryViews.THREEQUARTER);
     }
 
+    public void setDefaultControllerEnabled(boolean enabled){
+        controller.setEnabled(enabled);
+    }
 
     /**
      * Adds a "DataObject" which is just an interface for adding a branch group.
@@ -456,82 +459,6 @@ public class DataCanvas extends Canvas3D {
 enum StationaryViews{
     XY, XZ, YZ, THREEQUARTER;
 }
-/**
-* This is the MouseListener, there is no reason for it to be an
-* inner class, really I just haven't moved it out of here
- * */
-class CanvasController extends MouseAdapter{
-    DataCanvas dc;
-    int start_dragx, start_dragy;
-    int click_type;
-    CanvasController(DataCanvas c){
-        dc = c;
-        dc.addMouseMotionListener(this);
-        dc.addMouseListener(this);
-        dc.addMouseWheelListener(this);
-        dc.addKeyListener(new KeyListener(){
-
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-                if(e.getKeyChar()=='1'){
-                    dc.setView(StationaryViews.XY);
-                } else if(e.getKeyChar()=='2'){
-                    dc.setView(StationaryViews.XZ);
-                } else if(e.getKeyChar()=='3'){
-                    dc.setView(StationaryViews.YZ);
-                } else if(e.getKeyChar()=='4'){
-                    dc.setView(StationaryViews.THREEQUARTER);
-                }
-
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
-    }
-    public void mouseMoved(MouseEvent e){
-        dc.moved(e);
-    }
-    public void mousePressed(MouseEvent e){
-        click_type = e.getButton();
-        start_dragx = e.getX();
-        start_dragy = e.getY();
-    }
-
-    public void mouseClicked(MouseEvent e){
-        dc.clicked(e);
-    }
-    public void mouseDragged(MouseEvent e){
-        int dx = e.getX() - start_dragx;
-        start_dragx = e.getX();
-        int dy = e.getY() - start_dragy;
-        start_dragy = e.getY();
-
-        if(click_type==MouseEvent.BUTTON1)
-            dc.rotateView(dx,dy);
-        else
-            dc.translateView(dx,dy);
-    }
-    public void mouseWheelMoved(MouseWheelEvent e){
-        if(e.getWheelRotation()<0){
-            dc.zoomIn();
-        } else{
-            dc.zoomOut();
-        }
-    }
-
-
-}
-
 
 
 class OffScreenCanvas3D extends Canvas3D {
