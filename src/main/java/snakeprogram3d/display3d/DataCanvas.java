@@ -269,7 +269,7 @@ public class DataCanvas extends Canvas3D {
          * @param frame frame that you want to add a Canvas3d to
          * @return a graphics configuration on the current display.
          */
-        public static GraphicsConfiguration getBestConfigurationOnSameDevice(Frame frame){
+        public static GraphicsConfiguration getBestConfigurationOnSameDevice(Window frame){
             
             GraphicsConfiguration gc = frame.getGraphicsConfiguration();
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -323,6 +323,10 @@ public class DataCanvas extends Canvas3D {
         backgroundColor = new Color3f(color);
         background.setColor(backgroundColor);
 
+    }
+
+    public Color getCanvasBackgroundColor(){
+            return new Color(backgroundColor.x, background.y, backgroundColor.z);
     }
 
     public void setView(StationaryViews view){
