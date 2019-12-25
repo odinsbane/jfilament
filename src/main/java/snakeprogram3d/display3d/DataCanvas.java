@@ -329,7 +329,7 @@ public class DataCanvas extends Canvas3D {
     }
 
     public Color getCanvasBackgroundColor(){
-            return new Color(backgroundColor.x, background.y, backgroundColor.z);
+            return new Color(backgroundColor.x, backgroundColor.y, backgroundColor.z);
     }
 
     public void setView(StationaryViews view){
