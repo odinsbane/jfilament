@@ -270,4 +270,28 @@ public class ThreeDSnake implements CanvasView{
 
         }
     }
+
+    @Override
+    public void updatePressed(PickResult[] results, MouseEvent evt) {
+    }
+
+    @Override
+    public void updateReleased(PickResult[] results, MouseEvent evt) {
+
+    }
+
+    @Override
+    public void updateClicked(PickResult[] results, MouseEvent evt) {
+        updatePick(results, evt, true);
+    }
+
+    @Override
+    public void updateMoved(PickResult[] results, MouseEvent evt) {
+        updatePick(results, evt, false);
+    }
+
+    @Override
+    public void updateDragged(PickResult[] results, MouseEvent evt) {
+
+    }
 }

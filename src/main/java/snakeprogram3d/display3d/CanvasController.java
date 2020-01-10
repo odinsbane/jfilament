@@ -36,12 +36,10 @@ public class CanvasController extends MouseAdapter {
 
             @Override
             public void keyPressed(KeyEvent e) {
-
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-
             }
         });
     }
@@ -49,11 +47,16 @@ public class CanvasController extends MouseAdapter {
         dc.moved(e);
     }
 
-
+    public void mouseReleased(MouseEvent evt){
+        dc.released(evt);
+    }
     public void mousePressed(MouseEvent e){
         click_type = e.getButton();
         start_dragx = e.getX();
         start_dragy = e.getY();
+
+        dc.pressed(e);
+
     }
 
     public void mouseClicked(MouseEvent e){
@@ -72,6 +75,7 @@ public class CanvasController extends MouseAdapter {
         start_dragy = e.getY();
 
         if(disabled){
+            dc.dragged(e);
             return;
         }
         if(click_type==MouseEvent.BUTTON1)
@@ -81,6 +85,7 @@ public class CanvasController extends MouseAdapter {
     }
     public void mouseWheelMoved(MouseWheelEvent e){
         if(disabled){
+            //TODO delegate to Canvas for propagation.
             return;
         }
         if(e.getWheelRotation()<0){

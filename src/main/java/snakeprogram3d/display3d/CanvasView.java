@@ -10,6 +10,10 @@ import java.awt.event.MouseEvent;
     * */
 public interface CanvasView {
 
-    void updatePick(PickResult[] result, MouseEvent evt, boolean clicked);
+    void updatePressed(PickResult[] results, MouseEvent evt);
+    void updateReleased(PickResult[] results, MouseEvent evt);
+    void updateClicked(PickResult[] results, MouseEvent evt);
+    void updateMoved(PickResult[] results, MouseEvent evt);
+    void updateDragged(PickResult[] results, MouseEvent evt);
 
 }

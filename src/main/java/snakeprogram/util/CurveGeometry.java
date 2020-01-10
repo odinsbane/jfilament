@@ -1,6 +1,5 @@
 package snakeprogram.util;
 
-import com.sun.org.apache.xpath.internal.operations.Mult;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;

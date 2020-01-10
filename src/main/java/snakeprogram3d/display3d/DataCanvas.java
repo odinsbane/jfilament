@@ -19,8 +19,10 @@ import org.scijava.java3d.utils.universe.SimpleUniverse;
 import org.scijava.vecmath.*;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -43,8 +45,8 @@ public class DataCanvas extends Canvas3D {
 
     double DX = 0;
     double DY = 0;
-    
-    CanvasView CV;
+
+    List<CanvasView> viewers = new ArrayList<>();
     
     Color3f backgroundColor = new Color3f(0f,0f,0f);
     Background background;
@@ -57,7 +59,7 @@ public class DataCanvas extends Canvas3D {
         backgroundColor = back;
         this.gc = gc;
         createUniverse();
-        }
+    }
 
 
     public DataCanvas(GraphicsConfiguration gc){
@@ -90,19 +92,7 @@ public class DataCanvas extends Canvas3D {
         controller = new CanvasController(this);
         
         pickCanvas = new PickCanvas(this, group);
-        //pickCanvas = new PickCanvas(getOffscreenCanvas3D(), group);
         pickCanvas.setMode(PickTool.GEOMETRY_INTERSECT_INFO);
-        //pickCanvas.setTolerance(0.1f);
-        //pickCanvas.setShapeRay(new Point3d(0,0,-1000), new Vector3d(0,0,2000));
-
-        /*Screen3D screen = getScreen3D();
-        Screen3D off = offscreen.getScreen3D();
-        Dimension dim = screen.getSize();
-        off.setSize(dim);
-        off.setPhysicalScreenWidth(screen.getPhysicalScreenWidth());
-        off.setPhysicalScreenHeight(screen.getPhysicalScreenHeight());
-        universe.getViewer().getView().addCanvas3D(offscreen);
-        */
         setView(StationaryViews.THREEQUARTER);
     }
 
@@ -199,7 +189,7 @@ public class DataCanvas extends Canvas3D {
         ctg.setTransform(rot);
     }
 
-    public void debugOrentation(){
+    public void debugOrientation(){
         TransformGroup ctg = universe.getViewingPlatform().getViewPlatformTransform();
         Transform3D transform = new Transform3D();
         ctg.getTransform(transform);
@@ -220,51 +210,92 @@ public class DataCanvas extends Canvas3D {
      *
      * @param cv the displayed view that will be interacted with.
      */
-        public void addSnakeListener(CanvasView cv){
-            
-            CV = cv;
-            
-        }
-        /**
-         *  Gets the 'results' a pick result and send the results on down
-         *  the line 
-         *  
-         **/
-        public void clicked(MouseEvent e){
-            if(CV!=null){
-                
-                pickCanvas.setShapeLocation(e);
-                
+    public void addSnakeListener(CanvasView cv){
+        viewers.add(cv);
+    }
 
-                PickResult[] results = pickCanvas.pickAllSorted();
-                if(results != null){
-                    
-                    CV.updatePick(results, e, true);
-                    
-                } 
+    public void removeSnakeListener(CanvasView cv){
+        viewers.remove(cv);
+    }
+
+    /**
+     *  Gets the 'results' a pick result and send the results on down
+     *  the line
+     *
+     **/
+    public void clicked(MouseEvent evt){
+        if(viewers.size()>0){
+            pickCanvas.setShapeLocation(evt);
+            PickResult[] results = pickCanvas.pickAllSorted();
+            if(results == null){
+                results = new PickResult[0];
+            }
+            for(CanvasView viewer: viewers){
+                viewer.updateClicked(results, evt);
             }
         }
-        
-        /**
-         *  Transforms the coordinates and sends the actions on down
-         *  the line to the snake listener.
-         *  
-         **/
-        public void moved(MouseEvent e){
-            if(CV!=null){
+    }
 
-                try{
-                    pickCanvas.setShapeLocation(e);
-                
+    public void dragged(MouseEvent evt){
+        if(viewers.size()>0){
+            pickCanvas.setShapeLocation(evt);
 
-                    PickResult[] result = pickCanvas.pickAllSorted();
-                    if(result != null)
-                        CV.updatePick(result, e, false);
-                } catch(Exception exc){
-                    //bug that I don't know what to do with, maybe disable when I disable ui?
-                }
+
+            PickResult[] results = pickCanvas.pickAllSorted();
+            if(results == null){
+                results = new PickResult[0];
+            }
+            for(CanvasView viewer: viewers){
+                viewer.updateDragged(results, evt);
             }
         }
+    }
+
+    public void pressed(MouseEvent evt){
+        if(viewers.size()>0){
+            pickCanvas.setShapeLocation(evt);
+
+
+            PickResult[] results = pickCanvas.pickAllSorted();
+            if(results == null){
+                results = new PickResult[0];
+            }
+            for(CanvasView viewer: viewers){
+                viewer.updatePressed(results, evt);
+            }
+        }
+    }
+
+    public void released(MouseEvent evt){
+        if(viewers.size()>0){
+            pickCanvas.setShapeLocation(evt);
+
+
+            PickResult[] results = pickCanvas.pickAllSorted();
+            if(results == null){
+                results = new PickResult[0];
+            }
+            for(CanvasView viewer: viewers){
+                viewer.updateReleased(results, evt);
+            }
+        }
+    }
+
+    public void moved(MouseEvent evt){
+        if(viewers.size()>0){
+            pickCanvas.setShapeLocation(evt);
+
+
+            PickResult[] results = pickCanvas.pickAllSorted();
+            if(results == null){
+                results = new PickResult[0];
+            }
+            for(CanvasView viewer: viewers){
+                viewer.updateMoved(results, evt);
+            }
+        }
+    }
+
         
         /**
          * Gets the best graphics configuration to display on the current device.
