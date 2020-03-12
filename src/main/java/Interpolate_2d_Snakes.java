@@ -93,7 +93,7 @@ public class Interpolate_2d_Snakes implements PlugInFilter {
 
                 try {
                     tdd.addSnakePoints(0.5);
-                } catch (IllegalAccessException e) {
+                } catch (SnakeDeformationException e) {
                     e.printStackTrace();
                 }
                 store.addSnake(new_snake);

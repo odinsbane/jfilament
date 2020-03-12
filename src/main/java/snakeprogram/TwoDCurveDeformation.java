@@ -20,11 +20,13 @@ public class TwoDCurveDeformation extends TwoDDeformation{
             super(vertex_X,ie);
     }
 
-   public void initializeMatrix(){
+   public void initializeMatrix() throws InsufficientPointsException{
 
        //finds the number of points currently on the snake
        int contourSize = vertices.size();
-
+       if(contourSize<=3){
+           throw new InsufficientPointsException("not enough points to create matrix: " + contourSize);
+       }
        double alpha = this.alpha/ Math.pow(MAX_SEGMENT_LENGTH,2);
        double beta = this.beta/ Math.pow(MAX_SEGMENT_LENGTH,4);
 
@@ -63,7 +65,7 @@ public class TwoDCurveDeformation extends TwoDDeformation{
        *    points that are too close together.  Includes the connection
        *    between the two end points
        */
-    public void addSnakePoints(double msl) throws IllegalAccessException{
+    public void addSnakePoints(double msl) throws TooManyPointsException, InsufficientPointsException{
         MAX_SEGMENT_LENGTH = msl;
         int pointListSize = vertices.size();
         
@@ -84,7 +86,7 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         int newPointListSize = (int)(cumulativeDistance/MAX_SEGMENT_LENGTH);
         
         if(newPointListSize>SnakeModel.MAXLENGTH)
-            throw new IllegalAccessException("" + newPointListSize);
+            throw new TooManyPointsException("Attempting to create snake with too many points: " + newPointListSize);
             
         double segmentLength = cumulativeDistance/(double)newPointListSize;
 

@@ -141,8 +141,14 @@ public class SnakesToDistanceTransform {
         s.closePath();
         Rectangle rect = s.getBounds();
         List<int[]> pixels = new ArrayList<>();
-        for(int i = rect.x; i<rect.x+rect.width; i++){
-            for(int j = rect.y; j<rect.y + rect.height; j++){
+        int minx = rect.x<0? 0 : rect.x;
+        int miny = rect.y<0? 0 : rect.y;
+        int maxx = rect.x + rect.width;
+        maxx = maxx >= proc.getWidth() ? proc.getWidth() : maxx;
+        int maxy = rect.y + rect.height;
+        maxy = maxy >= proc.getHeight() ? proc.getHeight() : maxy;
+        for(int i = minx; i<maxx; i++){
+            for(int j = miny; j<maxy; j++){
                 if(s.contains(i, j)){
                     proc.set(i, j, 1);
                     pixels.add(new int[]{i, j});
@@ -157,7 +163,7 @@ public class SnakesToDistanceTransform {
         for(Integer l: stdt.cascades.keySet()){
             List<int[]> points = stdt.cascades.get(l);
             for(int[] ipt: points){
-                proc.set(ipt[0], ipt[1], l);
+                proc.set(ipt[0], ipt[1], l - 1);
             }
         }
     }

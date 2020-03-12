@@ -11,6 +11,7 @@ import snakeprogram.energies.ExternalEnergy;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -121,7 +122,6 @@ public abstract class TwoDDeformation {
 
    // This method solves a matrix equation to find new x and y coordinates for the points
    public void deformSnake() {
-
        int contourSize = vertices.size();
 
        //Vx and Vy represent the second term in the matrix equation
@@ -248,7 +248,7 @@ public abstract class TwoDDeformation {
        *    Modifies the current dataset to interpolate points.  The different deformations have a different
        *    way to modify the points
        **/
-    public abstract void addSnakePoints(double MAX_SEGMENT_LENGTH) throws java.lang.IllegalAccessException;
+    public abstract void addSnakePoints(double MAX_SEGMENT_LENGTH) throws TooManyPointsException, InsufficientPointsException;
     
     /**
        *  Modifies Vx,Vy in place to find the forces it uses the image term and 
@@ -259,5 +259,5 @@ public abstract class TwoDDeformation {
     /**
        *    Initializes the double[][] array according to curve type
        **/
-    public abstract void initializeMatrix();
+    public abstract void initializeMatrix() throws InsufficientPointsException;
 }

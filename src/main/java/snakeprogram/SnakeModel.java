@@ -59,6 +59,7 @@ public class SnakeModel{
     private double stretch = 150;
     private double forIntMean = 255;
     private double backIntMean = 0;
+    private double stericWeight = 0;
 
     //Model Values 
     public static int squareSize = 3;            //This is the size of the square that averaging is performed over for the 'getIntForMean' ops
@@ -103,9 +104,9 @@ public class SnakeModel{
         *   snake fit the curve better. DeformSnakeButtonActionPerformed() then redraws the image
         *   in the panel given these new coordinates. 
         *
-        * @throws IllegalAccessException when the snake has too many points.
+        * @throws TooManyPointsException when the snake has too many points.
         **/
-    public void deformRunning() throws java.lang.IllegalAccessException{
+    public void deformRunning() throws InsufficientPointsException, TooManyPointsException{
         
         snake_panel.initializeProgressBar();
 
@@ -215,38 +216,7 @@ public class SnakeModel{
     public ImageEnergy energyFactory(){
 
         final ImageEnergy image_energy = imageEnergyFactory();
-
-        if(externalEnergies.size()==0){
-            return image_energy;
-        } else{
-
-            return new ImageEnergy(){
-
-                @Override
-                public double getMaxPixel(double x, double y) {
-                    return image_energy.getMaxPixel(x,y);
-                }
-
-                @Override
-                public double[] getImageEnergy(double x, double y) {
-
-                    double[] sum = image_energy.getImageEnergy(x,y);
-                    for(ExternalEnergy erg: externalEnergies){
-                        double[] f = erg.getForce(x, y);
-                        sum[0] += f[0];
-                        sum[1] += f[1];
-                    }
-                    return sum;
-
-                }
-
-                @Override
-                public ImageProcessor getProcessor() {
-                    return image_energy.getProcessor();
-                }
-            };
-
-        }
+        return image_energy;
     }
 
     public ImageEnergy imageEnergyFactory(){
@@ -673,6 +643,14 @@ public class SnakeModel{
         SnakeRaw = raw;
     }
 
+    public void setStericWeight(double w){
+        stericWeight = w;
+    }
+
+    public double getStericWeight(){
+        return stericWeight;
+    }
+
     /**
      * Store a new snake.
      * @param s
@@ -684,7 +662,8 @@ public class SnakeModel{
 
 
     /**
-       *    Causes the deformation of a snake to occur
+       *    Causes the deformation of the currently selected snake to occur.
+     *
        **/
     public void deformSnake(){
         if(checkForCurrentSnake()){
@@ -692,7 +671,7 @@ public class SnakeModel{
                 RUNNING = true;
                 disableUI();
                 submit(new DeformingRunnable() {
-                    void modifySnake() throws IllegalAccessException {
+                    void modifySnake() throws TooManyPointsException, InsufficientPointsException {
                         deformRunning();
                         RUNNING = false;
                         enableUI();
@@ -845,7 +824,7 @@ public class SnakeModel{
        *        and the current contants values
      *        @throws IllegalAccessException
        **/
-    private void resetDeformation() throws IllegalAccessException{
+    private void resetDeformation() throws TooManyPointsException, InsufficientPointsException{
         
         curveDeformation.setBeta(beta);
         curveDeformation.setGamma(gamma);
@@ -854,8 +833,24 @@ public class SnakeModel{
         curveDeformation.setAlpha(alpha);
         curveDeformation.setForInt(forIntMean);
         curveDeformation.setBackInt(backIntMean);
-        
 
+
+        if(stericWeight != 0) {
+            List<List<double[]>> neighbors = new ArrayList<>();
+            int currentFrame = getCurrentFrame();
+            for (Snake snake : SnakeStore) {
+                if (snake == CurrentSnake) {
+                    continue;
+                }
+                if (snake.exists(currentFrame) && snake.TYPE == Snake.CLOSED_SNAKE) {
+                    neighbors.add(snake.getCoordinates(currentFrame));
+                }
+            }
+            if (neighbors.size() > 0) {
+                PsuedoSteric steric = new PsuedoSteric(images.getProcessor(), neighbors, stericWeight);
+                curveDeformation.addExternalEnergy(steric);
+            }
+        }
         curveDeformation.addSnakePoints(MAXIMUM_SPACING);
 
         curveDeformation.initializeMatrix();
@@ -863,6 +858,19 @@ public class SnakeModel{
 
     }
 
+    public void setZoom(int x, int y, int width, int height){
+        images.setZoomLocation(x, y);
+        images.trackingZoomBox(x + width, y + height);
+        images.setZoomIn(true);
+    }
+
+    public int getImageWidth(){
+        return images.getProcessor().getWidth();
+    }
+
+    public int getImageHeight(){
+        return images.getProcessor().getHeight();
+    }
 
     /**
      *    Convenience to calculate distance between two points
@@ -906,7 +914,7 @@ public class SnakeModel{
         if(images.hasImage()){
             updateImagePanel();
             autoDetectIntensities();
-           
+
         }
     
     }
@@ -1014,7 +1022,7 @@ public class SnakeModel{
     void setLineWidth(){
         GenericDialog gd = new GenericDialog("Enter a new Line Width");
 
-        gd.addNumericField("Max Length",SnakeImages.LINEWIDTH,0);
+        gd.addNumericField("Line Width",SnakeImages.LINEWIDTH,0);
 
         gd.showDialog();
         if(gd.wasCanceled()) return;
@@ -1083,7 +1091,7 @@ public class SnakeModel{
             disableUI();
 
             submit(new DeformingRunnable() {
-                void modifySnake() throws IllegalAccessException {
+                void modifySnake() throws TooManyPointsException, InsufficientPointsException {
 
                     int start = images.getCounter();
 
@@ -1163,7 +1171,7 @@ public class SnakeModel{
             disableUI();
 
             submit(new DeformingRunnable() {
-                void modifySnake() throws IllegalAccessException {
+                void modifySnake() throws TooManyPointsException, InsufficientPointsException {
                     for (Integer i : CurrentSnake) {
                         if (i < before) continue;
                         images.setImage(i);
@@ -1283,36 +1291,28 @@ public class SnakeModel{
         public void run(){
 
             try{
-
                 modifySnake();
-
-            } catch(IllegalAccessException e){
-
+            } catch(TooManyPointsException e){
                 JOptionPane.showMessageDialog(
                         getFrame(),
-                        "Snake too long The maximum length is "+SnakeModel.MAXLENGTH+"  "+ e.getMessage()
+                        "Snake too long The maximum length is " + SnakeModel.MAXLENGTH + "  " + e.getMessage()
                 );
-
-
-            } catch(IllegalArgumentException e){
-                CurrentSnake.clearSnake(images.getCounter());
-            } catch(ArrayIndexOutOfBoundsException e){
-                CurrentSnake.clearSnake(images.getCounter());
-            }
-            finally {
-
+            } catch(InsufficientPointsException e) {
+                CurrentSnake.clearSnake(getCurrentFrame());
+            } finally {
                 SnakeStore.purgeSnakes();
                 snake_panel.setNumberOfSnakesLabel(
                         SnakeStore.getNumberOfSnakes(),
                         SnakeStore.indexOf(CurrentSnake)
                 );
                 RUNNING=false;
+                updateImagePanel();
                 enableUI();
 
             }
         }
 
-        abstract void modifySnake() throws IllegalAccessException;
+        abstract void modifySnake() throws TooManyPointsException, InsufficientPointsException;
     }
 }
 

@@ -3,6 +3,7 @@ package snakeprogram;
 
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.gui.GenericDialog;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -330,6 +331,24 @@ public class SnakeFrame{
         intensity.setSelected(true);
 
         energies.addSeparator();
+
+        JCheckBoxMenuItem stericEnergy = new JCheckBoxMenuItem("steric weight");
+        stericEnergy.addActionListener(evt->{
+            double v = snake_model.getStericWeight();
+            GenericDialog gd = new GenericDialog("Set Steric Weight");
+            gd.addNumericField("weight", v, 3);
+            gd.showDialog();
+            v = gd.getNextNumber();
+
+            if(v != 0){
+                stericEnergy.setState(true);
+            } else{
+                stericEnergy.setState(false);
+            }
+
+            snake_model.setStericWeight(v);
+        });
+        energies.add(stericEnergy);
 
         MENUS.add(energies);
         bar.add(energies);

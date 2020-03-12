@@ -240,6 +240,11 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
         return u*u + v*v < radius*radius;
     }
 
+    /**
+     * For development: opens an image and a snake file for updating.
+     *
+     * @param args { image_file_name, snake_file_name }
+     */
     public static void main(String[] args){
         final SnakeModel sm = new SnakeModel();
 
@@ -253,6 +258,9 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
                 for(Snake s: snakes){
                     sm.addNewSnake(s);
                 }
+                sm.setZoom(0, 0, sm.getImageWidth(), sm.getImageHeight());
+                sm.updateImagePanel();
+
             }
         });
 
