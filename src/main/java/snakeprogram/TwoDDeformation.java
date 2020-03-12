@@ -120,27 +120,27 @@ public abstract class TwoDDeformation {
    }
 
    // This method solves a matrix equation to find new x and y coordinates for the points
-   public void deformSnake(){
+   public void deformSnake() {
 
-        int contourSize = vertices.size();
-    
-        //Vx and Vy represent the second term in the matrix equation
-        double[] Vx = new double [contourSize];
-        double[] Vy = new double [contourSize];
-       
+       int contourSize = vertices.size();
 
-       energyWithGradient(Vx,Vy);
+       //Vx and Vy represent the second term in the matrix equation
+       double[] Vx = new double[contourSize];
+       double[] Vy = new double[contourSize];
 
-       for(ExternalEnergy energy: externalEnergies){
-           int loc = energy.getIndex(vertices);
-           double[] pos = vertices.get(loc);
 
-           double[] f = energy.getForce(pos[0], pos[1]);
-           Vx[loc] += f[0];
-           Vy[loc] += f[1];
+       energyWithGradient(Vx, Vy);
+
+       for (ExternalEnergy energy : externalEnergies) {
+
+           for (int i = 0; i < vertices.size(); i++) {
+               double[] pos = vertices.get(i);
+               double[] f = energy.getForce(pos[0], pos[1]);
+               Vx[i] += f[0];
+               Vy[i] += f[1];
+           }
        }
-
-       if(fixedFront) {
+       if (fixedFront) {
 
            matrixA[0][0] = matrixA[0][0] - gamma + 1e12;
 
@@ -149,12 +149,12 @@ public abstract class TwoDDeformation {
 
        }
 
-       if(fixedBack) {
+       if (fixedBack) {
 
            int last = matrixA.length - 1;
            matrixA[last][last] = matrixA[last][last] - gamma + 1e12;
 
-           if(last==Vx.length){
+           if (last == Vx.length) {
                System.out.println("how?");
            }
 
@@ -171,19 +171,20 @@ public abstract class TwoDDeformation {
 
        //converts the array initialized in the method initializeMatrix to a matrix and finds its inverse
        Matrix A = new Matrix(matrixA);
-       
+
        LUDecomposition adecom = A.lu();
 
        solutionX = adecom.solve(vectorX);
        solutionY = adecom.solve(vectorY);
-       
+
        //resets verticesX and verticesY to the new values found in the solutionX and solutionY matrices
        vertices.clear();
-       for(int i = 0; i < contourSize; i++){
-           vertices.add(new double[] { solutionX.get(i, 0), solutionY.get(i, 0)});
+       for (int i = 0; i < contourSize; i++) {
+           vertices.add(new double[]{solutionX.get(i, 0), solutionY.get(i, 0)});
        }
 
    }
+
    
    
    //This method finds the distance between two points

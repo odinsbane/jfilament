@@ -14,9 +14,11 @@ import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
 import snakeprogram.energies.*;
 import snakeprogram.interactions.*;
 import snakeprogram.util.AreaAndCentroid;
+import snakeprogram.util.SnakesToDistanceTransform;
 import snakeprogram.util.SnakesToMask;
 import snakeprogram.util.TextWindow;
 
@@ -182,6 +184,31 @@ public class SnakeModel{
                 }
                 size_after+=SnakeRaw.size();
             }
+            ImagePlus original = images.getOriginalImage();
+            int wx = original.getWidth() - 1;
+            int hx = original.getHeight() - 1;
+            //constrain
+            boolean constrained = false;
+            for(double[] pts: SnakeRaw){
+                if(pts[0] < 0){
+                    pts[0] = 0;
+                    constrained = true;
+                } else if(pts[0]> wx){
+                    pts[0] = wx;
+                    constrained = true;
+                }
+                if(pts[1] < 0 ){
+                    pts[1] = 0;
+                    constrained = true;
+                } else if(pts[1] > hx){
+                    pts[1] = hx;
+                    constrained = true;
+                }
+            }
+            if(constrained){
+                updateImagePanel();
+            }
+
         }
 
     }
@@ -1251,6 +1278,14 @@ public class SnakeModel{
 
         SnakesToMask.createBinaryMask(images.getOriginalImage(), SnakeStore);
 
+    }
+
+    public void snakesToLabelledImage(){
+        SnakesToMask.labelImage(images.getOriginalImage(), SnakeStore);
+    }
+
+    public void snakesToDistanceTransform(){
+        SnakesToDistanceTransform.showDistanceTransform(images.getOriginalImage(), SnakeStore);
     }
 
 

@@ -455,11 +455,6 @@ class AnnotationForce implements ProcDrawable, ExternalEnergy {
 
     }
 
-    @Override
-    public int getIndex(List<double[]> points) {
-        return -1;
-    }
-
     public void updateFrames(){
         //at least will be either the first valid element, or the first non-valid element.
         //if there are no elements in the range.

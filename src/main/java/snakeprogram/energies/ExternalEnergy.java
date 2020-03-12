@@ -8,6 +8,5 @@ import java.util.List;
 public interface ExternalEnergy {
 
         public double[] getForce(double x, double y);
-        public int getIndex(List<double[]> points);
 
 }

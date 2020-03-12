@@ -337,7 +337,9 @@ public class SnakeImages{
                 SnakeDraw.add(toZoom(p));
 
             if(s.TYPE==Snake.CLOSED_SNAKE){
-                SnakeDraw.add(toZoom(snake.get(0)));
+                if(snake.size()>0) {
+                    SnakeDraw.add(toZoom(snake.get(0)));
+                }
             }
 
             improc.setLineWidth(2*LINEWIDTH);
@@ -353,6 +355,9 @@ public class SnakeImages{
             improc.setLineWidth(LINEWIDTH);
 
             //draws the snake to the processor
+            if(SnakeDraw.size()==0){
+                return;
+            }
             double[] pt1 = SnakeDraw.get(0);
             for(int i = 1; i<SnakeDraw.size(); i++){
                 double[] pt2 =SnakeDraw.get(i);

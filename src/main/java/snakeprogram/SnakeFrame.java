@@ -297,6 +297,18 @@ public class SnakeFrame{
         });
         data.add(create_binary_mask);
 
+        JMenuItem createLabelledImage = new JMenuItem("create labelled image");
+        createLabelledImage.addActionListener(evt->{
+            snake_model.snakesToLabelledImage();
+        });
+        data.add(createLabelledImage);
+
+        JMenuItem createDistanceTransform = new JMenuItem("distance transform");
+        createDistanceTransform.addActionListener(evt->{
+            snake_model.snakesToDistanceTransform();
+        });
+        data.add(createDistanceTransform);
+
         MENUS.add(data);
         bar.add(data);
 

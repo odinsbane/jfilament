@@ -1,12 +1,19 @@
 package snakeprogram.interactions;
 
+import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import snakeprogram.*;
 
-import java.awt.Color;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +24,12 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
     Snake snake;
     boolean[] ignoring;
     double[] cursorPosition = {0,0};
-    double radius = 20;
+    static double radius = 20;
 
     int n;
+
+    boolean pushPoints = true;
+
     public SnakeSculptor(SnakeModel model, SnakeImages images, Snake current){
         this.model = model;
         this.images = images;
@@ -59,7 +69,11 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
 
     }
 
+    void setRadius(double r){
+        this.radius = r;
+        model.updateImagePanel();
 
+    }
     void duplicatePoints(List<double[]> points){
         n = points.size();
         modifying = points.stream().map(pt-> Arrays.copyOf(pt, 2)).collect(Collectors.toList());
@@ -81,22 +95,74 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
             accept();
         }
     }
+    public void showSizeDialogue(Point position){
+        JDialog dialog = new JDialog(model.getFrame());
+        dialog.setUndecorated(true);
+        dialog.setOpacity(0.5f);
+        dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+        JSlider slides = new JSlider(JSlider.VERTICAL);
+        JButton finish = new JButton("finish");
+        final double starting = radius;
+        double factor = Math.log(10)/50.0;
 
+        slides.addChangeListener(evt->{
+           int i = slides.getValue();
+           setRadius(starting * Math.exp(factor * i)*0.1);
+        });
+        Container c = dialog.getContentPane();
+        c.add(slides, BorderLayout.CENTER);
+        c.add(finish, BorderLayout.SOUTH);
+
+        dialog.pack();
+        int w = dialog.getWidth();
+        int h = dialog.getHeight();
+
+        Point loc =new Point( position.x - w/2 + (int)radius,position.y -h/2);
+        dialog.setLocation(loc);
+
+
+        finish.addActionListener(evt->{
+            dialog.setVisible(false);
+        });
+        EventQueue.invokeLater(()->{
+            dialog.setVisible(true);
+        });
+
+
+    }
     @Override
     public void mousePressed(MouseEvent e) {
+        if(e.isControlDown()){
+            showSizeDialogue(e.getLocationOnScreen());
+            return;
+        }
+        if(e.isShiftDown()){
+            pushPoints = false;
+        }
         double x = images.fromZoomX(e.getX());
         double y = images.fromZoomY(e.getY());
         cursorPosition = new double[]{x, y};
         //ignore points.
-        for(int i = 0; i<n; i++){
-            if (contains(modifying.get(i))) {
-                ignoring[i] = true;
+        if( pushPoints) {
+            //ignore inside points;
+            for (int i = 0; i < n; i++) {
+                if (contains(modifying.get(i))) {
+                    ignoring[i] = true;
+                }
+            }
+        } else{
+            //ignore outside points;
+            for (int i = 0; i < n; i++) {
+                if ( !contains(modifying.get(i))) {
+                    ignoring[i] = true;
+                }
             }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        pushPoints = true;
         Arrays.fill(ignoring, false);
     }
 
@@ -116,31 +182,48 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
         cursorPosition[1] = images.fromZoomY(e.getY());
 
         for(int i = 0; i<n; i++){
-            if(!ignoring[i] && contains(modifying.get(i))){
+            if(ignoring[i]) continue;
 
-                move(modifying.get(i));
-
-
+            if(pushPoints) {
+                //Moving points that are in circle, to edge of the circle.
+                if ( contains( modifying.get(i) ) ) {
+                    push(modifying.get(i));
+                }
+            } else{
+                if( !contains( modifying.get(i) ) ){
+                    drag(modifying.get(i));
+                }
             }
-
-
-
         }
         model.updateImagePanel();
     }
 
-    private void move(double[] pt) {
+    private void drag(double[] pt) {
         double u = pt[0] - cursorPosition[0];
         double v = pt[1] - cursorPosition[1];
+        double m = Math.sqrt(u * u + v * v);
         if(u==0 && v==0){
-            //TODO use a history of positions to find how this point made it to the center.
+            //this is only possible if the radius is too small.
             return;
         } else{
-            double m = Math.sqrt(u*u + v*v);
-            u = u*radius/m;
-            v = v*radius/m;
+            u = u * radius / m;
+            v = v * radius / m;
             pt[0] = cursorPosition[0] + u;
             pt[1] = cursorPosition[1] + v;
+        }
+    }
+
+    private void push(double[] pt) {
+        double u = pt[0] - cursorPosition[0];
+        double v = pt[1] - cursorPosition[1];
+        double m = Math.sqrt(u * u + v * v);
+        if(u==0 && v==0){
+            return;
+        } else{
+                u = u * radius / m;
+                v = v * radius / m;
+                pt[0] = cursorPosition[0] + u;
+                pt[1] = cursorPosition[1] + v;
         }
     }
 
@@ -157,6 +240,23 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
         return u*u + v*v < radius*radius;
     }
 
+    public static void main(String[] args){
+        final SnakeModel sm = new SnakeModel();
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                sm.getFrame().setVisible(true);
+                sm.loadImage(new ImagePlus( Paths.get(args[0]).toAbsolutePath().toString()) );
+                MultipleSnakesStore snakes = SnakeIO.loadSnakes(
+                        Paths.get(args[1]).toAbsolutePath().toString(), new HashMap<>()
+                );
+                for(Snake s: snakes){
+                    sm.addNewSnake(s);
+                }
+            }
+        });
+
+    }
 
 
 }
