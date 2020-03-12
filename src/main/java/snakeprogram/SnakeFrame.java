@@ -330,11 +330,7 @@ public class SnakeFrame{
         intensity.setSelected(true);
 
         energies.addSeparator();
-        JMenuItem external = new JMenuItem("external forces");
-        external.setActionCommand(SnakeActions.showAnnotations.name());
-        external.addActionListener(snake_listener);
 
-        energies.add(external);
         MENUS.add(energies);
         bar.add(energies);
 

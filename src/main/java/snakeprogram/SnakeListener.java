@@ -135,9 +135,6 @@ public class SnakeListener implements ActionListener{
             case repositionEnd:
                 snake_model.repositionEnd();
                 break;
-            case showAnnotations:
-                snake_model.showAnnotationFrame();
-                break;
             case sculpt:
                 snake_model.startSculpting();
                 break;

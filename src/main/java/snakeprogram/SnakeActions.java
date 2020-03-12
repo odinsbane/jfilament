@@ -43,7 +43,6 @@ public enum SnakeActions {
     trackBackwards,
     guessForeBackground,
     repositionEnd,
-    showAnnotations,
     moveAndRotate,
     sculpt;
 }

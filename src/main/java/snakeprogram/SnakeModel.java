@@ -71,7 +71,7 @@ public class SnakeModel{
     //What to do with the tracking data!?
     private MultipleSnakesStore SnakeStore;
     private SnakeInteraction interactor;
-    private AnnotationEnergies annotations;
+    private List<ExternalEnergy> externalEnergies = new ArrayList<>();
     /**
        *    Starts the snakes application.
        **/
@@ -214,10 +214,9 @@ public class SnakeModel{
     }
     public ImageEnergy energyFactory(){
 
-        final Set<ExternalEnergy> active = annotations==null?new HashSet<>():annotations.getActiveForces();
         final ImageEnergy image_energy = imageEnergyFactory();
 
-        if(active.size()==0){
+        if(externalEnergies.size()==0){
             return image_energy;
         } else{
 
@@ -232,7 +231,7 @@ public class SnakeModel{
                 public double[] getImageEnergy(double x, double y) {
 
                     double[] sum = image_energy.getImageEnergy(x,y);
-                    for(ExternalEnergy erg: active){
+                    for(ExternalEnergy erg: externalEnergies){
                         double[] f = erg.getForce(x, y);
                         sum[0] += f[0];
                         sum[1] += f[1];
@@ -921,9 +920,6 @@ public class SnakeModel{
 
         if(SnakeRaw!=null)
             images.setRawData(SnakeRaw);
-        if(annotations!=null){
-            annotations.setFrame(images.getCounter());
-        }
         images.setCurrentSnake(CurrentSnake);
         images.updateImagePanel();
 
@@ -1219,16 +1215,6 @@ public class SnakeModel{
 
     public double getSigma() {
         return IMAGE_SIGMA;
-    }
-
-    public void showAnnotationFrame() {
-        if(annotations==null){
-
-            annotations=new AnnotationEnergies(this, images);
-            annotations.registerButtons(snake_panel);
-
-        }
-        annotations.setVisible(true);
     }
 
     public List<Snake> getSnakes() {
