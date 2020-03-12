@@ -131,6 +131,9 @@ public class SnakesToDistanceTransform {
 
     static public void snakeToDistanceTransform(List<double[]> snake, ImageProcessor proc){
         Path2D s = new Path2D.Double();
+        if(snake.size()<3){
+            return;
+        }
         double[] pt = snake.get(0);
         s.moveTo(pt[0], pt[1]);
         for(int i = 1; i<snake.size(); i++){
