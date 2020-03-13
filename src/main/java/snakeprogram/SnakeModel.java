@@ -186,8 +186,8 @@ public class SnakeModel{
                 size_after+=SnakeRaw.size();
             }
             ImagePlus original = images.getOriginalImage();
-            int wx = original.getWidth() - 1;
-            int hx = original.getHeight() - 1;
+            int wx = original.getWidth();
+            int hx = original.getHeight();
             //constrain
             boolean constrained = false;
             for(double[] pts: SnakeRaw){
@@ -454,6 +454,10 @@ public class SnakeModel{
         }
         enableUI();
         updateImagePanel();
+    }
+
+    public void setParameters(HashMap<String, Double> p){
+        snake_panel.setConstants(p);
     }
 
     public void importSnakes(MultipleSnakesStore store){

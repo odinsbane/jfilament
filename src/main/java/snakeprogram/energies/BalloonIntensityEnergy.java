@@ -17,13 +17,14 @@ public class BalloonIntensityEnergy implements ImageEnergy{
     final ImageProcessor blurred_image;
     final ImageProcessor image;
     double[] center_of_mass = new double[2];
-    int winding;
+
+    boolean CW;
     int index;
     public double FOREGROUND;
     public double MAGNITUDE;
     public double BACKGROUND;
     List<double[]> points;
-
+    int last;
     public BalloonIntensityEnergy(ImageProcessor img, double blur_sigma, List<double[]> points){
         image = img.convertToFloat();
         blurred_image = image.duplicate();
@@ -31,7 +32,7 @@ public class BalloonIntensityEnergy implements ImageEnergy{
         gb.blurGaussian(blurred_image, blur_sigma, blur_sigma, .01);
         double area = calculateCentroid(points, center_of_mass);
         if(area>0){
-            winding = -1;
+            CW=true;
         }
         this.points = points;
         index = 0;
@@ -55,9 +56,61 @@ public class BalloonIntensityEnergy implements ImageEnergy{
 
     }
 
+    /**
+     * Finds the point closest to the previous point.
+     * @param x
+     * @param y
+     * @return
+     */
+    double[] getNormal(double x, double y){
+
+        double min = Double.MAX_VALUE;
+        int dex = -1;
+        int n = points.size();
+        for(int i = last; i<points.size() + last; i++){
+            double[] pt = points.get(i%n);
+            double dx = x - pt[0];
+            double dy = y - pt[1];
+            double m = dx*dx + dy*dy;
+            if(m == 0){
+                dex = i%n;
+                break;
+            } else if(m<min){
+                min = m;
+                dex = i%n;
+            }
+        }
+        last = dex;
+        if(dex == 0){
+            System.out.println("index 0");
+        }
+        return getNormal(dex);
+    }
+
+    double[] getNormal(int index){
+        int li = index - 1;
+        if(li<0) li = points.size() + li;
+        int hi = (index + 1)%points.size();
+
+        double[] lower = points.get(li);
+        double[] higher = points.get(hi);
+        double dx = higher[0] - lower[0];
+        double dy = higher[1] - lower[1];
+
+        double m = Math.sqrt(dx*dx + dy*dy);
+        dx = dx/m;
+        dy = dy/m;
+        if(!CW){
+            dx = -dx;
+            dy = -dy;
+        }
+        return new double[]{ -dy, dx};
+    }
 
     /**
-     * Ballon values based on the maximum intensity, and pushes the shape out from the center of mass.
+     * Ballon values based on the maximum intensity, and pushes the shape out from the center of mass. The foreground
+     * intensity is used as an expanding region, and the background is used as a compressing region. The region
+     * between is non-interacting.
      *
      * @param x point ordinate
      * @param y point oridinate
@@ -65,23 +118,19 @@ public class BalloonIntensityEnergy implements ImageEnergy{
      */
     public double[] balloonValues(double x, double y){
         double[] v = getExtremePixels(x, y);
-        if(v[0]>=FOREGROUND||v[1]<BACKGROUND){
+        if( (v[0]>=FOREGROUND) ^ (v[1]<BACKGROUND) ){
 
-            //calculation based on center of mass
+            double[] normal = getNormal(x, y);
 
-            double dx = x - center_of_mass[0];
-            double dy = y - center_of_mass[1];
-
-            double mag = Math.sqrt(dx*dx + dy*dy);
-            double factor = mag==0?0:MAGNITUDE/mag;
-
+            double factor = -MAGNITUDE*(v[0] - FOREGROUND);
+            //shrink!
             if(v[1]<BACKGROUND){
-                factor = -1*factor;
+                factor = -MAGNITUDE*(v[1] - BACKGROUND);
             }
 
             return new double[]{
-                    factor*dx,
-                    factor*dy
+                    factor*normal[0],
+                    factor*normal[1]
             };
         }
         return new double[]{0,0};

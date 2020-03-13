@@ -1,5 +1,6 @@
 package snakeprogram.interactions;
 
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.process.ImageProcessor;
 import snakeprogram.*;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
@@ -247,20 +249,21 @@ public class SnakeSculptor implements SnakeInteraction, ProcDrawable {
      */
     public static void main(String[] args){
         final SnakeModel sm = new SnakeModel();
-
+        new ImageJ();
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 sm.getFrame().setVisible(true);
                 sm.loadImage(new ImagePlus( Paths.get(args[0]).toAbsolutePath().toString()) );
+                HashMap<String, Double> parameters = new HashMap<>();
                 MultipleSnakesStore snakes = SnakeIO.loadSnakes(
-                        Paths.get(args[1]).toAbsolutePath().toString(), new HashMap<>()
+                        Paths.get(args[1]).toAbsolutePath().toString(), parameters
                 );
                 for(Snake s: snakes){
                     sm.addNewSnake(s);
                 }
                 sm.setZoom(0, 0, sm.getImageWidth(), sm.getImageHeight());
                 sm.updateImagePanel();
-
+                sm.setParameters(parameters);
             }
         });
 
