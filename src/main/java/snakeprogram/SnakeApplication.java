@@ -14,6 +14,7 @@ package snakeprogram;
    **/
 
 
+import ij.ImageJ;
 import ij.ImagePlus;
 import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
@@ -28,6 +29,8 @@ public class SnakeApplication implements PlugInFilter{
 
     
    public static void main(String args[]) {
+        new ImageJ();
+        
         final SnakeModel sm = new SnakeModel();
         
         java.awt.EventQueue.invokeLater(new Runnable() {
