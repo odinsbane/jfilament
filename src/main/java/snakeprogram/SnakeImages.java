@@ -4,6 +4,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
+import snakeprogram.util.AreaAndCentroid;
 
 import javax.swing.*;
 import java.awt.Color;
@@ -27,6 +28,7 @@ public class SnakeImages{
     double DISPLAY_MAX = Double.MAX_VALUE;
     double DISPLAY_MIN = 0;
 
+    //TODO These don't need to be final.
     final double MAXW = 672;
     final double MAXH = 512;
     
@@ -57,16 +59,17 @@ public class SnakeImages{
     double[] MARK;
     final List<double[]> STATIC_MARKERS;
     
-    private Rectangle ZoomBox;
+    private Rectangle zoomBox;
     
-    private MultipleSnakesStore SnakeStore;
-    private Snake CurrentSnake;
+    private MultipleSnakesStore snakeStore;
+    private Snake currentSnake;
     
     //This is the snake data
     
-    List<double[]> SnakeRaw;
+    List<double[]> snakeRaw;
     HashSet<ProcDrawable> drawables = new HashSet<ProcDrawable>();
-    ArrayList<ImageCounterListener> counter_listeners = new ArrayList<ImageCounterListener>();
+    ArrayList<ImageCounterListener> counterListeners = new ArrayList<ImageCounterListener>();
+    boolean DRAW_IDS = false;
 
     SnakeImages(MultipleSnakesStore ss){
         DRAW_SNAKE = false;
@@ -76,7 +79,7 @@ public class SnakeImages{
         HASIMAGE=false;
         MARKED=false;
         STATIC_MARKERS = new ArrayList<double[]>();
-        SnakeStore = ss;
+        snakeStore = ss;
 
         gb = new GaussianBlur();
     }
@@ -129,18 +132,18 @@ public class SnakeImages{
 
         if(ZOOMIN){
             
-            imp.setRoi( ZoomBox );
+            imp.setRoi(zoomBox);
             
-            double scalex = MAXW/ZoomBox.width;
-            double scaley = MAXH/ZoomBox.height;
+            double scalex = MAXW/ zoomBox.width;
+            double scaley = MAXH/ zoomBox.height;
             
             
             if(scalex>scaley){
                DH = MAXH;
-               DW = scaley*ZoomBox.width;
+               DW = scaley* zoomBox.width;
             }
             else{
-                DH = scalex*ZoomBox.height;
+                DH = scalex* zoomBox.height;
                 DW = MAXW;
             }
 
@@ -173,11 +176,11 @@ public class SnakeImages{
         //draws a box around the area to be zoomed in on
         if(ZOOMINBOX){
             imp.setColor(Color.ORANGE);
-            imp.drawRect( (int)toZoomX(ZoomBox.x),(int)toZoomY(ZoomBox.y),
-                                  (int)toZoomX(ZoomBox.width),(int)toZoomY(ZoomBox.height));
+            imp.drawRect( (int)toZoomX(zoomBox.x),(int)toZoomY(zoomBox.y),
+                                  (int)toZoomX(zoomBox.width),(int)toZoomY(zoomBox.height));
         }
         //draws the snake to the screen
-        if(INITIALIZING&&SnakeRaw!=null){
+        if(INITIALIZING&& snakeRaw !=null){
                 drawRawSnake(imp);
         } else{
             drawSnakes(imp);
@@ -221,7 +224,7 @@ public class SnakeImages{
         }
         imageDrawSnake.setProcessor("update", imp);
     }
-    
+
     public void setMarker(double[] pt){
         MARK = toZoom(pt);
         MARKED = true;
@@ -231,10 +234,10 @@ public class SnakeImages{
     public void trackingZoomBox(int x, int y){
         if(x>OW) x = (int)OW;
         if(y>OH) y = (int)OH;
-        int zw = (int)fromZoomX(x) - ZoomBox.x;
-        int zh = (int)fromZoomY(y) - ZoomBox.y;
+        int zw = (int)fromZoomX(x) - zoomBox.x;
+        int zh = (int)fromZoomY(y) - zoomBox.y;
         if(zw>0&&zh>0)
-            ZoomBox.setSize(zw,zh);       
+            zoomBox.setSize(zw,zh);
     }
     public void setZoomInBox(boolean v){
         ZOOMINBOX = v;
@@ -246,7 +249,7 @@ public class SnakeImages{
     
     
     public void setRawData(List<double[]> xv){
-            SnakeRaw = xv;
+            snakeRaw = xv;
         if(xv!=null&&xv.size()>0){
             setDrawSnake(true);
         } else{
@@ -299,7 +302,7 @@ public class SnakeImages{
         //creates vectors to store transformed coordinates
         ArrayList<double[]> SnakeDraw = new ArrayList<double[]>();
     
-        for(double[] pt: SnakeRaw){
+        for(double[] pt: snakeRaw){
 
             SnakeDraw.add(new double[]{toZoomX(pt[0]),toZoomY(pt[1])});
                     
@@ -330,7 +333,7 @@ public class SnakeImages{
             List<double[]> snake = s.getCoordinates(imagecounter);
 
             //creates vectors to store transformed coordinates
-            ArrayList<double[]> SnakeDraw = new ArrayList<double[]>();
+            List<double[]> SnakeDraw = new ArrayList<double[]>();
 
             //transforms the coordinates based on the zoom
             for(double[] p: snake)
@@ -348,7 +351,7 @@ public class SnakeImages{
                 improc.drawDot((int)p[0], (int)p[1]);
             }
 
-            if(s==CurrentSnake)
+            if(s== currentSnake)
                 improc.setColor(Color.RED);
             else
                 improc.setColor(Color.YELLOW);
@@ -368,15 +371,57 @@ public class SnakeImages{
         }
     }
     
-    
+    public void drawIds(MultipleSnakesStore ss, ImageProcessor imp){
+        int frame = getCounter();
+        int w = imp.getWidth();
+        int h = imp.getHeight();
+        for(Snake snake: ss){
+            if(snake.exists(frame)){
+                int id = ss.indexOf(snake);
+                List<double[]> points = snake.getCoordinates(frame);
+                double area = AreaAndCentroid.calculateArea(points);
+
+                double[] center = AreaAndCentroid.calculateCentroid(area, points);
+                double[] zoomed = toZoom(center);
+                double[] zoomed2 = toZoom(new double[]{ center[0] + 1, center[1] + 1});
+                int blockWidth = (int)(zoomed2[0] - zoomed[0]);
+                int blockHeight = (int)(zoomed2[1] - zoomed[1]);
+
+                if(zoomed[0] > 0 && zoomed[0] < w - 4*blockWidth && zoomed[1] > 0 && zoomed[1] < h - 4*blockHeight) {
+                    int on = (0xff << 16) + (0xff << 8);
+                    int off = (0x0 << 16) + (0x0 << 8) + (0xff);
+
+                    for (int i = 0; i < 16; i++) {
+                        int x = blockWidth*(i % 4) + (int) zoomed[0];
+                        int y = blockHeight*(i / 4) + (int) zoomed[1];
+                        int p = (id & (0x1 << i)) != 0 ? on : off;
+                        imp.setColor(p);
+                        imp.fillOval(x, y, blockWidth, blockHeight);
+                    }
+                }
+            }
+        }
+    }
     
     /**
-       *    Draws all of the snakes in SnakeStore
+       *    Draws all of the snakes in snakeStore
        **/
     public void drawSnakes(ImageProcessor imp){
-        for(Snake s: SnakeStore)
-            drawSnake(s,imp);
-    
+        Snake selected = null;
+
+        for(Snake s: snakeStore) {
+            if(s== currentSnake){
+                continue;
+            }
+            drawSnake(s, imp);
+        }
+        if(currentSnake !=null){
+            drawSnake(currentSnake, imp);
+        }
+        if(DRAW_IDS){
+            drawIds(snakeStore, imp);
+        }
+
     }
     
     /**
@@ -385,14 +430,22 @@ public class SnakeImages{
     public void resetZoom(){
         if(HASIMAGE){
             
-            ZoomBox = new Rectangle(0,0,1,1);
+            zoomBox = new Rectangle(0,0,1,1);
         
             setZoomIn(false);
         }
     }
-    
+
+    /**
+     * Sets the location of the zoom box based on coordinates in the zoomed frame. The zoomed coordinates are used
+     * because there could be initial scaling if the image is too large to display.
+     *
+     * @param x
+     * @param y
+     */
     public void setZoomLocation(int x, int y){
-        ZoomBox.setLocation((int)fromZoomX(x),(int)fromZoomY(y));
+
+        zoomBox.setLocation( (int)fromZoomX(x),(int)fromZoomY(y));
     }
     
         
@@ -401,25 +454,25 @@ public class SnakeImages{
     /** this method takes an X coordinates and sets it to its position in the original, un-zoomed, image */
     public double fromZoomX(double newX){
 
-        return (ZOOMIN)?(newX*ZoomBox.width/DW)+ZoomBox.x:(newX*OW/DW);
+        return (ZOOMIN)?(newX* zoomBox.width/DW)+ zoomBox.x:(newX*OW/DW);
         
     }
 
     /** this method takes an Y coordinates and sets it to its position in the original, un-zoomed, image */
     public double fromZoomY(double newY){
         
-        return (ZOOMIN)?(newY*ZoomBox.height/DH)+ZoomBox.y:newY*OH/DH;
+        return (ZOOMIN)?(newY* zoomBox.height/DH)+ zoomBox.y:newY*OH/DH;
     }
 
     /** this method takes an X coordinate on the original image and finds its new position on a zoomed image */
     public double toZoomX(double oldX){
     
-        return (ZOOMIN)?(oldX-ZoomBox.x)*DW/ZoomBox.width:(oldX)*DW/OW;
+        return (ZOOMIN)?(oldX- zoomBox.x)*DW/ zoomBox.width:(oldX)*DW/OW;
     }
     
      /**  takes an Y coordinate on the original image and finds its new position on a zoomed image  */
      public double toZoomY(double oldY){
-        return (ZOOMIN)?(oldY-ZoomBox.y)*DH/ZoomBox.height:(oldY)*DH/(OH);
+        return (ZOOMIN)?(oldY- zoomBox.y)*DH/ zoomBox.height:(oldY)*DH/(OH);
     }
     
     /** transform a 2d array */
@@ -435,14 +488,11 @@ public class SnakeImages{
         String fname = SnakeIO.getOpenFileName(new JFrame(),"Select Image to Open");
 
         if (fname!=null) {
-    
                 ImagePlus ni = new ImagePlus(fname);
                 if(ni.getProcessor()!=null)
                     loadImage(ni);
                 else
                     JOptionPane.showMessageDialog(new JFrame(),"Could not open: " + fname +" Check filename" );    
-                
-                
         }
         
     
@@ -455,9 +505,7 @@ public class SnakeImages{
     }
     
     public int getCounter(){
-        
         return imagecounter;
-    
     }
     
     public void nextImage(){
@@ -473,11 +521,11 @@ public class SnakeImages{
     public void setImage(int i){
         if(i>0&&i<=stackLoad.getSize()){
             imagecounter=i;
-            for(ImageCounterListener peon: counter_listeners){
+            for(ImageCounterListener peon: counterListeners){
                 peon.setFrame(i);
             }
         } else{
-            throw new IllegalArgumentException("index of: " + i + "is out of image bounds[0:" + stackLoad.getSize()+ "])");
+            throw new IllegalArgumentException("index of: " + i + "is out of image bounds[1:" + stackLoad.getSize()+ "])");
         }
 
 
@@ -527,7 +575,10 @@ public class SnakeImages{
     }
 
     public void loadImage(ImagePlus implus){
-            
+            int stack_size = -1;
+            if(hasImage()){
+                stack_size = getStackSize();
+            }
             imageOriginal = implus;
 
             DISPLAY_RANGE_MIN = implus.getDisplayRangeMin();
@@ -536,17 +587,22 @@ public class SnakeImages{
             DISPLAY_MAX = DISPLAY_RANGE_MAX;
             DISPLAY_MIN = DISPLAY_RANGE_MIN;
 
-            OW = imageOriginal.getWidth();
-            OH = imageOriginal.getHeight();
-            
             imageDrawSnake = new ImagePlus("display", imageOriginal.getProcessor().convertToRGB());
-            stackLoad = imageOriginal.getImageStack();//creates a stack of the image(s)
-            
-            HASIMAGE = true;
-            imagecounter = 1;
+            stackLoad = imageOriginal.getImageStack();
 
-            resetZoom();
-            
+            int nw = imageOriginal.getWidth();
+            int nh = imageOriginal.getHeight();
+
+            if(nw==OW && nh==OH && stackLoad.getSize() == stack_size ){
+                //keep the same geometry.
+            } else{
+                OW = imageOriginal.getWidth();
+                OH = imageOriginal.getHeight();
+                imagecounter = 1;
+
+                resetZoom();
+            }
+            HASIMAGE = true;
             FILENAME=implus.getTitle();
             
     
@@ -557,11 +613,11 @@ public class SnakeImages{
     }
     
     public void setCurrentSnake(Snake cs){
-        CurrentSnake = cs;
+        currentSnake = cs;
     }
     
     public void setSnakes(MultipleSnakesStore mss){
-        SnakeStore = mss;
+        snakeStore = mss;
     }
     
     public double[] getAutoIntensities() throws java.lang.NullPointerException{
@@ -638,6 +694,31 @@ public class SnakeImages{
 
     public double getDisplayMax() {
         return DISPLAY_RANGE_MAX;
+    }
+
+    public int[] getZoomLocation() {
+        return new int[] { (int) zoomBox.getX(), (int) zoomBox.getY() };
+    }
+
+    public boolean isZoom() {
+
+        return ZOOMIN;
+    }
+
+    public int getZoomWidth() {
+        return (int)zoomBox.getWidth();
+    }
+
+    public int getZoomHeight(){
+        return (int)zoomBox.getHeight();
+    }
+
+    public boolean getDrawIds() {
+        return DRAW_IDS;
+    }
+
+    public void setDrawIds(boolean t){
+        DRAW_IDS = t;
     }
 }
 

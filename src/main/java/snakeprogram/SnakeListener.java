@@ -138,6 +138,9 @@ public class SnakeListener implements ActionListener{
             case sculpt:
                 snake_model.startSculpting();
                 break;
+            case fission:
+                snake_model.startFissioningContour();
+                break;
 
         }
     }

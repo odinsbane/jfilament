@@ -21,7 +21,7 @@ public class InitializeSnake implements SnakeInteraction {
     SnakeImages images;
     SnakeModel model;
     int type;
-    ArrayList<double[]> SnakeRaw;
+    ArrayList<double[]> snakeRaw;
 
     /**
      * The type of snake being initialized.
@@ -37,13 +37,13 @@ public class InitializeSnake implements SnakeInteraction {
 
         images.setInitializing(true);
 
-        SnakeRaw = new ArrayList<double[]>();
-        model.setSnakeRaw(SnakeRaw);
+        snakeRaw = new ArrayList<double[]>();
+        model.setSnakeRaw(snakeRaw);
         model.updateImagePanel();
 
     }
     public void cancelActions() {
-        SnakeRaw = null;
+        snakeRaw = null;
         model.unRegisterSnakeInteractor(this);
         images.setFollow(false);
         images.setInitializing(false);
@@ -56,9 +56,9 @@ public class InitializeSnake implements SnakeInteraction {
          //adding the left-click coordinates to the SnakeRawX and SnakeRawY vectors
         if(SwingUtilities.isRightMouseButton(evt)||evt.isControlDown()){
             // double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
-            //SnakeRaw.add(pt);
+            //snakeRaw.add(pt);
 
-            Snake snake = new Snake(SnakeRaw, images.getCounter(), type);
+            Snake snake = new Snake(snakeRaw, images.getCounter(), type);
 
             model.addNewSnake(snake);
 
@@ -69,7 +69,7 @@ public class InitializeSnake implements SnakeInteraction {
 
         } else if(SwingUtilities.isLeftMouseButton(evt)){
             double[] pt = {images.fromZoomX((double)evt.getX()),images.fromZoomY((double)evt.getY())};
-            SnakeRaw.add(pt);
+            snakeRaw.add(pt);
         }
         //adding the right-click coordinate to the coordinate vectors
 

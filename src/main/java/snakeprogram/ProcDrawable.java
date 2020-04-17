@@ -10,10 +10,10 @@ import ij.process.ImageProcessor;
 public interface ProcDrawable{
     /**
      * The image processor is already scaled, the transform is the nescessary transform to go from real coordinates to
-     * displayed coordantes.
+     * displayed coordinates.
      *
      * @param proc
-     * @param transform
+     * @param transform transforms points from image coordinates to processor cooridnates.
      */
     public void draw(ImageProcessor proc, Transform transform);
 }

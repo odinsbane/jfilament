@@ -106,19 +106,22 @@ public class SnakeFrame{
                     g.drawImage(snake_model.getImage(), 0, 0, snake_model.getDrawWidth(), snake_model.getDrawHeight(), this);
                 }
             }
+            public Dimension getPreferredSize() {
+                return new Dimension(672, 512);
+            }
         } ;
         image_panel.setBounds(0,0,672,512);
         
-        JPanel host = new JPanel();
-        BoxLayout hor = new BoxLayout(host,BoxLayout.LINE_AXIS);
-        host.setLayout(hor);
+        //JPanel host = new JPanel();
+        //BoxLayout hor = new BoxLayout(host,BoxLayout.LINE_AXIS);
+        //host.setLayout(hor);
         
-        host.setMinimumSize(new Dimension(672,512));
-        host.setMaximumSize(new Dimension(672,512));
-        host.setPreferredSize(new Dimension(672,512));
-		host.add(image_panel);
+        //host.setMinimumSize(new Dimension(672,512));
+        //host.setMaximumSize(new Dimension(672,512));
+        //host.setPreferredSize(new Dimension(672,512));
+		//host.add(image_panel);
 
-        FRAME.add(host,BorderLayout.CENTER);
+        FRAME.add(image_panel,BorderLayout.CENTER);
         
         
         JPanel parameter_pane = createParameterPane();
@@ -257,6 +260,11 @@ public class SnakeFrame{
         sculpt_snake.setAccelerator(KeyStroke.getKeyStroke('s'));
         snakes.add(sculpt_snake);
 
+        JMenuItem divide_snake = new JMenuItem("Divide Selected");
+        divide_snake.setActionCommand(SnakeActions.fission.name());
+        divide_snake.addActionListener(snake_listener);
+        divide_snake.setAccelerator(KeyStroke.getKeyStroke('f'));
+        snakes.add(divide_snake);
 
         bar.add(snakes);
         MENUS.add(snakes);

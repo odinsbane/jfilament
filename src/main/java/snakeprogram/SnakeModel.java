@@ -14,7 +14,6 @@ import ij.ImagePlus;
 import ij.gui.GenericDialog;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
-import ij.process.ShortProcessor;
 import snakeprogram.energies.*;
 import snakeprogram.interactions.*;
 import snakeprogram.util.AreaAndCentroid;
@@ -24,6 +23,7 @@ import snakeprogram.util.TextWindow;
 
 import javax.swing.*;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.util.*;
@@ -39,7 +39,7 @@ public class SnakeModel{
     private ExecutorService executor = Executors.newFixedThreadPool(1);
     /**These contain the currently displayed snake data. x and y values*/
     private List<double[]> SnakeRaw;
-    private Snake CurrentSnake;
+    private Snake currentSnake;
     /**The deformation for an open deformation*/
     private TwoDDeformation curveDeformation;
 
@@ -95,7 +95,19 @@ public class SnakeModel{
            }
         });
     }
-    
+
+    public List<double[]> addCurveSnakePoints(List<double[]> curve){
+        List<double[]> updated = new ArrayList<>(curve);
+        TwoDCurveDeformation tdcd = new TwoDCurveDeformation(updated, energyFactory() );
+        try {
+            tdcd.addSnakePoints(MAXIMUM_SPACING);
+        } catch(TooManyPointsException | InsufficientPointsException e){
+            //reset to original
+            updated = new ArrayList<>(curve);
+        }
+        return updated;
+    }
+
      /**    
         *   This method is called by the deformButton listener. The method
         *   initializes an object of type TwoDContourDeformation using the three-argument
@@ -110,9 +122,9 @@ public class SnakeModel{
         
         snake_panel.initializeProgressBar();
 
-        SnakeRaw = CurrentSnake.getCoordinates(images.getCounter());
+        SnakeRaw = currentSnake.getCoordinates(images.getCounter());
         
-        if(CurrentSnake.TYPE==Snake.CLOSED_SNAKE)
+        if(currentSnake.TYPE==Snake.CLOSED_SNAKE)
             curveDeformation = new TwoDContourDeformation(SnakeRaw, energyFactory() );
         else
             curveDeformation = new TwoDCurveDeformation(SnakeRaw, energyFactory() );
@@ -230,7 +242,7 @@ public class SnakeModel{
                 if(checkForCurrentSnake()){
                     BalloonGradientEnergy balloon = new BalloonGradientEnergy(
                             images.getProcessor(), IMAGE_SIGMA,
-                            CurrentSnake.getCoordinates(images.getCounter()) );
+                            currentSnake.getCoordinates(images.getCounter()) );
 
                     balloon.FOREGROUND = forIntMean;
                     balloon.BACKGROUND = backIntMean;
@@ -242,7 +254,7 @@ public class SnakeModel{
                 if(checkForCurrentSnake()){
                     BalloonIntensityEnergy balloon = new BalloonIntensityEnergy(
                             images.getProcessor(), IMAGE_SIGMA,
-                            CurrentSnake.getCoordinates(images.getCounter()) );
+                            currentSnake.getCoordinates(images.getCounter()) );
 
                     balloon.FOREGROUND = forIntMean;
                     balloon.BACKGROUND = backIntMean;
@@ -322,7 +334,7 @@ public class SnakeModel{
             }
             if(distance<min){
                 min = distance<min?distance:min;
-                CurrentSnake = s;
+                currentSnake = s;
             }
             if(min<1)
                 break;
@@ -341,8 +353,8 @@ public class SnakeModel{
         double[] pt = { x, y};
         double min = 1e6;
         double[] result = {0,0};
-        if(!CurrentSnake.exists(images.getCounter())) return result;
-        for(double[] spt: CurrentSnake.getCoordinates(images.getCounter())){
+        if(!currentSnake.exists(images.getCounter())) return result;
+        for(double[] spt: currentSnake.getCoordinates(images.getCounter())){
             double d = pointDistance(pt,spt);
             if(d<min){
                 result = spt;
@@ -361,7 +373,7 @@ public class SnakeModel{
      * @return
      */
     public double[] findClosestEnd(double x, double y){
-        List<double[]> all = CurrentSnake.getCoordinates(images.getCounter());
+        List<double[]> all = currentSnake.getCoordinates(images.getCounter());
 
         if(all==null) return new double[]{0,0};
 
@@ -450,7 +462,7 @@ public class SnakeModel{
         if(ss != null){
             SnakeStore = ss;
             images.setSnakes(SnakeStore);
-            CurrentSnake = SnakeStore.getLastSnake();
+            currentSnake = SnakeStore.getLastSnake();
         }
         enableUI();
         updateImagePanel();
@@ -464,7 +476,7 @@ public class SnakeModel{
 
         SnakeStore = store;
         images.setSnakes(store);
-        CurrentSnake = store.getLastSnake();
+        currentSnake = store.getLastSnake();
 
     }
 
@@ -478,11 +490,11 @@ public class SnakeModel{
         if(checkForCurrentSnake()){
             int frame = images.getCounter();
             
-            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+            ArrayList<double[]> Xs = new ArrayList<double[]>(currentSnake.getCoordinates(frame));
                     
             nextImage();
 
-            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+            currentSnake.addCoordinates(images.getCounter(),Xs);
             
             updateImagePanel();
             deformSnake();
@@ -494,7 +506,7 @@ public class SnakeModel{
        */
     public void deleteMiddleFix(){
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new DeleteMiddleFixer(this,images,CurrentSnake);
+            SnakeInteraction si = new DeleteMiddleFixer(this,images, currentSnake);
             registerSnakeInteractor(si);
 
         }
@@ -505,7 +517,7 @@ public class SnakeModel{
        */
     public void moveMiddleFix(){
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new MoveMiddleFixer(this,images,CurrentSnake);
+            SnakeInteraction si = new MoveMiddleFixer(this,images, currentSnake);
             registerSnakeInteractor(si);
 
         }
@@ -517,15 +529,15 @@ public class SnakeModel{
        */
     public void deleteEndFix(){
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new DeleteEndFixer(this, images, CurrentSnake);
+            SnakeInteraction si = new DeleteEndFixer(this, images, currentSnake);
             registerSnakeInteractor(si);
         }
     }
 
     public void repositionEnd() {
 
-        if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
-            SnakeInteraction si = new RepositionContourEnds(this, images, CurrentSnake);
+        if(checkForCurrentSnake()&& currentSnake.TYPE==Snake.CLOSED_SNAKE){
+            SnakeInteraction si = new RepositionContourEnds(this, images, currentSnake);
             registerSnakeInteractor(si);
         }
 
@@ -582,9 +594,9 @@ public class SnakeModel{
     /** deletes the current snake and selects the next one */
     public void deleteSnake(){
             
-            SnakeStore.deleteSnake(CurrentSnake);
-            CurrentSnake = SnakeStore.getLastSnake();
-            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(CurrentSnake));
+            SnakeStore.deleteSnake(currentSnake);
+            currentSnake = SnakeStore.getLastSnake();
+            snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(currentSnake));
             updateImagePanel();
 
     }
@@ -628,7 +640,7 @@ public class SnakeModel{
     }
     
     /**
-       *    Starts the initialize snake process where SnakeRaw?
+       *    Starts the initialize snake process where snakeRaw?
        *    are the transient snake coordinates.
        *
        */
@@ -660,7 +672,7 @@ public class SnakeModel{
      * @param s
      */
     public void addNewSnake(Snake s){
-        CurrentSnake = s;
+        currentSnake = s;
         SnakeStore.addSnake(s);
     }
 
@@ -696,7 +708,7 @@ public class SnakeModel{
        **/
     public void setFixSnakePoints(){
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new StretchEndFixer(this,images,CurrentSnake);
+            SnakeInteraction si = new StretchEndFixer(this,images, currentSnake);
             registerSnakeInteractor(si);
 
         }
@@ -843,7 +855,7 @@ public class SnakeModel{
             List<List<double[]>> neighbors = new ArrayList<>();
             int currentFrame = getCurrentFrame();
             for (Snake snake : SnakeStore) {
-                if (snake == CurrentSnake) {
+                if (snake == currentSnake) {
                     continue;
                 }
                 if (snake.exists(currentFrame) && snake.TYPE == Snake.CLOSED_SNAKE) {
@@ -932,11 +944,11 @@ public class SnakeModel{
 
         if(SnakeRaw!=null)
             images.setRawData(SnakeRaw);
-        images.setCurrentSnake(CurrentSnake);
+        images.setCurrentSnake(currentSnake);
         images.updateImagePanel();
 
         snake_panel.updateStackProgressionLabel(images.getCounter(),images.getStackSize());
-        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(CurrentSnake));
+        snake_panel.setNumberOfSnakesLabel(SnakeStore.getNumberOfSnakes(), SnakeStore.indexOf(currentSnake));
 
         snake_panel.repaint();
     
@@ -961,11 +973,11 @@ public class SnakeModel{
        *    a fix or deform button press.
        **/
     public boolean checkForCurrentSnake(){
-        if(CurrentSnake==null){
+        if(currentSnake ==null){
         
             return false;
         } else {
-            return CurrentSnake.exists(images.getCounter());
+            return currentSnake.exists(images.getCounter());
         }    
     
     }
@@ -974,10 +986,10 @@ public class SnakeModel{
      * Clears the current snake from the current frame, without deleting the whole snake.
      */
     public void clearCurrentSnake(){
-        if(CurrentSnake != null){
+        if(currentSnake != null){
             Integer f = getCurrentFrame();
-            if(CurrentSnake.exists(f)){
-                CurrentSnake.Coordinates.remove(f);
+            if(currentSnake.exists(f)){
+                currentSnake.Coordinates.remove(f);
             }
             purgeSnakes();
             updateImagePanel();
@@ -1102,11 +1114,11 @@ public class SnakeModel{
                     if (forwards) {
                         while (RUNNING && images.getCounter() < images.getStackSize()) {
 
-                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
+                            ArrayList<double[]> Xs = new ArrayList<double[]>(currentSnake.getCoordinates(images.getCounter()));
 
                             nextImage();
 
-                            CurrentSnake.addCoordinates(images.getCounter(), Xs);
+                            currentSnake.addCoordinates(images.getCounter(), Xs);
 
                             updateImagePanel();
                             deformRunning();
@@ -1118,11 +1130,11 @@ public class SnakeModel{
                         images.setImage(start);
                         while (RUNNING && images.getCounter() > 1) {
 
-                            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(images.getCounter()));
+                            ArrayList<double[]> Xs = new ArrayList<double[]>(currentSnake.getCoordinates(images.getCounter()));
 
                             previousImage();
 
-                            CurrentSnake.addCoordinates(images.getCounter(), Xs);
+                            currentSnake.addCoordinates(images.getCounter(), Xs);
 
                             updateImagePanel();
                             deformRunning();
@@ -1146,11 +1158,11 @@ public class SnakeModel{
         int frame = images.getCounter();
         if(checkForCurrentSnake()&&(frame-1)>0){
 
-            ArrayList<double[]> Xs = new ArrayList<double[]>(CurrentSnake.getCoordinates(frame));
+            ArrayList<double[]> Xs = new ArrayList<double[]>(currentSnake.getCoordinates(frame));
 
             previousImage();
 
-            CurrentSnake.addCoordinates(images.getCounter(),Xs);
+            currentSnake.addCoordinates(images.getCounter(),Xs);
 
             updateImagePanel();
             deformSnake();
@@ -1176,7 +1188,7 @@ public class SnakeModel{
 
             submit(new DeformingRunnable() {
                 void modifySnake() throws TooManyPointsException, InsufficientPointsException {
-                    for (Integer i : CurrentSnake) {
+                    for (Integer i : currentSnake) {
                         if (i < before) continue;
                         images.setImage(i);
                         updateImagePanel();
@@ -1205,7 +1217,7 @@ public class SnakeModel{
      *
      */
     public void guessForegroundBackground() {
-       if(checkForCurrentSnake()&&CurrentSnake.TYPE==Snake.CLOSED_SNAKE){
+       if(checkForCurrentSnake()&& currentSnake.TYPE==Snake.CLOSED_SNAKE){
 
            ImageProcessor image = images.getProcessor().convertToFloat();
            ImageProcessor blurred_image = image.duplicate();
@@ -1214,7 +1226,7 @@ public class SnakeModel{
 
            double[] means = BalloonGradientEnergy.getAverageIntensity(
 
-                   CurrentSnake.getCoordinates(images.getCounter()),
+                   currentSnake.getCoordinates(images.getCounter()),
                    blurred_image
                    );
            snake_panel.ForegroundIntensity.setText(String.format("%2.2f",means[0]));
@@ -1239,7 +1251,7 @@ public class SnakeModel{
 
     public void startSnakeTransform() {
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new MoveAndRotate(this,images,CurrentSnake);
+            SnakeInteraction si = new MoveAndRotate(this,images, currentSnake);
             registerSnakeInteractor(si);
         }
     }
@@ -1267,7 +1279,7 @@ public class SnakeModel{
 
     public void startSculpting() {
         if(checkForCurrentSnake()){
-            SnakeInteraction si = new SnakeSculptor(this,images,CurrentSnake);
+            SnakeInteraction si = new SnakeSculptor(this,images, currentSnake);
             registerSnakeInteractor(si);
         }
     }
@@ -1286,6 +1298,42 @@ public class SnakeModel{
         SnakesToDistanceTransform.showDistanceTransform(images.getOriginalImage(), SnakeStore);
     }
 
+    public void startFissioningContour() {
+        if(checkForCurrentSnake() && currentSnake.TYPE == Snake.CLOSED_SNAKE && currentSnake.exists(getCurrentFrame())){
+            SnakeInteraction si = new ContourSplitter(this, images, currentSnake);
+            registerSnakeInteractor(si);
+        }
+    }
+
+    public void toggleShowIds(){
+        images.setDrawIds(!images.getDrawIds());
+        updateImagePanel();
+    }
+
+    public void dragZoomBox(Point pressed, Point point) {
+        if(images.isZoom()){
+            int dx = (int)(images.fromZoomX(point.x) - images.fromZoomX(pressed.x));
+            int dy = (int)(images.fromZoomY(point.y) - images.fromZoomY(pressed.y));
+            int[] loc = images.getZoomLocation();
+            int w = images.getZoomWidth();
+            int h = images.getZoomHeight();
+
+
+            int nx = loc[0] - dx;
+            if(nx < 0 || nx + w > images.getOriginalImage().getWidth()){
+                nx = loc[0];
+            }
+
+            int ny = loc[1] - dy;
+            if(ny<0 || ny + h > images.getOriginalImage().getHeight()){
+                ny = loc[1];
+            }
+            images.setZoomLocation((int) images.toZoomX(nx), (int)images.toZoomY(ny));
+
+            updateImagePanel();
+        }
+    }
+
 
     /**
      * Contains the nescessary exception catches when deforming or modifying a snake.
@@ -1302,12 +1350,12 @@ public class SnakeModel{
                         "Snake too long The maximum length is " + SnakeModel.MAXLENGTH + "  " + e.getMessage()
                 );
             } catch(InsufficientPointsException e) {
-                CurrentSnake.clearSnake(getCurrentFrame());
+                currentSnake.clearSnake(getCurrentFrame());
             } finally {
                 SnakeStore.purgeSnakes();
                 snake_panel.setNumberOfSnakesLabel(
                         SnakeStore.getNumberOfSnakes(),
-                        SnakeStore.indexOf(CurrentSnake)
+                        SnakeStore.indexOf(currentSnake)
                 );
                 RUNNING=false;
                 updateImagePanel();

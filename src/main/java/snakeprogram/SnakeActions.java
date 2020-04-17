@@ -44,5 +44,6 @@ public enum SnakeActions {
     guessForeBackground,
     repositionEnd,
     moveAndRotate,
+    fission,
     sculpt;
 }

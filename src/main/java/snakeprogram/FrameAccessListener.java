@@ -127,6 +127,7 @@ class FrameAccessListener implements MouseListener{
         public void addSelector(SnakeModel sm, Component c){
                 selector = new SnakeSelector(sm);
                 c.addMouseListener(selector);
+                c.addMouseMotionListener(selector);
                 
         }
         
@@ -152,6 +153,8 @@ class FrameAccessListener implements MouseListener{
     public void registerButton(AbstractButton b) {
         buttons.add(b);
     }
+
+
 }
 
 class SnakeSelector extends MouseAdapter implements KeyListener{
@@ -160,13 +163,31 @@ class SnakeSelector extends MouseAdapter implements KeyListener{
     SnakeSelector(SnakeModel parent){
         this.parent = parent;
     }
+    Point pressed;
     @Override
     public void mouseClicked(MouseEvent evt){
         if(ACTIVE)
             parent.selectSnake(evt);
         
     }
-    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if(!ACTIVE){
+            return;
+        }
+        Point drag = e.getPoint();
+        parent.dragZoomBox(pressed, drag);
+        pressed = drag;
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e){
+        pressed = e.getPoint();
+    }
+
+
+
+
     public void setActive(boolean v){
         ACTIVE=v;
     }
@@ -179,10 +200,15 @@ class SnakeSelector extends MouseAdapter implements KeyListener{
                 parent.nextImage();
             if(e.getKeyCode()==KeyEvent.VK_LEFT)
                 parent.previousImage();
+            if(e.getKeyCode()==KeyEvent.VK_I){
+                parent.toggleShowIds();
+            }
         }
     }
     public void keyReleased(KeyEvent e){}
     public void keyTyped(KeyEvent e){}
+
+
     
 }
 

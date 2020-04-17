@@ -30,7 +30,7 @@ public class SnakeApplication implements PlugInFilter{
     
    public static void main(String args[]) {
         new ImageJ();
-        
+
         final SnakeModel sm = new SnakeModel();
         
         java.awt.EventQueue.invokeLater(new Runnable() {
