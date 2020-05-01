@@ -16,12 +16,33 @@ import java.util.List;
  *
  */
 public class TwoDContourDeformation extends TwoDDeformation{
-    
+    boolean clockWise;
     /**
        *
        */
-     public TwoDContourDeformation(List<double[]> vertex_X, ImageEnergy ie){
-         super(vertex_X, ie);
+     public TwoDContourDeformation(List<double[]> vertices, ImageEnergy ie){
+         super(vertices, ie);
+         clockWise = determineClockWise(vertices);
+     }
+
+    /**
+     * Calculates the area and checks the sign to see if the curve is wound clockwise or counterclock wise.
+     * ref Bourke, Paul (July 1988). "Calculating The Area And Centroid Of A Polygon". Retrieved 6-Feb-2013.
+     *
+     * @param points the closed curve defined by the points.
+     * @return x,y area
+     */
+     public static boolean determineClockWise(List<double[]> points){
+         double area = 0;
+         int n = points.size();
+         for(int i =0; i<points.size(); i++){
+             double[] a = points.get(i);
+             double[] b = points.get((i+1)%n);
+
+             double chunk = a[0]*b[1] - a[1]*b[0];
+             area += chunk;
+         }
+         return area > 0;
      }
      
    /**
@@ -68,13 +89,17 @@ public class TwoDContourDeformation extends TwoDDeformation{
    }
 
     /**
-       *    Calculates only the image energy the closed contour
-       *    does not have any other terms
-       */
-  public void energyWithGradient(double[] Vx, double[] Vy){
+     * Calculates the force due to the image energy. Applies the gamma term,
+     * Also calculates a 'balloon' force that causes the contour to expand when it is
+     * above the foreground intensity, and shrink when it is below the background intensity.
+     *
+     * @param fx force in the x direction.
+     * @param fy force in the y direction.
+     */
+  public void energyWithGradient(double[] fx, double[] fy){
 
         double[] current;
-        int contourSize = Vx.length;
+        int contourSize = fx.length;
          
        for(int i = 0; i < contourSize; i++){
            current = vertices.get(i);
@@ -82,11 +107,81 @@ public class TwoDContourDeformation extends TwoDDeformation{
            double[] energies = imageEnergy(current[0],current[1]);
 
 
-           Vx[i] = current[0]*gamma + weight*energies[0];
-           Vy[i] = current[1]*gamma + weight*energies[1];
+           fx[i] = current[0]*gamma + weight*energies[0];
+           fy[i] = current[1]*gamma + weight*energies[1];
+       }
+
+       if(stretch != 0){
+           applyBalloonForce( fx, fy );
        }
        
    }
+
+    double[] getNormal(int index){
+        int li = index - 1;
+        if(li<0) li = vertices.size() + li;
+        int hi = (index + 1)%vertices.size();
+
+        double[] lower = vertices.get(li);
+        double[] higher = vertices.get(hi);
+        double dx = higher[0] - lower[0];
+        double dy = higher[1] - lower[1];
+
+        double m = Math.sqrt(dx*dx + dy*dy);
+        dx = dx/m;
+        dy = dy/m;
+        if(!clockWise){
+            dx = -dx;
+            dy = -dy;
+        }
+        return new double[]{ -dy, dx};
+    }
+
+
+    /**
+     * Balloon values based on the maximum intensity, and pushes the shape out from the center of mass. The foreground
+     * intensity is used as an expanding region, and the background is used as a compressing region. The region
+     * between is non-interacting.
+     *
+     * @param index vertex index that balloon force will be checked at.
+     * @return two-d force at x corresponding to a balloon force.
+     */
+    public double[] balloonForce(int index){
+        double[] loc = vertices.get(index);
+        double x = loc[0];
+        double y = loc[1];
+
+        double v = getMaxPixel(x, y);
+        if( (v >= foregroundIntensity) ){
+
+            double[] normal = getNormal(index);
+
+            double factor = -stretch;
+
+            return new double[]{
+                    factor*normal[0],
+                    factor*normal[1]
+            };
+        } else if (v <= backgroundIntensity){
+            double[] normal = getNormal(index);
+            double factor = stretch;
+
+            return new double[]{
+                    factor*normal[0],
+                    factor*normal[1]
+            };
+        }
+        return new double[]{0,0};
+    }
+
+   public void applyBalloonForce(double[] fx, double[] fy){
+        for(int i = 0; i<vertices.size(); i++){
+            double[] v = balloonForce(i);
+            fx[i] += v[0];
+            fy[i] += v[1];
+        }
+   }
+
     /**
        *    Interpolates the points that are too far apart, and removes
        *    points that are too close together.  Includes the connection

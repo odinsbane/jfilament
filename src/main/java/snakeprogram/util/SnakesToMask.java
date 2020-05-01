@@ -161,7 +161,7 @@ public class SnakesToMask {
         }
 
         long start = System.currentTimeMillis();
-        fillVoids(masked);
+        //fillVoids(masked);
         System.out.println( System.currentTimeMillis() - start);
 
         new ImagePlus("Labelled Image", masked).show();

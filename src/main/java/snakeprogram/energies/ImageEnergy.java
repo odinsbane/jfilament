@@ -21,8 +21,6 @@ import ij.process.ImageProcessor;
 public interface ImageEnergy{
     public final static int INTENSITY = 0;
     public final static int GRADIENT = 1;
-    public final static int BALLOON = 2;
-    public final static int BALLOON2 = 3;
     /**
         *
         *   This will use the squaresize defined in TwoDDeformation, and the original image to find

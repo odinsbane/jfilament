@@ -1,17 +1,20 @@
 package snakeprogram.energies;
 
+import ij.ImageJ;
+import ij.ImagePlus;
 import ij.plugin.filter.GaussianBlur;
 import ij.process.ImageProcessor;
+import ij.process.ShortProcessor;
+import snakeprogram.TwoDContourDeformation;
 import snakeprogram.TwoDDeformation;
 
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by smithm3 on 27/03/18.
  */
-public class BalloonIntensityEnergy implements ImageEnergy{
+public class BalloonIntensityEnergy{
 
 
     final ImageProcessor blurred_image;
@@ -108,7 +111,7 @@ public class BalloonIntensityEnergy implements ImageEnergy{
     }
 
     /**
-     * Ballon values based on the maximum intensity, and pushes the shape out from the center of mass. The foreground
+     * Balloon values based on the maximum intensity, and pushes the shape out from the center of mass. The foreground
      * intensity is used as an expanding region, and the background is used as a compressing region. The region
      * between is non-interacting.
      *
@@ -202,7 +205,7 @@ public class BalloonIntensityEnergy implements ImageEnergy{
      *
      * @param points the closed curve defined by the points.
      * @param com where the com will be placed.
-     * @return x,y coordinates of the centroid
+     * @return x,y area
      */
     public static double calculateCentroid(List<double[]> points, double[] com){
         double sumx = 0;
@@ -226,5 +229,93 @@ public class BalloonIntensityEnergy implements ImageEnergy{
         com[1] = sumy/(6*area);
 
         return area;
+    }
+    public static TwoDDeformation getDeformation(List<double[]> points, ImageEnergy ie) throws Exception{
+        TwoDContourDeformation deformation = new TwoDContourDeformation(points, ie);
+        deformation.setAlpha(1);
+        deformation.setBeta(0.1);
+        deformation.setGamma(5);
+        deformation.setWeight(0);
+        deformation.setStretch(1.7);
+
+        deformation.setForegroundIntensity(255);
+        deformation.setBackgroundIntensity(1);
+        deformation.initializeMatrix();
+        return deformation;
+    }
+    public static void main(String[] args) throws Exception{
+        new ImageJ();
+        ImageProcessor circle = new ShortProcessor(256, 256);
+        circle.setColor(256);
+        circle.fillOval(64, 64, 128, 128);
+
+
+        for(int i = 0; i<5; i++){
+            double theta = i*2*Math.PI/5;
+            double cx = 128 + 64*Math.sin(theta);
+            double cy = 128 + 64*Math.cos(theta);
+            int r2 = 16;
+            circle.fillOval((int)cx-r2, (int)cy - r2, 2*r2, 2*r2);
+        }
+
+        //circle.setColor(512);
+        //circle.drawOval(64, 64, 128, 128);
+        ImageProcessor display = circle.convertToRGB();
+        double sigma = 1;
+        List<double[]> points = new ArrayList<>();
+        int n = 35;
+        List<double[]> points2 = new ArrayList<>();
+        for(int i = 0; i<n; i++){
+            double theta = i*2*Math.PI/n;
+            double x = 128 + 8 * Math.sin(theta);
+            double y = 128 - 8 * Math.cos(theta);
+            points.add(new double[]{x, y});
+            double x2 = 128 + 128*Math.sin(theta);
+            double y2 = 128 - 128*Math.cos(theta);
+            points2.add(new double[]{x2, y2});
+        }
+
+
+        double ds = 64*Math.sin(Math.PI/n);
+        IntensityEnergy ie = new IntensityEnergy(circle, sigma);
+        TwoDDeformation deformation = getDeformation(points, ie);
+        TwoDDeformation wrapper = getDeformation(points2, ie);
+        wrapper.addSnakePoints(ds);
+        display.setColor(0);
+        for(int i = 0; i<n; i++){
+            double[] start = points.get(i);
+            double[] end = points.get((i+1)%n);
+            display.drawLine((int)start[0], (int)start[1], (int)end[0], (int)end[1]);
+        }
+        for(int j = 0; j<255; j++) {
+            deformation.deformSnake();
+            deformation.addSnakePoints(ds);
+            display.setColor(j);
+            for(int i = 0; i<points.size(); i++){
+                double[] start = points.get(i);
+                double[] end = points.get((i+1)%points.size());
+                display.drawLine((int)start[0], (int)start[1], (int)end[0], (int)end[1]);
+            }
+            wrapper.deformSnake();
+            wrapper.addSnakePoints(ds);
+            display.setColor((j<<8));
+            for(int i = 0; i<points2.size(); i++){
+                double[] start = points2.get(i);
+                double[] end = points2.get((i+1)%points2.size());
+                display.drawLine((int)start[0], (int)start[1], (int)end[0], (int)end[1]);
+            }
+
+        }
+        display.setColor( 255<<16 );
+        display.drawOval(64, 64, 128, 128);
+        ImageProcessor proc = circle.duplicate();
+        for(int i = 0; i<256; i++){
+            for(int j = 0; j<256; j++){
+                double p = ie.getMaxPixel(i, j);
+                proc.set(i, j, (int) p);
+            }
+        }
+        new ImagePlus("max", proc).show();
+        new ImagePlus("snaked", display).show();
     }
 }

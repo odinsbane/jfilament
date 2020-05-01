@@ -238,30 +238,6 @@ public class SnakeModel{
                 return new IntensityEnergy( images.getProcessor(),IMAGE_SIGMA );
             case ImageEnergy.GRADIENT:
                 return new GradientEnergy( images.getProcessor(), IMAGE_SIGMA);
-            case ImageEnergy.BALLOON:
-                if(checkForCurrentSnake()){
-                    BalloonGradientEnergy balloon = new BalloonGradientEnergy(
-                            images.getProcessor(), IMAGE_SIGMA,
-                            currentSnake.getCoordinates(images.getCounter()) );
-
-                    balloon.FOREGROUND = forIntMean;
-                    balloon.BACKGROUND = backIntMean;
-                    balloon.MAGNITUDE = stretch;
-
-                    return balloon;
-                }
-            case ImageEnergy.BALLOON2:
-                if(checkForCurrentSnake()){
-                    BalloonIntensityEnergy balloon = new BalloonIntensityEnergy(
-                            images.getProcessor(), IMAGE_SIGMA,
-                            currentSnake.getCoordinates(images.getCounter()) );
-
-                    balloon.FOREGROUND = forIntMean;
-                    balloon.BACKGROUND = backIntMean;
-                    balloon.MAGNITUDE = stretch;
-
-                    return balloon;
-                }
         }
 
         return null;
@@ -847,8 +823,8 @@ public class SnakeModel{
         curveDeformation.setWeight(weight);
         curveDeformation.setStretch(stretch);
         curveDeformation.setAlpha(alpha);
-        curveDeformation.setForInt(forIntMean);
-        curveDeformation.setBackInt(backIntMean);
+        curveDeformation.setForegroundIntensity(forIntMean);
+        curveDeformation.setBackgroundIntensity(backIntMean);
 
 
         if(stericWeight != 0) {

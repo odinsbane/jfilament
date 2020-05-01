@@ -11,7 +11,6 @@ import ij.plugin.filter.*;
 
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.TreeSet;
 
 import snakeprogram.*;
 import snakeprogram.energies.ImageEnergy;
@@ -88,8 +87,8 @@ public class Auto_Tracker implements PlugInFilter  {
         cd.setWeight(constants.get("weight"));
         cd.setStretch(constants.get("stretch"));
         cd.setAlpha(constants.get("alpha"));
-        cd.setForInt(constants.get("foreground"));
-        cd.setBackInt(constants.get("background"));
+        cd.setForegroundIntensity(constants.get("foreground"));
+        cd.setBackgroundIntensity(constants.get("background"));
 
         try{
             for(int i = 0; i<iters; i++){

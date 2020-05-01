@@ -11,7 +11,6 @@ import snakeprogram.energies.ExternalEnergy;
 import snakeprogram.energies.ImageEnergy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -44,19 +43,19 @@ public abstract class TwoDDeformation {
     
     /** This is the magnitude of the for applied at the ends (when applicable) */
     double stretch;
-    
-    /** The forgrount intensity will modify the resulting stretch force */
-    double forInt;
+
+    /** Modifies the stretch / balloon force.*/
+    double foregroundIntensity;
     
     /** The background intensity */
-    double backInt;
+    double backgroundIntensity;
     
     boolean fixedFront = false;
     boolean fixedBack = false;
 
     public static int squareSize = 6;
     
-    ImageEnergy IMAGE_ENERGY;
+    ImageEnergy imageEnergy;
     
     double[][] matrixA;
     double meanInt;
@@ -64,16 +63,18 @@ public abstract class TwoDDeformation {
 
     List<ExternalEnergy> externalEnergies = new ArrayList<>();
 
-    TwoDDeformation(){
-    
-    }
-    
     /**
-       *    Creates a new 2-d deformation of this image.  
-       **/
-    TwoDDeformation(List<double[]> vertex_X, ImageEnergy ie){
-        this.vertices = vertex_X;
-        IMAGE_ENERGY = ie;
+     * Prepares a deformation routine for the points provided.
+     *
+     * @param points points that will be deformed.
+     *
+     * @param ie the image that the points will be deformed to. additional
+     *           external energies can be added, but this will be used to determine whether
+     *           a stretch force, or ballooning force will be applied.
+     */
+    TwoDDeformation(List<double[]> points, ImageEnergy ie){
+        this.vertices = points;
+        imageEnergy = ie;
             
     }
       
@@ -98,15 +99,15 @@ public abstract class TwoDDeformation {
    }
 
    /** This needs to be set */
-   public void setForInt(double forInt){
-       this.forInt = forInt;
-       meanInt = (forInt-backInt)*0.5 + backInt;
+   public void setForegroundIntensity(double foregroundIntensity){
+       this.foregroundIntensity = foregroundIntensity;
+       meanInt = (foregroundIntensity - backgroundIntensity)*0.5 + backgroundIntensity;
    }
 
    /** This needs to be set */
-   public void setBackInt(double backInt){
-       this.backInt = backInt;
-      meanInt = (forInt-backInt)*0.5 + backInt;
+   public void setBackgroundIntensity(double backgroundIntensity){
+       this.backgroundIntensity = backgroundIntensity;
+      meanInt = (foregroundIntensity - backgroundIntensity)*0.5 + backgroundIntensity;
 
    }
 
@@ -185,22 +186,43 @@ public abstract class TwoDDeformation {
 
    }
 
-   
-   
-   //This method finds the distance between two points
+
+    /**
+     * Calculates the distance between two points.
+     *
+     * @param x1 first point
+     * @param x2 second point
+     * @return |x1 - x2|
+     */
    public static double pointDistance(double[] x1, double[] x2 ){
         double distance = 0;
-        for(int i = 0; i<x1.length; i++)
-            distance += Math.pow((x1[i] - x2[i]),2);
+        for(int i = 0; i<x1.length; i++){
+            double dsi = x1[i] - x2[i];
+            distance += dsi*dsi;
+        }
        return Math.sqrt(distance);
    }
 
-   //This method interpolates to find the value of the point in between those two points
-   public static double interpolate(double x1, double x2, double t){
+    /**
+     * One-dimensional linear interpolation.
+     *
+     * @param x1 first point
+     * @param x2 second point
+     * @param t fraction of position between two points. t=0 is x1 and t=1 is x2
+     * @return t*(x2 - x1) + p1
+     */
+    public static double interpolate(double x1, double x2, double t){
        return (x1 + t*(x2 - x1));
    }
 
-   /** Interpolates arrays of values using the above interpolation function */
+    /**
+     * Multi-dimensional linear interpolation.
+     *
+     * @param p1 first point
+     * @param p2 second point
+     * @param t fraction of position between two points.
+     * @return t*(p2 - p1) + p1
+     */
    public static double[] interpolate(double[] p1, double[] p2, double t){
         double[] ret_value = new double[p1.length];
         for(int i = 0; i<p1.length; i++)
@@ -214,7 +236,7 @@ public abstract class TwoDDeformation {
       **/
    double[] imageEnergy(double x, double y){
         
-        return IMAGE_ENERGY.getImageEnergy(x,y);
+        return imageEnergy.getImageEnergy(x,y);
    
    }
 
@@ -240,21 +262,27 @@ public abstract class TwoDDeformation {
         **/
     double getMaxPixel(double x, double y){
         
-        return IMAGE_ENERGY.getMaxPixel(x,y);
+        return imageEnergy.getMaxPixel(x,y);
     
     }
-    
+
     /**
-       *    Modifies the current dataset to interpolate points.  The different deformations have a different
-       *    way to modify the points
-       **/
+     * For normalizing the distance between points. There are two implementations of this,
+     * for open snakes and connected snakes.
+     *
+     * @param MAX_SEGMENT_LENGTH
+     * @throws TooManyPointsException
+     * @throws InsufficientPointsException
+     */
     public abstract void addSnakePoints(double MAX_SEGMENT_LENGTH) throws TooManyPointsException, InsufficientPointsException;
     
     /**
-       *  Modifies Vx,Vy in place to find the forces it uses the image term and 
-       *  the 'stretching' term.
-       **/     
-    public abstract void energyWithGradient(double[] Vx, double[] Vy);
+     *  Accumulates forces due to image energy includes the 'stretching' term.
+     *
+     * @param fx
+     * @param fy
+     */
+    public abstract void energyWithGradient(double[] fx, double[] fy);
 
     /**
        *    Initializes the double[][] array according to curve type

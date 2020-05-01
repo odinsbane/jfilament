@@ -18,7 +18,7 @@ import java.util.List;
  * Time: 7:44 PM
  *
  */
-public class BalloonGradientEnergy implements ImageEnergy {
+public class BalloonGradientEnergy{
     final ImageProcessor blurred_image;
     final ImageProcessor image;
     final ImageProcessor intensity_image;

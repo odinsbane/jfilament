@@ -125,8 +125,7 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         }
     }
   /**
-     *  Modifies Vx,Vy in place to find the forces it uses the image term and 
-     *  the 'stretching' term.
+     *  Adds forces based on the image energy. Includes a stretch force.
      **/
      
   public void energyWithGradient(double[] Vx, double[] Vy){
@@ -136,34 +135,30 @@ public class TwoDCurveDeformation extends TwoDDeformation{
          
        for(int i = 0; i < contourSize; i++){
            current = vertices.get(i);
-           
-           
            double[] energies = imageEnergy(current[0],current[1]);
-
-
-
            Vx[i] = current[0]*gamma + weight*energies[0];
            Vy[i] = current[1]*gamma + weight*energies[1];
        }
 
-        double[] hp = vertices.get(0);
-        
-        double hfactor = getStretchFactor(hp,true);
-            
-        double[] head_forces = getHeadForce();
-            
-        Vx[0] = Vx[0] + hfactor*head_forces[0];
-        Vy[0] = Vy[0] + hfactor*head_forces[1];
+       if(stretch != 0) {
+           double[] hp = vertices.get(0);
 
-        double[] tail_forces = getTailForce();
-        
-        double[] tp = vertices.get(contourSize-1);
-        
-        double tfactor = getStretchFactor(tp,false);
+           double hfactor = getStretchFactor(hp, true);
 
-        Vx[contourSize - 1] = Vx[contourSize - 1] + tfactor*tail_forces[0];
-        Vy[contourSize - 1] = Vy[contourSize - 1] + tfactor*tail_forces[1];
-    
+           double[] head_forces = getHeadForce();
+
+           Vx[0] = Vx[0] + hfactor * head_forces[0];
+           Vy[0] = Vy[0] + hfactor * head_forces[1];
+
+           double[] tail_forces = getTailForce();
+
+           double[] tp = vertices.get(contourSize - 1);
+
+           double tfactor = getStretchFactor(tp, false);
+
+           Vx[contourSize - 1] = Vx[contourSize - 1] + tfactor * tail_forces[0];
+           Vy[contourSize - 1] = Vy[contourSize - 1] + tfactor * tail_forces[1];
+       }
        
    }
    
@@ -245,9 +240,9 @@ public class TwoDCurveDeformation extends TwoDDeformation{
         }
         
         double factor;
-        ImageProcessor image = IMAGE_ENERGY.getProcessor();
+        ImageProcessor image = imageEnergy.getProcessor();
         if(pt[0]>0&&pt[0]<image.getWidth()&&pt[1]>0&&pt[1]<image.getHeight())
-            factor = (getMaxPixel(pt[0],pt[1]) - meanInt)/(forInt - backInt);
+            factor = (getMaxPixel(pt[0],pt[1]) - meanInt)/(foregroundIntensity - backgroundIntensity);
         else {
             factor = 0.;
         }

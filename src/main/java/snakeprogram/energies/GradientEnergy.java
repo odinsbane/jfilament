@@ -53,7 +53,7 @@ public class GradientEnergy implements ImageEnergy {
         double max_pixel = 0;
         int half = TwoDDeformation.squareSize/2;
         for(int i = -half; i<=half; i++){
-            for(double d: blurred_image.getLine(x - half, y + i, x + half, y+i))
+            for(double d: image.getLine(x - half, y + i, x + half, y+i))
                 max_pixel = (max_pixel>d)?max_pixel:d;
 
         }
