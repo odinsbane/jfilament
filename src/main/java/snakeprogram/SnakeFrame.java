@@ -308,7 +308,7 @@ public class SnakeFrame{
 
         JMenuItem createLabelledImage = new JMenuItem("create labelled image");
         createLabelledImage.addActionListener(evt->{
-            snake_model.snakesToLabelledImage();
+            snake_model.snakesToLabelledImage().show();
         });
         data.add(createLabelledImage);
 

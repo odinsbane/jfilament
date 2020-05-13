@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Utility class for labelling snakes, either fills closed contours, or draws lines for open curves.
+ *
  * Created by msmith on 07/06/19.
  */
 public class SnakesToMask {
@@ -85,6 +87,12 @@ public class SnakesToMask {
         return neighbors.getMaxLabel();
     }
 
+    /**
+     * A max value region growing algorithm. In a pixel is black, then it is replaced with it's
+     * maximum value neighbor.
+     *
+     * @param labelledStack
+     */
     static public void fillVoids(ImageStack labelledStack){
         final int w = labelledStack.getWidth();
         final int h = labelledStack.getHeight();
@@ -135,11 +143,20 @@ public class SnakesToMask {
         new ImagePlus("labelled and filled", filled).show();
     }
 
-
-    public static void labelImage(ImagePlus image, MultipleSnakesStore snakes){
+    /**
+     * Creates an image of either lines or masks depending on the type of snake,
+     * Creates a stack of ShortProcessor equal to the size of the image stack.
+     *
+     * Just shows the result.
+     *
+     * @param image
+     * @param snakes
+     *
+     * @return a new ImagePlus with short stack the same size as the original imageplus.
+     */
+    public static ImagePlus labelImage(ImagePlus image, MultipleSnakesStore snakes){
         ImageStack original = image.getStack();
         ImageStack masked = new ImageStack(original.getWidth(), original.getHeight());
-        SnakesToMask loc = new SnakesToMask();
         for(int i = 0; i<original.getSize(); i++){
             masked.addSlice(new ShortProcessor(original.getWidth(), original.getHeight()));
         }
@@ -151,20 +168,20 @@ public class SnakesToMask {
                 ImageProcessor proc = masked.getProcessor(frame);
                 List<double[]> points = snake.getCoordinates(frame);
                 if(snake.TYPE==Snake.CLOSED_SNAKE) {
-                    loc.snakeToMask(proc, points, label);
+                    SnakesToMask.snakeToMask(proc, points, label);
                 } else{
-                    loc.snakeToLine(proc, points, label);
+                    SnakesToMask.snakeToLine(proc, points, label);
                 }
             }
 
             label++;
         }
 
-        long start = System.currentTimeMillis();
+        //long start = System.currentTimeMillis();
         //fillVoids(masked);
-        System.out.println( System.currentTimeMillis() - start);
+        //System.out.println( System.currentTimeMillis() - start);
 
-        new ImagePlus("Labelled Image", masked).show();
+        return new ImagePlus("Labelled Image", masked);
     }
     public static void createBinaryMask(ImagePlus image, MultipleSnakesStore snakes){
         ImageStack original = image.getStack();
@@ -175,21 +192,23 @@ public class SnakesToMask {
         }
 
         for(Snake snake: snakes){
-
             for(Integer frame: snake){
 
                 ImageProcessor proc = masked.getProcessor(frame);
                 List<double[]> points = snake.getCoordinates(frame);
                 loc.snakeToMask(proc, points, 255);
             }
-
-
         }
-
-
         new ImagePlus("Binary mask", masked).show();
 
     }
+
+    /**
+     * Drows the provided points as a line using the provided color.
+     * @param proc destination of labels
+     * @param snakePoints collection of points treated as an open curve.
+     * @param color to be drawn.
+     */
     static public void snakeToLine(ImageProcessor proc, List<double[]> snakePoints, int color){
         if(snakePoints.size() == 0){
             return;
@@ -205,16 +224,16 @@ public class SnakesToMask {
             y = (int)pt[1];
 
             proc.lineTo(x, y);
-
-
-
         }
-
-
     }
 
+    /**
+     * Fills the collection of points as a close contour using the 'color' provided.
+     * @param proc
+     * @param snakePoints
+     * @param color
+     */
     static public void snakeToMask(ImageProcessor proc, List<double[]> snakePoints, int color){
-
         proc.setColor(color);
         int[] xs = new int[snakePoints.size()];
         int[] ys = new int[snakePoints.size()];
@@ -227,7 +246,4 @@ public class SnakesToMask {
         Polygon p = new Polygon(xs, ys, xs.length);
         proc.fillPolygon(p);
     }
-
-
-
 }

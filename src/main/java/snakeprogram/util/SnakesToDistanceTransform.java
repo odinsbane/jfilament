@@ -129,6 +129,14 @@ public class SnakesToDistanceTransform {
 
     }
 
+    /**
+     * Uses the snake to create a closed Path2D, then checks each pixel in the bounding
+     * region to see if it is contained within the path. The resulting pixels are
+     * then used to create a distance transform by eroding the region.
+     *
+     * @param snake closed contour of 2d points.
+     * @param proc destination for distance transform.
+     */
     static public void snakeToDistanceTransform(List<double[]> snake, ImageProcessor proc){
         Path2D s = new Path2D.Double();
         if(snake.size()<3){
@@ -171,6 +179,12 @@ public class SnakesToDistanceTransform {
         }
     }
 
+    /**
+     * Creates and shows distance transform from the provided snakes, if they are closed contours.
+     *
+     * @param original
+     * @param snakes
+     */
     static public void showDistanceTransform(ImagePlus original, MultipleSnakesStore snakes){
         int N = original.getStack().size();
         ImageStack stack = new ImageStack(original.getWidth(), original.getHeight());

@@ -1266,10 +1266,20 @@ public class SnakeModel{
 
     }
 
-    public void snakesToLabelledImage(){
-        SnakesToMask.labelImage(images.getOriginalImage(), SnakeStore);
+    /**
+     * Creates an ImagePlus with the current set of snakes drawn using their corresponding
+     * label number.
+     * @return New ImagePlus with ShortProcessor of the same size as the original.
+     */
+    public ImagePlus snakesToLabelledImage(){
+        return SnakesToMask.labelImage(images.getOriginalImage(), SnakeStore);
     }
 
+    /**
+     * Displays an ImagePlus with a distance tranform of all the closed contour snakes
+     * drown onto it.
+     *
+     */
     public void snakesToDistanceTransform(){
         SnakesToDistanceTransform.showDistanceTransform(images.getOriginalImage(), SnakeStore);
     }

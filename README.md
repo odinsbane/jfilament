@@ -8,7 +8,16 @@ This site has the source code of the project. For a compiled version and for use
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
 # release
-
+Version 1.1.8
+ - SnakeSculpting now has a dialog for adjusting the size by holding ctrl + clicking.
+ - Zoomed in view is now draggable.
+ - Balloon intensity energy is now the stretch force for closed contours foreground/background values.
+ - More labelling options. Can label an image with the id of the snake as the color.
+ - Snake Id's can be displayed on the main screen by pressing `i`
+ - Produce 'labelled image' with regions filled per contour.
+ - Produce distance transform.
+ - Updates to 3D viewer.
+ 
 Version 1.1.7
  - Clear current snake.
  - Create a mask image using snakes.
