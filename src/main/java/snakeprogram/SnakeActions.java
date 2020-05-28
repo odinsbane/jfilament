@@ -45,5 +45,5 @@ public enum SnakeActions {
     repositionEnd,
     moveAndRotate,
     fission,
-    sculpt;
+    sculpt, setBalloonForce;
 }

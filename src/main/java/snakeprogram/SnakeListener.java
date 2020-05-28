@@ -54,6 +54,9 @@ public class SnakeListener implements ActionListener{
             case setStretch:
                 snake_frame.setStretch();
                 break;
+            case setBalloonForce:
+                snake_frame.setBalloonForce();
+                break;
             case stretchFix:
                 snake_model.setFixSnakePoints();
                 break;

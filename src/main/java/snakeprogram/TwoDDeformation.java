@@ -43,6 +43,7 @@ public abstract class TwoDDeformation {
     
     /** This is the magnitude of the for applied at the ends (when applicable) */
     double stretch;
+    double balloonForce;
 
     /** Modifies the stretch / balloon force.*/
     double foregroundIntensity;
@@ -288,4 +289,8 @@ public abstract class TwoDDeformation {
        *    Initializes the double[][] array according to curve type
        **/
     public abstract void initializeMatrix() throws InsufficientPointsException;
+
+    public void setBalloonForce(double balloonForce) {
+        this.balloonForce = balloonForce;
+    }
 }

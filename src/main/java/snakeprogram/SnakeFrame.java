@@ -35,7 +35,7 @@ public class SnakeFrame{
     
     /** Text Fields */
     JTextField PointSpacing, ImageSmoothing, Alpha, Beta, Gamma, Weight, Stretch, DeformIterations,
-               ForegroundIntensity, BackgroundIntensity;
+               ForegroundIntensity, BackgroundIntensity, balloonForce;
     
     JTextField TRANSIENT;
     JLabel image_counter_label, total_snakes_label;
@@ -452,7 +452,11 @@ public class SnakeFrame{
         parameter_pane.add(createInputPair("Stretch Force","100", SnakeActions.setStretch));
         Stretch = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
-        
+
+        parameter_pane.add(createInputPair("Balloon Force", "0", SnakeActions.setBalloonForce));
+        balloonForce = TRANSIENT;
+
+
         parameter_pane.add(createInputPair("Deform Iterations","100", SnakeActions.setIterations));
         DeformIterations = TRANSIENT;
         parameter_pane.add(Box.createVerticalStrut(vspace));
@@ -563,7 +567,15 @@ public class SnakeFrame{
         return createInputPair(label,value,act.name());
     
     }
-    
+
+    /**
+     * A whole lotta bad. Creates a input pair, and returns the JPanel containing the label and text field.
+     * The text field is assigned to the field TRANSIENT.
+     * @param label describes the field
+     * @param value initial value
+     * @param cmd action performed with the value is set
+     * @return A horizontal box with the label and field.
+     */
     private JPanel createInputPair(String label, String value, String cmd){
         JPanel row = new JPanel();
         BoxLayout hor = new BoxLayout(row, BoxLayout.LINE_AXIS);
@@ -689,6 +701,25 @@ public class SnakeFrame{
             System.out.println("NumberFormatException: " + nfe.getMessage());
 
         }       
+    }
+
+    public void setBalloonForce() {
+        String s = balloonForce.getText();
+
+        try{
+
+            double v = Double.parseDouble(s.trim());
+            snake_model.setBalloonForce(v);
+            field_watcher.valueUpdated();
+            FRAME.validate();
+
+
+        }
+        catch (NumberFormatException nfe) {
+
+            System.out.println("NumberFormatException: " + nfe.getMessage());
+
+        }
     }
     
     public void setForegroundIntensity(){
@@ -928,4 +959,6 @@ public class SnakeFrame{
         ret_value.put("foreground",Double.parseDouble(ForegroundIntensity.getText()));
         return ret_value;
     }
+
+
 }

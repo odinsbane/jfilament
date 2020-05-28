@@ -156,7 +156,7 @@ public class TwoDContourDeformation extends TwoDDeformation{
 
             double[] normal = getNormal(index);
 
-            double factor = -stretch;
+            double factor = -balloonForce;
 
             return new double[]{
                     factor*normal[0],
@@ -164,7 +164,7 @@ public class TwoDContourDeformation extends TwoDDeformation{
             };
         } else if (v <= backgroundIntensity){
             double[] normal = getNormal(index);
-            double factor = stretch;
+            double factor = balloonForce;
 
             return new double[]{
                     factor*normal[0],

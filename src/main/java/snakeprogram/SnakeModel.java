@@ -60,6 +60,7 @@ public class SnakeModel{
     private double forIntMean = 255;
     private double backIntMean = 0;
     private double stericWeight = 0;
+    private double balloonForce = 0;
 
     //Model Values 
     public static int squareSize = 3;            //This is the size of the square that averaging is performed over for the 'getIntForMean' ops
@@ -810,6 +811,10 @@ public class SnakeModel{
         stretch = s;
     
     }
+
+    public void setBalloonForce(double v) {
+        balloonForce = v;
+    }
     
     /**
        *        Sets the current contour/curve deformation values to the new image values
@@ -822,6 +827,7 @@ public class SnakeModel{
         curveDeformation.setGamma(gamma);
         curveDeformation.setWeight(weight);
         curveDeformation.setStretch(stretch);
+        curveDeformation.setBalloonForce(balloonForce);
         curveDeformation.setAlpha(alpha);
         curveDeformation.setForegroundIntensity(forIntMean);
         curveDeformation.setBackgroundIntensity(backIntMean);
@@ -1319,6 +1325,8 @@ public class SnakeModel{
             updateImagePanel();
         }
     }
+
+
 
 
     /**
