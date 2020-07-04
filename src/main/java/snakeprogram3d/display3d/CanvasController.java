@@ -88,9 +88,10 @@ public class CanvasController extends MouseAdapter {
             //TODO delegate to Canvas for propagation.
             return;
         }
+
         if(e.getWheelRotation()<0){
             dc.zoomIn();
-        } else{
+        } else if(e.getWheelRotation()>0){
             dc.zoomOut();
         }
     }
