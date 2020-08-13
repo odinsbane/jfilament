@@ -10,6 +10,7 @@ import snakeprogram.Snake;
 
 import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -51,7 +52,7 @@ public class SnakesToMask {
          *
          * @return the most represented label.
          */
-        int getMaxLabel(){
+        int getMaxCountLabel(){
             int j = 0;
             int max = bins[0];
             for(int k = 1; k<9; k++){
@@ -64,6 +65,21 @@ public class SnakesToMask {
                 }
             }
             return labels[j];
+        }
+        int getMaxLabel(){
+            int mx = labels[0];
+            for(int i = 1; i<9; i++){
+
+                if(bins[i] == 0){
+                    return mx;
+                }
+
+                if(labels[i]>mx){
+                    mx = labels[i];
+                }
+
+            }
+            return mx;
         }
     }
 
@@ -93,7 +109,7 @@ public class SnakesToMask {
      *
      * @param labelledStack
      */
-    static public void fillVoids(ImageStack labelledStack){
+    static public ImageStack fillVoids(ImageStack labelledStack){
         final int w = labelledStack.getWidth();
         final int h = labelledStack.getHeight();
         ImageStack filled = new ImageStack(w, h);
@@ -140,7 +156,7 @@ public class SnakesToMask {
             filled.addSlice(processor);
 
         }
-        new ImagePlus("labelled and filled", filled).show();
+        return filled;
     }
 
     /**
@@ -233,17 +249,148 @@ public class SnakesToMask {
      * @param snakePoints
      * @param color
      */
-    static public void snakeToMask(ImageProcessor proc, List<double[]> snakePoints, int color){
+    static public void fillSnake(ImageProcessor proc, List<double[]> snakePoints, int color){
         proc.setColor(color);
         int[] xs = new int[snakePoints.size()];
         int[] ys = new int[snakePoints.size()];
         for(int i = 0; i<snakePoints.size(); i++){
             double[] pt = snakePoints.get(i);
-            xs[i] = (int)pt[0];
-            ys[i] = (int)pt[1];
+            xs[i] = (int)(pt[0]);
+            ys[i] = (int)(pt[1]);
 
         }
         Polygon p = new Polygon(xs, ys, xs.length);
         proc.fillPolygon(p);
+    }
+
+    /**
+     * Fills the collection of points as a close contour using the 'color' provided.
+     * @param proc
+     * @param snakePoints
+     * @param color
+     */
+    static public void snakeToMask(ImageProcessor proc, List<double[]> snakePoints, int color){
+        /*
+        double xMax = 0;
+        double yMax = 0;
+        double xMin = proc.getWidth()-1;
+        double yMin = proc.getHeight()-1;
+
+        Path2D path = new Path2D.Double();
+        double[] pt = snakePoints.get(0);
+        path.moveTo(pt[0], pt[1]);
+        for(int i = 1; i<snakePoints.size(); i++){
+            pt = snakePoints.get(i);
+            path.lineTo(pt[0], pt[1]);
+        }
+        path.closePath();
+
+        for(int i = 0; i<snakePoints.size(); i++){
+            pt = snakePoints.get(i);
+            xMax = pt[0]>xMax? pt[0] : xMax;
+            xMin = pt[0]<xMin? pt[0] : xMin;
+            yMax = pt[1]>yMax ? pt[1] : yMax;
+            yMin = pt[1]<yMin ? pt[1] : yMin;
+        }
+        for(int i = (int)xMin; i<xMax; i++){
+            for(int j = (int)yMin; j<yMax; j++){
+                if(path.contains(i, j)){
+                    proc.set(i, j, color);
+                };
+            }
+        }
+        */
+        fillSnake(proc, snakePoints, color);
+        if(snakePoints.size() == 0){
+            return;
+        }
+        double[] pt = snakePoints.get(0);
+        proc.setColor(0);
+        int x = (int)pt[0];
+        int y = (int)pt[1];
+        proc.moveTo(x, y);
+        for(int i = 0; i<snakePoints.size(); i++){
+            pt = snakePoints.get(i);
+            x = (int)pt[0];
+            y = (int)pt[1];
+
+            proc.lineTo(x, y);
+        }
+
+    }
+
+    static final int[][] faces = {
+            {-1, 0},{0, -1}, {1, 0}, {0, 1}
+    };
+    static final int[][] corners = {
+            {-1, -1}, {1, -1}, {1, 1}, {-1, 1}
+    };
+
+    /**
+     * Checks a 3x3 region from mosaic and checks if the point is an edge, shares a face with a different
+     * label, and if it is the not the minimum value in the region.
+     *
+     * This is to invert the creation of mosaic values by using a max expansion.
+     *
+     * @param mosaic
+     * @param x
+     * @param y
+     * @return false for non-skeleton candidates. true if pixel is a skeleton candidate.
+     */
+    public static boolean nonMinEdgeRegion(ImageProcessor mosaic, int x, int y){
+        int c = mosaic.get(x, y);
+        int min = c;
+        int xi, yi;
+        int w = mosaic.getWidth();
+        int h = mosaic.getHeight();
+        boolean edge = false;
+        for(int[] i: faces){
+            xi = x + i[0];
+            yi = y + i[1];
+            if(xi>-1 && xi<w && yi>-1 && yi<h){
+                int v = mosaic.get(xi, yi);
+                if(v != c){
+                    edge = true;
+                }
+                if(v < min){
+                    min = v;
+                }
+            }
+        }
+
+        if(!edge) return false;
+
+        for(int[] i: corners){
+            xi = x + i[0];
+            yi = y + i[1];
+            if(xi>-1 && xi<w && yi>-1 && yi<h){
+                int v = mosaic.get(xi, yi);
+                if(v < min){
+                    min = v;
+                }
+            }
+        }
+        return c != min;
+    }
+
+    /**
+     * Converts the provided labelled image to a skeleton.
+     *
+     * @param mosaic A labelled image where edges will be drawn.
+     * @return byte processor of 255 and 0's.
+     */
+    public static ImageProcessor skeletonizeMosaic(ImageProcessor mosaic){
+
+        int w = mosaic.getWidth();
+        int h = mosaic.getHeight();
+        ImageProcessor skeleton = new ByteProcessor(w, h);
+        for(int i = 0; i<w; i++){
+            for(int j = 0; j<h; j++){
+                if(nonMinEdgeRegion(mosaic, i, j)){
+                    skeleton.set(i, j, 255);
+                }
+            }
+        }
+        return skeleton;
     }
 }

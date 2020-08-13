@@ -407,6 +407,29 @@ public class DataCanvas extends Canvas3D {
 
     }
 
+    /**
+     * All of the current view values.
+     *
+     * @return DX, DY, ZOOM, aa.x, aa.y, aa.z, aa.angle
+     *
+     */
+    public double[] getViewParameters(){
+        return new double[] {DX, DY, ZOOM, aa.x, aa.y, aa.z, aa.angle};
+    }
+
+    /**
+     * Sets the view based on the parameters.
+     *
+     * @param view DX, DY, ZOOM, aa.x, aa.y, aa.z, aa.angle
+     */
+    public void setViewParameters(double[] view){
+        DX  = view[0];
+        DY  = view[1];
+        ZOOM = view[2];
+        aa = new AxisAngle4d( view[3], view[4], view[5], view[6]);
+        updateView();
+    }
+
     Vector4d axisAngleToQuarternion(AxisAngle4d aa){
         double s = Math.sin(aa.angle/2);
         double c = Math.cos(aa.angle/2);
@@ -463,9 +486,6 @@ public class DataCanvas extends Canvas3D {
 
         Transform3D transform = new Transform3D();
         transform.setRotation(aa);
-
-        Vector3d n2 = new Vector3d(n);
-        Vector3d u2 = new Vector3d(u);
 
         updateView();
 

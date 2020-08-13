@@ -42,6 +42,7 @@ public class VolumeTexture extends Texture3D {
     
     private double CLAMP_MIN;
     private double CLAMP_MAX;
+	private boolean scaledClamps = true;
 
     public VolumeTexture(double[][][] double3d, double cl_min, double cl_max, Color3f c){
         super(Texture.BASE_LEVEL, Texture.RGBA, double3d.length, double3d[0].length, double3d[0][0].length);
@@ -103,9 +104,14 @@ public class VolumeTexture extends Texture3D {
      *
      */
     private void setClamps(){
-        
-            clampedMin = cal_min + (cal_max - cal_min)*CLAMP_MIN;
-            clampedMax = cal_min + (cal_max - cal_min)*CLAMP_MAX;
+
+			if(scaledClamps){
+				clampedMin = cal_min + (cal_max - cal_min)*CLAMP_MIN;
+				clampedMax = cal_min + (cal_max - cal_min)*CLAMP_MAX;
+			} else{
+				clampedMax = CLAMP_MAX;
+				clampedMin = CLAMP_MIN;
+			}
 
         
     }
@@ -176,9 +182,12 @@ public class VolumeTexture extends Texture3D {
 		setBoundaryModeS(Texture.CLAMP);
 		setBoundaryModeT(Texture.CLAMP);
 		setBoundaryModeR(Texture.CLAMP);
- 
+
 		
         }
+	public void setScaledClamps(boolean t){
+    	scaledClamps = t;
+	}
 
     public void setColor(double x, double y, double z){
         color = new Color3f((float)x,(float)y,(float)z);
