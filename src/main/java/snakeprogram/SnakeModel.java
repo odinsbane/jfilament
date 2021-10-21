@@ -285,6 +285,10 @@ public class SnakeModel{
     }
 
     
+    public void selectSnake(Snake snake){
+        currentSnake = snake;
+        updateImagePanel();
+    }
 
     /**
        *    Chooses the nearest snake.  This method is called
@@ -298,7 +302,7 @@ public class SnakeModel{
         double min = 1e6;
         
         int frame = images.getCounter();
-        
+        Snake toSelect = null;
         for(Snake s: SnakeStore){
             double distance = 1e6;
             if(s.exists(frame)){
@@ -311,12 +315,12 @@ public class SnakeModel{
             }
             if(distance<min){
                 min = distance<min?distance:min;
-                currentSnake = s;
+                toSelect = s;
             }
             if(min<1)
                 break;
         }
-        updateImagePanel();
+        selectSnake(toSelect);
 
     }
     
@@ -653,6 +657,26 @@ public class SnakeModel{
         SnakeStore.addSnake(s);
     }
 
+    public void deformAllSnakes(){
+        if(!RUNNING){
+            RUNNING = true;
+            disableUI();
+            final int frame = getCurrentFrame();
+            submit(new DeformingRunnable() {
+                void modifySnake() throws TooManyPointsException, InsufficientPointsException {
+                    for(Snake s: getSnakes()) {
+                        if(!s.exists(frame)){
+                            continue;
+                        }
+                        selectSnake(s);
+                        deformRunning();
+                    }
+                    RUNNING = false;
+                    enableUI();
+                }
+            });
+        }
+    }
 
     /**
        *    Causes the deformation of the currently selected snake to occur.
@@ -1330,7 +1354,7 @@ public class SnakeModel{
 
 
     /**
-     * Contains the nescessary exception catches when deforming or modifying a snake.
+     * Contains the necessary exception catches when deforming or modifying a snake.
      *
      */
     abstract private class DeformingRunnable implements Runnable{

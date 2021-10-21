@@ -1,6 +1,7 @@
 package snakeprogram;
 
 
+import java.awt.Event;
 import java.awt.event.*;
 
 /**
@@ -31,7 +32,11 @@ public class SnakeListener implements ActionListener{
                 snake_model.addSnake();
                 break;
             case deformSnake:
-                snake_model.deformSnake();
+                if((evt.getModifiers() & Event.CTRL_MASK) == Event.CTRL_MASK){
+                    snake_model.deformAllSnakes();
+                } else {
+                    snake_model.deformSnake();
+                }
                 break;
             case setAlpha:
                 snake_frame.setAlpha();
