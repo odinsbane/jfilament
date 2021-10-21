@@ -16,8 +16,7 @@ import java.net.URI;
  *    This class manages turning buttons and text fields on/off when a text field
  *    is being modified or has finished being modified.
  *
- *  Displays brief help files.  The html files that are used are include
- *  in the snakeprogram3d package.
+ *  Displays brief help files.
  *
  * @author Matt Smith
  *

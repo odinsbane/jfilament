@@ -1356,11 +1356,7 @@ public class SnakeModel{
                 ny = iloc[1];
             }
 
-            System.out.println("before: " + Arrays.toString(iloc));
-            System.out.println("setting: " + nx + ", " + ny);
-            //images.setZoomLocation((int)images.toZoomX(nx), (int)images.toZoomY(ny));
             images.setRealZoomLocation(nx, ny);
-            System.out.println("After: " + Arrays.toString(images.getZoomLocation()));
 
             updateImagePanel();
         }
