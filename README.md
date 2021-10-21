@@ -8,6 +8,10 @@ This site has the source code of the project. For a compiled version and for use
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
 # release
+Version 1.1.9
+ - Added deform all by holding ctrl and clicking.
+ - Deprecating JFilament3D. I don't think it is getting used, and it add some dependencie wieght.
+
 Version 1.1.8
  - SnakeSculpting now has a dialog for adjusting the size by holding ctrl + clicking.
  - Zoomed in view is now draggable.
