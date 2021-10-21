@@ -1328,23 +1328,39 @@ public class SnakeModel{
 
     public void dragZoomBox(Point pressed, Point point) {
         if(images.isZoom()){
-            int dx = (int)(images.fromZoomX(point.x) - images.fromZoomX(pressed.x));
-            int dy = (int)(images.fromZoomY(point.y) - images.fromZoomY(pressed.y));
-            int[] loc = images.getZoomLocation();
+
+            double dx = (images.fromZoomX(point.x) - images.fromZoomX(pressed.x));
+            double dy = (images.fromZoomY(point.y) - images.fromZoomY(pressed.y));
+            if(dx*dx < 1 && dy*dy < 1){
+                if(dx*dx > dy*dy){
+                    dx = dx > 0 ? 1 : -1;
+                    dy = 0;
+                } else{
+                    dy = dy > 0 ? 1 : -1;
+                    dx = 0;
+                }
+            }
+            int[] iloc = images.getZoomLocation();
+
             int w = images.getZoomWidth();
             int h = images.getZoomHeight();
 
 
-            int nx = loc[0] - dx;
+            int nx = iloc[0] - (int)dx;
             if(nx < 0 || nx + w > images.getOriginalImage().getWidth()){
-                nx = loc[0];
+                nx = iloc[0];
             }
 
-            int ny = loc[1] - dy;
+            int ny = iloc[1] - (int)dy;
             if(ny<0 || ny + h > images.getOriginalImage().getHeight()){
-                ny = loc[1];
+                ny = iloc[1];
             }
-            images.setZoomLocation((int) images.toZoomX(nx), (int)images.toZoomY(ny));
+
+            System.out.println("before: " + Arrays.toString(iloc));
+            System.out.println("setting: " + nx + ", " + ny);
+            //images.setZoomLocation((int)images.toZoomX(nx), (int)images.toZoomY(ny));
+            images.setRealZoomLocation(nx, ny);
+            System.out.println("After: " + Arrays.toString(images.getZoomLocation()));
 
             updateImagePanel();
         }

@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -59,13 +60,13 @@ public class SnakeImages{
     double[] MARK;
     final List<double[]> STATIC_MARKERS;
     
-    private Rectangle zoomBox;
+    private Rectangle2D zoomBox;
     
     private MultipleSnakesStore snakeStore;
     private Snake currentSnake;
     
     //This is the snake data
-    
+
     List<double[]> snakeRaw;
     HashSet<ProcDrawable> drawables = new HashSet<ProcDrawable>();
     ArrayList<ImageCounterListener> counterListeners = new ArrayList<ImageCounterListener>();
@@ -132,18 +133,18 @@ public class SnakeImages{
 
         if(ZOOMIN){
             
-            imp.setRoi(zoomBox);
+            imp.setRoi(zoomBox.getBounds());
             
-            double scalex = MAXW/ zoomBox.width;
-            double scaley = MAXH/ zoomBox.height;
+            double scalex = MAXW/ zoomBox.getWidth();
+            double scaley = MAXH/ zoomBox.getHeight();
             
             
             if(scalex>scaley){
                DH = MAXH;
-               DW = scaley* zoomBox.width;
+               DW = scaley* zoomBox.getWidth();
             }
             else{
-                DH = scalex* zoomBox.height;
+                DH = scalex* zoomBox.getHeight();
                 DW = MAXW;
             }
 
@@ -176,8 +177,8 @@ public class SnakeImages{
         //draws a box around the area to be zoomed in on
         if(ZOOMINBOX){
             imp.setColor(Color.ORANGE);
-            imp.drawRect( (int)toZoomX(zoomBox.x),(int)toZoomY(zoomBox.y),
-                                  (int)toZoomX(zoomBox.width),(int)toZoomY(zoomBox.height));
+            imp.drawRect( (int)toZoomX(zoomBox.getX()),(int)toZoomY(zoomBox.getY()),
+                                  (int)toZoomX(zoomBox.getWidth()),(int)toZoomY(zoomBox.getHeight()));
         }
         //draws the snake to the screen
         if(INITIALIZING&& snakeRaw !=null){
@@ -234,10 +235,10 @@ public class SnakeImages{
     public void trackingZoomBox(int x, int y){
         if(x>OW) x = (int)OW;
         if(y>OH) y = (int)OH;
-        int zw = (int)fromZoomX(x) - zoomBox.x;
-        int zh = (int)fromZoomY(y) - zoomBox.y;
+        int zw = (int)fromZoomX(x) - (int)zoomBox.getX();
+        int zh = (int)fromZoomY(y) - (int)zoomBox.getY();
         if(zw>0&&zh>0)
-            zoomBox.setSize(zw,zh);
+            zoomBox.setFrame(zoomBox.getX(), zoomBox.getY(), zw, zh );
     }
     public void setZoomInBox(boolean v){
         ZOOMINBOX = v;
@@ -437,42 +438,51 @@ public class SnakeImages{
     }
 
     /**
-     * Sets the location of the zoom box based on coordinates in the zoomed frame. The zoomed coordinates are used
-     * because there could be initial scaling if the image is too large to display.
+     * Sets the location of the zoom box based on coordinates in the zoomed frame.
+     * The zoomed coordinates are use because there could be initial scaling if
+     * the image is too large to display.
      *
      * @param x
      * @param y
      */
     public void setZoomLocation(int x, int y){
+        zoomBox.setFrame(fromZoomX(x), fromZoomY(y), zoomBox.getWidth(), zoomBox.getHeight());
 
-        zoomBox.setLocation( (int)fromZoomX(x),(int)fromZoomY(y));
     }
-    
+
+    public void setRealZoomLocation(int x, int y ){
+        zoomBox.setFrame(x, y, zoomBox.getWidth(), zoomBox.getHeight());
+    }
         
    
     
     /** this method takes an X coordinates and sets it to its position in the original, un-zoomed, image */
     public double fromZoomX(double newX){
 
-        return (ZOOMIN)?(newX* zoomBox.width/DW)+ zoomBox.x:(newX*OW/DW);
+        return (ZOOMIN)?
+                (newX * zoomBox.getWidth()/DW) + zoomBox.getX() :
+                (newX*OW/DW);
         
     }
 
     /** this method takes an Y coordinates and sets it to its position in the original, un-zoomed, image */
     public double fromZoomY(double newY){
         
-        return (ZOOMIN)?(newY* zoomBox.height/DH)+ zoomBox.y:newY*OH/DH;
+        return (ZOOMIN)?(newY* zoomBox.getHeight()/DH)+ zoomBox.getY():newY*OH/DH;
     }
 
-    /** this method takes an X coordinate on the original image and finds its new position on a zoomed image */
+    /**
+     *  this method takes an X coordinate on the original image and finds its new position on a zoomed image
+     *
+     *  */
     public double toZoomX(double oldX){
     
-        return (ZOOMIN)?(oldX- zoomBox.x)*DW/ zoomBox.width:(oldX)*DW/OW;
+        return (ZOOMIN)?(oldX- zoomBox.getX())*DW/ zoomBox.getWidth():(oldX)*DW/OW;
     }
     
      /**  takes an Y coordinate on the original image and finds its new position on a zoomed image  */
      public double toZoomY(double oldY){
-        return (ZOOMIN)?(oldY- zoomBox.y)*DH/ zoomBox.height:(oldY)*DH/(OH);
+        return (ZOOMIN)?(oldY- zoomBox.getY())*DH/ zoomBox.getHeight():(oldY)*DH/(OH);
     }
     
     /** transform a 2d array */
