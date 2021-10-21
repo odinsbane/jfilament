@@ -380,7 +380,7 @@ public class SnakeFrame{
         bp.add(createActionButton("Next Image", SnakeActions.nextImage.name()));
         bp.add(createActionButton("New Snake", SnakeActions.addSnake.name()));
         bp.add(createActionButton("Delete Snake", SnakeActions.deleteSnake.name()));
-        bp.add(createActionButton("Deform Snake", SnakeActions.deformSnake.name()));
+        bp.add(createActionButton("Deform Snake", SnakeActions.deformSnake.name(), "+CTRL to deform all snakes"));
         bp.add(createActionButton("Track Snake", SnakeActions.trackSnake.name()));
         bp.add(createActionButton("Deform Fix", SnakeActions.deformFix.name()));
         bp.add(createActionButton("Delete End Fix", SnakeActions.deleteEnd.name()));

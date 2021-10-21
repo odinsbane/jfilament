@@ -23,8 +23,9 @@ import javax.swing.*;
 import java.time.LocalDateTime;
 
 public class SnakeApplication implements PlugInFilter{
+    //it's back.
+    final public static String VERSION = "1.9.0";
 
-    //version has been removed and the snakeprogram3d version is used exclusively.
     ImagePlus implus;
 
     

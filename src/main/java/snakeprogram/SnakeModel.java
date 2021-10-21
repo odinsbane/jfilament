@@ -1065,7 +1065,7 @@ public class SnakeModel{
     void showVersion(){
 
         try{
-            snakeprogram3d.HelpMessages.showAbout();
+            HelpMessages.showAbout();
         } catch(Exception e){
             String s = "<html>" +
                        "<body>" +

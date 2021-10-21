@@ -1,7 +1,7 @@
 /*
  * Displays the help message and aboutMessage.
  */
-package snakeprogram3d;
+package snakeprogram;
 
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
@@ -85,7 +85,7 @@ public class HelpMessages implements HyperlinkListener {
             String line = br.readLine();
             while(line!=null){
                 if(checking&&line.contains("SnakeApplication.VERSION")){
-                    line = line.replace("SnakeApplication.VERSION",SnakeApplication.VERSION);
+                    line = line.replace("SnakeApplication.VERSION", SnakeApplication.VERSION);
                     checking=false;
                 }
                 s.append(line);
@@ -93,7 +93,7 @@ public class HelpMessages implements HyperlinkListener {
                 line = br.readLine();
             }
             br.close();
-            final JFrame shower = new JFrame("JFilament3D About");
+            final JFrame shower = new JFrame("JFilament About");
             JEditorPane helper = new JEditorPane("text/html",s.toString());
             shower.setSize(400,400);
             helper.setEditable(false);

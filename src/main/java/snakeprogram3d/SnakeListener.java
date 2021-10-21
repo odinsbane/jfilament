@@ -1,6 +1,8 @@
 package snakeprogram3d;
 
 
+import snakeprogram.HelpMessages;
+
 import javax.swing.*;
 import java.awt.event.*;
 
