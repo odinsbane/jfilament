@@ -3,7 +3,7 @@
 # jfilament
 JFilament is an ImageJ plugin for segmentation and tracking of 2D and 3D filaments in fluorescenece microscopy images. The main algorithm used in Jfilament is "Stretching Open Active Contours".
 
-This site has the source code of the project. For a compiled version and for user instructions go to http://athena.physics.lehigh.edu/jfilament.
+This site has the source code of the project. For a compiled version and for user instructions go to https://www.lehigh.edu/~div206/jfilament/ .
 
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
