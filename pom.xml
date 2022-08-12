@@ -11,10 +11,10 @@
 
 	<groupId>edu.lehigh</groupId>
 	<artifactId>JFilament_</artifactId>
-	<version>1.1.9-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 
 	<name>JFilament</name>
-	<description>JFilament, 2D and 3D active contours.</description>
+	<description>JFilament 2D active contours.</description>
 	<url>http://athena.physics.lehigh.edu/jfilament</url>
 	<inceptionYear>2010</inceptionYear>
 	<organization>
@@ -106,18 +106,6 @@
 		<dependency>
 			<groupId>gov.nist.math</groupId>
 			<artifactId>jama</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>j3dcore</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>vecmath</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.scijava</groupId>
-			<artifactId>j3dutils</artifactId>
 		</dependency>
 	</dependencies>
 
