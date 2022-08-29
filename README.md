@@ -1,13 +1,17 @@
 [![](https://travis-ci.org/odinsbane/jfilament.svg?branch=master)](https://travis-ci.org/odinsbane/jfilament)
 
 # jfilament
-JFilament is an ImageJ plugin for segmentation and tracking of 2D and 3D filaments in fluorescenece microscopy images. The main algorithm used in Jfilament is "Stretching Open Active Contours".
+JFilament is an ImageJ plugin for segmentation and tracking of 2D filaments in fluorescenece microscopy images. The main algorithm used in Jfilament is "Stretching Open Active Contours".
 
 This site has the source code of the project. For a compiled version and for user instructions go to https://www.lehigh.edu/~div206/jfilament/ .
 
 This work is supported by NIH and by the Biosystems Dynamics Summer Institute at Lehigh University.
 
 # release
+Version 1.2.0
+ - Removed JFilament3D
+ - Added plugin for labelling image
+ - Added option to deform all of the snakes in every frame.
 Version 1.1.9
  - Added deform all by holding ctrl and clicking.
  - Deprecating JFilament3D. I don't think it is getting used, and it add some dependencie wieght.

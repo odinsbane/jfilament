@@ -392,7 +392,7 @@ public class SnakeFrame{
                 "Track from current frame,+SHIFT track backwards from current frame, +SHIFT+CTRL all frames"));
         bp.add(createActionButton("Track Backwards", SnakeActions.trackBackwards.name()));
         bp.add(createActionButton("Deform All Frames", SnakeActions.deformAllFrames.name(),
-                "All frames, +CTRL only frames after current"));
+                "All frames, +SHIFT only frames after current, +CTRL all snakes all frames."));
         bp.add(createActionButton("Move End Points", SnakeActions.repositionEnd.name(),
                 "Move the location of the beginning and end points for closed contour."));
         return bp;

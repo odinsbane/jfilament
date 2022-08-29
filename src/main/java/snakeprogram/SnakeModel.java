@@ -656,7 +656,30 @@ public class SnakeModel{
         currentSnake = s;
         SnakeStore.addSnake(s);
     }
-
+    public void deformAllSnakesAllFrames(int firstFrame){
+        if(!RUNNING){
+            RUNNING = true;
+            disableUI();
+            submit(new DeformingRunnable() {
+                void modifySnake() throws TooManyPointsException, InsufficientPointsException {
+                for(int frame = firstFrame; frame<=images.getStackSize(); frame++) {
+                    setImageFrame(frame);
+                    for (Snake s : getSnakes()) {
+                        if (!s.exists(frame)) {
+                            continue;
+                        }
+                        selectSnake(s);
+                        deformRunning();
+                        if(!RUNNING) break;
+                    }
+                    if(!RUNNING) break;
+                }
+                RUNNING = false;
+                enableUI();
+                }
+            });
+        }
+    }
     public void deformAllSnakes(){
         if(!RUNNING){
             RUNNING = true;
@@ -1182,10 +1205,15 @@ public class SnakeModel{
      */
     public void deformAllFrames(int modifiers) {
 
-        int b = 0;
+        int b = 1; //start from first frame.
 
-        if((modifiers&ActionEvent.SHIFT_MASK)>0||(modifiers&ActionEvent.CTRL_MASK)>0){
+        if((modifiers&ActionEvent.SHIFT_MASK)>0 ){
             b = images.getCounter();
+        }
+
+        if((modifiers&ActionEvent.CTRL_MASK)>0){
+            deformAllSnakesAllFrames(b);
+            return;
         }
         final int before = b;
         if(checkForCurrentSnake()&&!RUNNING){
@@ -1211,10 +1239,6 @@ public class SnakeModel{
             });
 
         }
-
-
-
-
     }
 
     /**
