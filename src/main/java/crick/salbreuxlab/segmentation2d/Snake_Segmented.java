@@ -1,7 +1,10 @@
+package crick.salbreuxlab.segmentation2d;
+
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
@@ -15,36 +18,51 @@ import java.util.stream.Collectors;
 
 public class Snake_Segmented {
     ImagePlus plus;
+
+    List<LabelledSnake> collection = new ArrayList<>();
+
     public Snake_Segmented(ImagePlus plus){
         this.plus = plus;
     }
+    public List<Snake> getSnakes(){
+        int n = collection.size();
+        List<Snake> ret = new ArrayList<>(n);
+        for(int i = 0; i<n; i++){
+            ret.add(collection.get(i).snake);
+        }
+        return ret;
+    }
 
+    public List<LabelledSnake> getLabelledSnakes(){
+        return collection;
+    }
     public void process(){
         ImageStack stack = plus.getStack();
         int count = stack.getSize();
-        MultipleSnakesStore collection = new MultipleSnakesStore();
         for(int i = 0; i< count; i++){
-            MultipleSnakesStore snakes = initializeSnakes(stack.getProcessor(i+1), i+1);
-            snakes.forEach(collection::addSnake);
+            List<LabelledSnake> snakes = initializeSnakes(stack.getProcessor(i+1), i+1);
+            collection.addAll(snakes);
         }
-
-
-        SnakeModel model = new SnakeModel();
-        model.loadImage(plus);
-        model.getFrame().setVisible(true);
-        model.importSnakes(collection);
-
     }
 
-    public MultipleSnakesStore initializeSnakes(ImageProcessor proc, int frame){
-        MultipleSnakesStore snakes = new MultipleSnakesStore();
+    public void startJFilament(){
+        SnakeModel model = new SnakeModel();
+        model.loadImage(plus);
+        collection.stream().map(ls->ls.snake).forEach(model::addNewSnake);
+        model.getFrame().setVisible(true);
+    }
+
+
+
+    public List<LabelledSnake> initializeSnakes(ImageProcessor proc, int frame){
         int w = proc.getWidth();
         int h = proc.getHeight();
         Map<Integer, List<int[]>> regions = getRegions(proc);
         Set<Integer> toRemove = new HashSet<>();
+
         Integer maxKey = -1;
         int maxSize = -1;
-
+        List<LabelledSnake> snakes = new ArrayList<>();
 
         for(Integer key: regions.keySet()){
             List<int[]> pxls = regions.get(key);
@@ -66,18 +84,21 @@ public class Snake_Segmented {
         for(Integer key: regions.keySet()){
             List<double[]> points = getBoundary(regions.get(key));
             if(points.size()<2) continue;
-            List<double[]> points2d = points.stream().map(pt2->new double[]{pt2[0], pt2[1]}).collect(Collectors.toList());
-
-            //addSnakePoints(points, 3.0);
 
             Snake snake = new Snake( Snake.CLOSED_SNAKE);
-            snake.addCoordinates(frame, points2d);
+            snake.addCoordinates(frame, points);
 
-            snakes.addSnake(snake);
+            snakes.add(new LabelledSnake(key, snake));
         }
         return snakes;
     }
-
+    static ImagePlus debug_junk = null;
+    /**
+     * Detects the boundary of the mask defined by px
+     *
+     * @param px
+     * @return
+     */
     public List<double[]> getBoundary(List<int[]> px){
         List<double[]> curve = new ArrayList<>();
         int lastY = -1;
@@ -104,41 +125,40 @@ public class Snake_Segmented {
         int width = maxX - minX + 1;
         int height = maxY - minY + 1;
 
+
         int[] filled = new int[height*width];
 
+        List<double[]> all = new ArrayList<>(px.size());
+        for(int[] pt: px){
+            int x = pt[0] - minX;
+            int y = pt[1] - minY;
+            filled[x + y*width] = 255;
+        }
         for(int[] pt: px){
             int x = pt[0] - minX;
             int y = pt[1] - minY;
 
-            if(x==0 || y == 0 || filled[y*width + x - 1]==0 || filled[(y-1)*width + x]==0 || filled[(y-1)*width +x - 1]==0){
+            if(
+                    x==0 ||
+                    y == 0 ||
+                    x==width-1 ||
+                    y == height-1 ||
+                    filled[y*width + x + 1]==0 ||
+                    filled[y*width + x - 1]==0 ||
+                    filled[(y+1)*width + x]==0 ||
+                    filled[(y+1)*width + x - 1]==0 ||
+                    filled[(y+1)*width + x + 1]==0 ||
+                    filled[(y-1)*width + x + 1]==0 ||
+                    filled[(y-1)*width + x]==0 ||
+                    filled[(y-1)*width + x - 1]==0
+            ){
                 filled[x + y*width] = 255;
+                all.add(new double[]{pt[0] + 0.5, pt[1] + 0.5});
             } else{
                 filled[x + y*width] = 1;
             }
         }
-        final int fminX = minX;
-        final int fminY = minY;
-        for(int[] pt: px){
-            int x = pt[0] - fminX;
-            int y = pt[1] - fminY;
-            int v = filled[x + y*width];
-            if(v==255) continue;
-            if(  x==width-1 || y == height-1 ||
-                                                                       filled[(y+1)*width + x + 1]==0 ||
-                                                                           filled[y*width + x + 1]==0 ||
-            filled[(y-1)*width +x - 1]==0 || filled[(y-1)*width +x]==0|| filled[(y-1)*width +x + 1]==0
 
-                            ){
-                filled[x + y*width] = 255;
-            } else{
-                filled[x + y*width] = 1;
-            }
-        }
-        List<double[]> all = px.stream().filter( pt->{
-            int x = pt[0] - fminX;
-            int y = pt[1] - fminY;
-            return filled[y*width + x]==255;
-        }).map(pt-> new double[]{pt[0], pt[1]}).collect(Collectors.toList());
 
         double[] latest = all.get(0);
         curve.add(latest);
@@ -160,6 +180,7 @@ public class Snake_Segmented {
 
             double d = dx*dx + dy*dy;
 
+            //TODO remove criteria
             if(d>5){
                 curve.remove(i);
             } else{
@@ -172,6 +193,11 @@ public class Snake_Segmented {
 
 
         return curve;
+    }
+
+    void getLongestPath(List<double[]> pt){
+        double[] start = pt.get(0);
+
     }
 
     int getPseudoClosest(double[] pt, List<double[]> rest){
@@ -200,9 +226,9 @@ public class Snake_Segmented {
         Map<Integer, List<int[]>> result = new HashMap<>();
         int w = processor.getWidth();
         int h = processor.getHeight();
-        final byte[] data = (byte[])processor.getPixels();
-        for(int i = 0; i<data.length; i++){
-            Integer b = data[i]&0xff;
+        int n = w*h;
+        for(int i = 0; i<n; i++){
+            Integer b = processor.get(i);
             List<int[]> px = result.computeIfAbsent(b, ArrayList::new);
             px.add(new int[]{i%w, i/w});
         }
@@ -278,13 +304,33 @@ public class Snake_Segmented {
      * @param args
      */
     public static void main(String[] args){
-        ImageJ.main(new String[] {});
-        ImagePlus plus = new ImagePlus(args[0]);
-        plus.show();
+        int l = 256;
+        ImageProcessor processor = new ColorProcessor(l, l);
+        int a = 228;
+        int b = 228;
+        int borderX = (l - a)/2;
+        int borderY = (l - b)/2;
+        for(int i =borderX ; i < l - borderX; i++){
+            for(int j = borderY; j < l - borderY; j++){
+                double dx = i - l/2;
+                double dy = j - l/2;
+                double f = dx*dx*4/a/a + dy*dy*4/b/b;
+                if(f <= 1){
+                    processor.set(i, j, 1);
+                }
 
-        new Snake_Segmented(plus).process();
+            }
+        }
 
-
+        ImagePlus plus = new ImagePlus("elispe", processor);
+        Snake_Segmented ss = null;
+        long start = System.currentTimeMillis();
+        for(int i = 0; i<1000; i++){
+            ss = new Snake_Segmented(plus);
+            ss.process();
+        }
+        System.out.println( "elapsed time: " + (System.currentTimeMillis() - start));
+        ss.startJFilament();
     }
 
 }

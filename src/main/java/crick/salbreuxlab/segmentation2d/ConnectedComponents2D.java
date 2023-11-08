@@ -47,6 +47,12 @@ public class ConnectedComponents2D{
       h = proc.getHeight();
     }
 
+    private ConnectedComponents2D(int[] workspace, int width){
+        w = width;
+        h = workspace.length/width;
+        this.workspace = workspace;
+    }
+
     /**
      * This method needs to be called before any of the centroids can be accessed.
      */
@@ -293,6 +299,13 @@ public class ConnectedComponents2D{
                 background.add(pt);
             }
         }
+    }
+    public static Map<Integer, List<int[]>> getRegionsFromBinary(int[] data, int width){
+        Map<Integer, List<int[]>> ret = new HashMap<>();
+        ConnectedComponents2D cc2d = new ConnectedComponents2D(data, width);
+        cc2d.firstPass();
+        cc2d.secondPass();
+        return cc2d.log;
     }
 
     public static void main(String[] args){
