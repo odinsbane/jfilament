@@ -1,20 +1,13 @@
 package crick.salbreuxlab.segmentation2d;
 
-import ij.IJ;
-import ij.ImageJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
-import snakeprogram.MultipleSnakesStore;
 import snakeprogram.Snake;
 import snakeprogram.SnakeModel;
 
-
-import java.awt.*;
 import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Snake_Segmented {
     ImagePlus plus;
@@ -92,12 +85,11 @@ public class Snake_Segmented {
         }
         return snakes;
     }
-    static ImagePlus debug_junk = null;
     /**
      * Detects the boundary of the mask defined by px
      *
-     * @param px
-     * @return
+     * @param px mask as a collection of points.
+     * @return points at the edge of the mask shifted 0.5 px to be "centered"
      */
     public List<double[]> getBoundary(List<int[]> px){
         List<double[]> curve = new ArrayList<>();
@@ -195,10 +187,6 @@ public class Snake_Segmented {
         return curve;
     }
 
-    void getLongestPath(List<double[]> pt){
-        double[] start = pt.get(0);
-
-    }
 
     int getPseudoClosest(double[] pt, List<double[]> rest){
         int n = rest.size();
@@ -243,11 +231,26 @@ public class Snake_Segmented {
     }
 
     //This method interpolates to find the value of the point in between those two points
+
+    /**
+     *
+     * @param x1 first value
+     * @param x2 second value
+     * @param t fraction of distance between
+     * @return x1 + (x2 - x1)*t
+     */
     public static double interpolate(double x1, double x2, double t){
         return (x1 + t*(x2 - x1));
     }
 
-    /** Interpolates arrays of values using the above interpolation function */
+
+    /**
+     * Interpolates arrays of values using the above interpolation function
+     * @param p1 first point
+     * @param p2 second point
+     * @param t fraction of distance between
+     * @return p1 + (p2 - p1)*t
+     */
     public static double[] interpolate(double[] p1, double[] p2, double t){
         double[] ret_value = new double[p1.length];
         for(int i = 0; i<p1.length; i++)
@@ -300,8 +303,8 @@ public class Snake_Segmented {
     }
 
     /**
-     * This plugin will load an image of
-     * @param args
+     * Testing by creating a binary image
+     * @param args not used.
      */
     public static void main(String[] args){
         int l = 256;

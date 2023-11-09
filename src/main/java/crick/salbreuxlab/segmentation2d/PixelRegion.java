@@ -82,8 +82,7 @@ public class PixelRegion{
             larger = other;
         }
 
-        List<int[]> overlap = smaller.points.stream().filter(pt->larger.get(pt)>0).collect(Collectors.toList());
-        return overlap;
+        return smaller.points.stream().filter(pt->larger.get(pt)>0).collect(Collectors.toList());
     }
 
     public List<int[]> getPoints() {
@@ -92,17 +91,13 @@ public class PixelRegion{
 
     /**
      *
-     * @param value
-     * @param points
-     * @param proc
-     * @return
+     * @param value value to be closed
+     * @param points initial points
+     * @param proc image representation
+     * @return updated points after applying close operation
      */
     static public List<int[]> close(Integer value, List<int[]> points, ImageProcessor proc){
         List<int[]> npts = new ArrayList<>(points.size() * 2);
-        int minx = 0;
-        int maxx = 0;
-        int miny = 0;
-        int maxy = 0;
         boolean touches = false;
         int limitX = proc.getWidth()- 1;
         int limitY = proc.getHeight() - 1;

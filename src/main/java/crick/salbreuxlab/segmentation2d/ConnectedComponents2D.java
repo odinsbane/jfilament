@@ -34,12 +34,12 @@ public class ConnectedComponents2D{
     int last_added;
 
     /**
-     * Prepares a workspace for performing a connect components routine on the provided image. The image should already
-     * be thresholded, so any non-zero value will be treated as foreground, and 0 is background.
-     *
+     * Prepares a workspace for performing a connect components routine on the
+     * provided image. The image should already have a threshold applied, so
+     * any non-zero value will be treated as foreground, and 0 is background.
      * This image will be modified.
      *
-     * @param proc thresholded image that will be modified during processing.
+     * @param proc binary image that will be modified during processing.
      */
     public ConnectedComponents2D(ImageProcessor proc){
       this.proc = proc;
@@ -119,10 +119,8 @@ public class ConnectedComponents2D{
     /**
      * Essential the Kernel for the firstPast.  Filters pixel by checking
      * for a value.  If yes it takes the number above or the number to the left.
-     *
      * If there is both a number above and a number to the left then a map values
      * is added.
-     *
      * If the pixel is zero, then there is now change
      *
      * @param j - x coordinate
@@ -268,10 +266,10 @@ public class ConnectedComponents2D{
     }
 
     /**
-     * A map of label -> region for all of the connected components. If this cc2d has not been processed it will be
+     * A map of label to region for all of the connected components. If this cc2d has not been processed it will be
      * processed. Otherwise it will return the previous results.
      *
-     * @return Labe to Region.
+     * @return Label to Region map.
      */
     public Map<Integer, List<int[]>> getRegions(){
         if(log == null){
@@ -283,7 +281,7 @@ public class ConnectedComponents2D{
     /**
      * Removes a region from this cc2d by removing the label from the map, and setting all of the pixels associated
      * with the provided label to 0.
-     * @param label
+     * @param label value to be set to zero.
      */
     public void removeRegion(int label){
         List<int[]> background = log.get(0);
@@ -301,7 +299,6 @@ public class ConnectedComponents2D{
         }
     }
     public static Map<Integer, List<int[]>> getRegionsFromBinary(int[] data, int width){
-        Map<Integer, List<int[]>> ret = new HashMap<>();
         ConnectedComponents2D cc2d = new ConnectedComponents2D(data, width);
         cc2d.firstPass();
         cc2d.secondPass();
