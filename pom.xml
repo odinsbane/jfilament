@@ -11,7 +11,7 @@
 
 	<groupId>edu.lehigh</groupId>
 	<artifactId>JFilament_</artifactId>
-	<version>1.2.2-SNAPSHOT</version>
+	<version>1.2.2</version>
 
 	<name>JFilament</name>
 	<description>JFilament 2D active contours.</description>
@@ -66,7 +66,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/odinsbane/jfilament</connection>
 		<developerConnection>scm:git:git@github.com:odinsbane/jfilament</developerConnection>
-		<tag>HEAD</tag>
+		<tag>JFilament_-1.2.2</tag>
 		<url>https://github.com/odinsbane/jfilament</url>
 	</scm>
 	<issueManagement>
